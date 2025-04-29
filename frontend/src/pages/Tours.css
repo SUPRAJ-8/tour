@@ -1,0 +1,374 @@
+.tours-page {
+  padding-bottom: 5rem;
+}
+
+.tours-header {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  padding: 5rem 0 3rem;
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.tours-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.tours-subtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+}
+
+.mobile-filter-toggle {
+  display: none;
+  margin: 1.5rem auto 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.mobile-filter-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.mobile-filter-toggle svg {
+  margin-right: 0.5rem;
+}
+
+.tours-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+}
+
+.tours-sidebar {
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+}
+
+.filter-container {
+  background-color: var(--white-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filter-header h3 {
+  margin-bottom: 0;
+  color: var(--dark-color);
+  font-size: 1.25rem;
+}
+
+.close-filters {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.tours-by-country {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.country-tours-section,
+.filtered-tours-section {
+  margin-bottom: 1rem;
+}
+
+.country-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.75rem;
+}
+
+.country-header h2 {
+  font-size: 1.75rem;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+.view-all-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+.reset-filters {
+  background-color: #f0f0f0;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.reset-filters:hover {
+  background-color: #e0e0e0;
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.tour-card {
+  background-color: var(--white-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tour-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tour-card-image {
+  height: 200px;
+  position: relative;
+}
+
+.tour-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tour-card-price {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  border-top-left-radius: 8px;
+}
+
+.tour-card-country {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: var(--white-color);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  border-bottom-right-radius: 8px;
+}
+
+.tour-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.tour-card-title {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--dark-color);
+}
+
+.tour-card-info {
+  display: flex;
+  margin-bottom: 1rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.info-item svg {
+  margin-right: 0.5rem;
+  color: var(--primary-color);
+}
+
+.tour-card-text {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  flex-grow: 1;
+}
+
+.tour-highlights {
+  margin-bottom: 1.5rem;
+}
+
+.tour-highlights h4 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+}
+
+.tour-highlights ul {
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.tour-highlights li {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
+}
+
+.tour-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+.tour-card-rating {
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+}
+
+.tour-card-rating svg {
+  color: #ffc107;
+  margin-right: 0.5rem;
+}
+
+.no-tours {
+  background-color: var(--white-color);
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.no-tours h3 {
+  margin-bottom: 1rem;
+  color: var(--dark-color);
+}
+
+.no-tours p {
+  color: var(--gray-color);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 992px) {
+  .tours-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .tours-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 300px;
+    height: 100vh;
+    background-color: white;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+  
+  .tours-sidebar.mobile-visible {
+    left: 0;
+  }
+  
+  .close-filters {
+    display: block;
+  }
+  
+  .mobile-filter-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .tours-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .country-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .tours-grid {
+    grid-template-columns: 1fr;
+  }
+}

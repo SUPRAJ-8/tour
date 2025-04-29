@@ -1,0 +1,12 @@
+.admin-content {
+  min-height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Remove any padding that might have been added by main-content */
+.app .admin-content {
+  padding: 0;
+  margin: 0;
+}

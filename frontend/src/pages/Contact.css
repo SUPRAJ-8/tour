@@ -1,0 +1,136 @@
+.contact-page {
+  padding-bottom: 0;
+}
+
+.contact-header {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  padding: 5rem 0;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.contact-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.contact-subtitle {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 5rem;
+}
+
+.contact-info h2,
+.contact-form-container h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: var(--dark-color);
+}
+
+.contact-info p {
+  margin-bottom: 2rem;
+  line-height: 1.8;
+  color: var(--gray-color);
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: rgba(42, 157, 143, 0.1);
+  border-radius: 50%;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.info-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+}
+
+.info-content p {
+  margin-bottom: 0.25rem;
+  color: var(--gray-color);
+}
+
+.contact-form-container {
+  background-color: var(--white-color);
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-success {
+  background-color: rgba(40, 167, 69, 0.1);
+  border: 1px solid var(--success-color);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.form-success h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--success-color);
+}
+
+.form-success p {
+  color: var(--gray-color);
+}
+
+.map-container {
+  height: 450px;
+  width: 100%;
+}
+
+.map-container iframe {
+  display: block;
+}
+
+.is-invalid {
+  border-color: var(--danger-color);
+}
+
+@media (max-width: 768px) {
+  .contact-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .contact-info {
+    order: 2;
+  }
+  
+  .contact-form-container {
+    order: 1;
+    margin-bottom: 2rem;
+  }
+}
