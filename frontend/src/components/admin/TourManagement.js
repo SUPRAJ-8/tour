@@ -7,7 +7,7 @@ import { useData } from '../../context/DataContext';
 import './TourManagement.css';
 
 const TourManagement = () => {
-  const { addTour, updateTour, deleteTour } = useData();
+  const { addTour, updateTour, deleteTour, refreshData, countries } = useData();
   const [tours, setTours] = useState([]);  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,6 +42,8 @@ const TourManagement = () => {
     status: 'active',
     featured: false
   });
+  const [countrySearchTerm, setCountrySearchTerm] = useState('');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
   useEffect(() => {
     fetchTours();
@@ -91,6 +93,26 @@ const TourManagement = () => {
     tour.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (tour.country?.name && tour.country.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const filteredCountries = Array.isArray(countries) 
+    ? countries.filter(country => 
+        country.name.toLowerCase().includes(countrySearchTerm.toLowerCase())
+      )
+    : [];
+
+  const handleCountrySearch = (e) => {
+    setCountrySearchTerm(e.target.value);
+    setShowCountryDropdown(true);
+  };
+  
+  const handleCountrySelect = (countryName) => {
+    setFormData({
+      ...formData,
+      country: countryName
+    });
+    setCountrySearchTerm(countryName);
+    setShowCountryDropdown(false);
+  };
 
   const handleDeleteClick = (tour) => {
     setTourToDelete(tour);
@@ -258,6 +280,15 @@ const TourManagement = () => {
       // Prepare form data for submission
       const tourData = {
         ...formData,
+        // Map the fields to match the backend Tour model structure
+        destination: formData.country, // Using country as destination
+        duration: formData.days,
+        coverImage: formData.coverImage,
+        images: formData.heroImages.filter(img => img.trim() !== ''),
+        includes: formData.includes.filter(item => item.trim() !== ''),
+        excludes: formData.excludes.filter(item => item.trim() !== ''),
+        highlights: formData.highlights.filter(item => item.trim() !== ''),
+        travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
         // Add createdBy if it's a new tour - assuming we have a user ID from auth context
         createdBy: currentTour ? undefined : '64f9c39c1d67b5d1f9fcb1a3' // Replace with actual user ID from auth context
       };
@@ -273,9 +304,16 @@ const TourManagement = () => {
         toast.success(`${tourData.title} has been added successfully!`);
       }
       
-      // Close modal and refresh tour list
+      // Close modal and refresh data
       setShowModal(false);
+      
+      // Refresh both the local tour list and the global data context
       fetchTours();
+      
+      // Force a refresh of the DataContext to update the main website
+      if (typeof refreshData === 'function') {
+        refreshData();
+      }
     } catch (error) {
       console.error('Error saving tour:', error);
       toast.error(`Failed to save tour: ${error.response?.data?.message || 'An unknown error occurred'}`);
@@ -321,7 +359,6 @@ const TourManagement = () => {
                 <tr>
                   <th>Title</th>
                   <th>Duration</th>
-                  <th>Price</th>
                   <th>Destination</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -411,19 +448,33 @@ const TourManagement = () => {
                 
                 <div className="form-group">
                   <label>Country</label>
-                  <select
-                    name="country"
-                    value={formData.country}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select a Country</option>
-                    {Array.isArray(destinations) && destinations.map(dest => (
-                      <option key={dest._id} value={dest.name}>
-                        {dest.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="custom-dropdown">
+                    <input
+                      type="text"
+                      placeholder="Search and select a country..."
+                      value={countrySearchTerm}
+                      onChange={handleCountrySearch}
+                      onFocus={() => setShowCountryDropdown(true)}
+                      required
+                    />
+                    {showCountryDropdown && (
+                      <div className="dropdown-options">
+                        {filteredCountries.length > 0 ? (
+                          filteredCountries.map(country => (
+                            <div 
+                              key={country._id} 
+                              className="dropdown-item"
+                              onClick={() => handleCountrySelect(country.name)}
+                            >
+                              {country.name}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="dropdown-item no-results">No countries found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="form-group">
