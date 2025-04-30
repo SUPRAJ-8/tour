@@ -78,7 +78,8 @@ const getCountryFlagUrl = (countryName) => {
   };
   
   const filename = countryToFilename[countryName];
-  return filename ? `/images/flags/${filename}` : null;
+  // The server serves static files from /images route
+  return filename ? `http://localhost:5000/images/flags/${filename}` : null;
 };
 
 // FlagImage component to handle flag display and error states
@@ -567,7 +568,7 @@ const CountryManagement = () => {
                       onChange={handleInputChange}
                       required
                       className={imageErrors.flagImage ? "error" : ""}
-                      placeholder="/images/flags/japan.jpg"
+                      placeholder="http://localhost:5000/images/flags/japan.jpg"
                     />
 
                     {formData.flagImage && (
