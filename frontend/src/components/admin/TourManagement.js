@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import ConfirmationModal from '../common/ConfirmationModal';
 
 const TourManagement = () => {
   const [tours, setTours] = useState([]);  
@@ -11,6 +13,8 @@ const TourManagement = () => {
     limit: 10,
     totalPages: 1
   });
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [tourToDelete, setTourToDelete] = useState(null);
 
   useEffect(() => {
     fetchTours();
@@ -38,15 +42,20 @@ const TourManagement = () => {
     }
   };
 
+  const handleDeleteClick = (tour) => {
+    setTourToDelete(tour);
+    setShowDeleteConfirmation(true);
+  };
+
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this tour?')) {
-      try {
-        await axios.delete(`/api/tours/${id}`);
-        fetchTours(); // Refresh the list
-      } catch (error) {
-        console.error('Error deleting tour:', error);
-        setError('Failed to delete tour. Please try again.');
-      }
+    try {
+      await axios.delete(`/api/tours/${id}`);
+      toast.success('Tour deleted successfully!');
+      fetchTours(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting tour:', error);
+      toast.error('Failed to delete tour. Please try again.');
+      setError('Failed to delete tour. Please try again.');
     }
   };
 
@@ -104,7 +113,7 @@ const TourManagement = () => {
                         <button 
                           className="btn-icon delete" 
                           title="Delete"
-                          onClick={() => handleDelete(tour._id)}
+                          onClick={() => handleDeleteClick(tour)}
                         >
                           <FaTrash />
                         </button>
@@ -136,6 +145,24 @@ const TourManagement = () => {
           )}
         </>
       )}
+
+      {/* Confirmation Modal for Delete */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={() => {
+          if (tourToDelete) {
+            handleDelete(tourToDelete._id);
+            setShowDeleteConfirmation(false);
+            setTourToDelete(null);
+          }
+        }}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete the tour "${tourToDelete?.title}"? This action cannot be undone.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

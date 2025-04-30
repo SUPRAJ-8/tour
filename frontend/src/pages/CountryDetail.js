@@ -110,26 +110,24 @@ const CountryDetail = ({ category }) => {
       <div 
         className="country-hero" 
         style={{ 
-          backgroundImage: `url(${(country.heroImage || country.image)}?nocache=${Date.now()})`,
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("${country.heroImage || country.image}")`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           imageRendering: 'high-quality'
-        }}
-        onError={(e) => {
-          // If hero image fails, try to use the main image as fallback
-          if (country.image && country.heroImage !== country.image) {
-            e.target.style.backgroundImage = `url(${country.image}?nocache=${Date.now()})`;
-          }
         }}
       >
         <div className="hero-overlay">
           <h1>{country.name}</h1>
           <p>{country.description}</p>
           <img 
-            src={`${country.flagImage}?t=${timestamp}`} 
+            src={country.flagImage} 
             alt={`${country.name} flag`} 
             className="country-flag" 
+            onError={(e) => {
+              console.error('Flag image failed to load');
+              e.target.style.display = 'none';
+            }}
           />
           <Link to={`/countries/${category}`} className="back-button">
             &larr; Back to {category === 'asia' ? 'Asian' : 'European'} Countries

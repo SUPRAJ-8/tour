@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useData } from "../../context/DataContext";
+import { toast } from 'react-toastify';
+import ConfirmationModal from '../common/ConfirmationModal';
 import {
   FaPlus,
   FaEdit,
@@ -115,6 +117,8 @@ const CountryManagement = () => {
   const [continentFilter, setContinentFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [currentCountry, setCurrentCountry] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [countryToDelete, setCountryToDelete] = useState(null);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -204,10 +208,12 @@ const CountryManagement = () => {
         // Update existing country using DataContext method
         result = await updateCountry(currentCountry._id, countryData);
         console.log("Country updated:", result);
+        toast.success(`${countryData.name} has been updated successfully!`);
       } else {
         // Add new country using DataContext method
         result = await addCountry(countryData);
         console.log("Country added:", result);
+        toast.success(`${countryData.name} has been added successfully!`);
       }
       
       // Refresh data to ensure changes are reflected everywhere
@@ -219,20 +225,32 @@ const CountryManagement = () => {
     } catch (err) {
       console.error("Error saving country:", err);
       setError(err.response?.data?.message || "An error occurred");
+      toast.error(`Failed to save country: ${err.response?.data?.message || "An unknown error occurred"}`);
     }
   };
 
+  const handleDeleteClick = (country) => {
+    setCountryToDelete(country);
+    setShowDeleteConfirmation(true);
+  };
+
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this country?")) {
-      try {
-        // Use DataContext deleteCountry method
-        await deleteCountry(id);
-        
-        // Refresh data to ensure changes are reflected everywhere
-        refreshData();
-      } catch (err) {
-        setError(err.response?.data?.message || "An error occurred");
-      }
+    try {
+      // Get country name before deletion for the toast message
+      const countryToDelete = countries.find(country => country._id === id);
+      const countryName = countryToDelete ? countryToDelete.name : 'Country';
+      
+      // Use DataContext deleteCountry method
+      await deleteCountry(id);
+      
+      // Show success toast
+      toast.success(`${countryName} has been deleted successfully!`);
+      
+      // Refresh data to ensure changes are reflected everywhere
+      refreshData();
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred");
+      toast.error(`Failed to delete country: ${err.response?.data?.message || "An unknown error occurred"}`);
     }
   };
 
@@ -391,7 +409,7 @@ const CountryManagement = () => {
                       <button
                         className="btn-action btn-delete"
                         title="Delete Country"
-                        onClick={() => handleDelete(country._id)}
+                        onClick={() => handleDeleteClick(country)}
                       >
                         <FaTrash />
                       </button>
@@ -477,20 +495,16 @@ const CountryManagement = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Hero Image URL:</label>
-                    <p className="field-description">Use a high-quality image URL (must start with http:// or https://)</p>
+                    <label>Hero Image Path:</label>
                     <input
-                      type="url"
+                      type="text"
                       name="heroImage"
                       value={formData.heroImage}
                       onChange={handleInputChange}
                       required
                       className={imageErrors.heroImage ? "error" : ""}
-                      placeholder="https://example.com/images/japan-hero.jpg"
+                      placeholder="/images/countries/japan-hero.jpg"
                     />
-                    {imageErrors.heroImage && (
-                      <p className="error-message">Please enter a valid image URL (http:// or https://)</p>
-                    )}
 
                     {formData.heroImage && (
                       <div className="preview-container">
@@ -501,21 +515,8 @@ const CountryManagement = () => {
                           onError={(e) => {
                             // Don't set error, just hide the preview
                             e.target.style.display = 'none';
-                            // Show error message
-                            setImageErrors(prev => ({
-                              ...prev,
-                              heroImage: true
-                            }));
-                          }}
-                          onLoad={(e) => {
-                            // Clear error if image loads successfully
-                            setImageErrors(prev => ({
-                              ...prev,
-                              heroImage: false
-                            }));
                           }}
                         />
-                        <p className="preview-note">Preview (if image doesn't appear, the URL may be invalid)</p>
                       </div>
                     )}
                   </div>
@@ -623,6 +624,24 @@ const CountryManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Confirmation Modal for Delete */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onConfirm={() => {
+          if (countryToDelete) {
+            handleDelete(countryToDelete._id);
+            setShowDeleteConfirmation(false);
+            setCountryToDelete(null);
+          }
+        }}
+        title="Confirm Delete"
+        message={`Are you sure you want to delete ${countryToDelete?.name}? This action cannot be undone and will also remove all associated tours.`}
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { 
   FaEye, 
   FaSearch,
@@ -40,6 +41,7 @@ const BookingManagement = () => {
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
       await axios.patch(`/api/admin/bookings/${bookingId}/status`, { status: newStatus });
+      toast.success(`Booking status updated to ${newStatus}!`);
       fetchBookings();
       
       if (selectedBooking && selectedBooking._id === bookingId) {
@@ -50,12 +52,14 @@ const BookingManagement = () => {
       }
     } catch (error) {
       console.error('Error updating booking status:', error);
+      toast.error('Failed to update booking status. Please try again.');
     }
   };
   
   const handlePaymentStatusChange = async (bookingId, newStatus) => {
     try {
       await axios.patch(`/api/admin/bookings/${bookingId}/payment`, { paymentStatus: newStatus });
+      toast.success(`Payment status updated to ${newStatus}!`);
       fetchBookings();
       
       if (selectedBooking && selectedBooking._id === bookingId) {
@@ -66,6 +70,7 @@ const BookingManagement = () => {
       }
     } catch (error) {
       console.error('Error updating payment status:', error);
+      toast.error('Failed to update payment status. Please try again.');
     }
   };
   

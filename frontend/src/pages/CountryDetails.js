@@ -70,9 +70,9 @@ const CountryDetails = () => {
       </div>
 
       <div className="country-hero">
-        {/* Use timestamp variable for consistent cache busting */}
+        {/* Use heroImage if available, otherwise fall back to regular image */}
         <img 
-          src={`${country.image}?nocache=${timestamp}`} 
+          src={country.heroImage || country.image} 
           alt={country.name} 
           className="country-image" 
           style={{
@@ -81,21 +81,12 @@ const CountryDetails = () => {
             height: '100%',
             imageRendering: 'high-quality'
           }}
-          onLoad={(e) => {
-            // Once the main image is loaded, try to load the hero image if different
-            if (country.heroImage && country.heroImage !== country.image) {
-              const heroImg = new Image();
-              heroImg.onload = () => {
-                e.target.src = `${country.heroImage}?nocache=${timestamp}`;
-              };
-              heroImg.onerror = () => {
-                console.log('Hero image failed to load, keeping main image');
-              };
-              heroImg.src = `${country.heroImage}?nocache=${timestamp}`;
-            }
-          }}
           onError={(e) => {
-            console.error('Both images failed to load');
+            console.error('Hero image failed to load, falling back to main image');
+            // If heroImage fails, fall back to the regular image
+            if (e.target.src !== country.image) {
+              e.target.src = country.image;
+            }
           }}
         />
         <div className="country-info-overlay">

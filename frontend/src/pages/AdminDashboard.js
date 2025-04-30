@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { 
   FaUsers, 
   FaGlobeAsia, 
@@ -14,6 +15,7 @@ import {
   FaDollarSign
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import ConfirmationModal from '../components/common/ConfirmationModal';
 
 import CountryManagement from '../components/admin/CountryManagement';
 import TourManagement from '../components/admin/TourManagement';
@@ -27,6 +29,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(true);
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalTours: 0,
@@ -44,7 +47,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
-      navigate('/admin-login');
+      navigate('/admin');
       return;
     }
     fetchData();
@@ -77,6 +80,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast.error(`Failed to load ${activeTab} data. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -88,6 +92,7 @@ const AdminDashboard = () => {
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      toast.error('Failed to fetch dashboard statistics');
     }
   };
 
@@ -97,6 +102,7 @@ const AdminDashboard = () => {
       return response.data;
     } catch (error) {
       console.error('Error fetching tours:', error);
+      toast.error('Failed to fetch tours data');
       return [];
     }
   };
@@ -107,6 +113,7 @@ const AdminDashboard = () => {
       return response.data;
     } catch (error) {
       console.error('Error fetching countries:', error);
+      toast.error('Failed to fetch countries data');
       return [];
     }
   };
@@ -117,6 +124,7 @@ const AdminDashboard = () => {
       return response.data;
     } catch (error) {
       console.error('Error fetching destinations:', error);
+      toast.error('Failed to fetch destinations data');
       return [];
     }
   };
@@ -127,6 +135,7 @@ const AdminDashboard = () => {
       return response.data;
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      toast.error('Failed to fetch bookings data');
       return [];
     }
   };
@@ -137,6 +146,7 @@ const AdminDashboard = () => {
       return response.data;
     } catch (error) {
       console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users data');
       return [];
     }
   };
@@ -145,9 +155,14 @@ const AdminDashboard = () => {
     setActiveTab(tab);
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutConfirmation(true);
+  };
+
   const handleLogout = () => {
     logout();
-    navigate('/admin-login');
+    toast.success('Logged out successfully!');
+    navigate('/admin');
   };
 
   const renderDashboardTab = () => {
@@ -371,7 +386,7 @@ const AdminDashboard = () => {
               <li>
                 <button
                   className="admin-menu-item logout"
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                 >
                   <FaSignOutAlt />
                   <span>Logout</span>
@@ -390,6 +405,18 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal for Logout */}
+      <ConfirmationModal
+        isOpen={showLogoutConfirmation}
+        onClose={() => setShowLogoutConfirmation(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to log out? Any unsaved changes will be lost."
+        confirmText="Yes, Logout"
+        cancelText="Cancel"
+        type="warning"
+      />
     </section>
   );
 };

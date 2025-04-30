@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import ConfirmationModal from '../common/ConfirmationModal';
 import { 
   FaSearch,
   FaFilter,
@@ -21,6 +23,8 @@ const UserManagement = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showStatusConfirmation, setShowStatusConfirmation] = useState(false);
+  const [userToToggle, setUserToToggle] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -76,11 +80,18 @@ const UserManagement = () => {
     
     try {
       await axios.patch(`/api/admin/users/${currentUser._id}`, formData);
+      toast.success('User updated successfully!');
       fetchUsers();
       closeModal();
     } catch (error) {
       console.error('Error updating user:', error);
+      toast.error('Failed to update user. Please try again.');
     }
+  };
+  
+  const handleToggleStatusClick = (user) => {
+    setUserToToggle(user);
+    setShowStatusConfirmation(true);
   };
   
   const handleToggleUserStatus = async (userId, currentStatus) => {
@@ -88,9 +99,11 @@ const UserManagement = () => {
       await axios.patch(`/api/admin/users/${userId}/status`, {
         isActive: !currentStatus
       });
+      toast.success(`User ${currentStatus ? 'deactivated' : 'activated'} successfully!`);
       fetchUsers();
     } catch (error) {
       console.error('Error toggling user status:', error);
+      toast.error('Failed to update user status. Please try again.');
     }
   };
   
@@ -220,7 +233,7 @@ const UserManagement = () => {
                       <button 
                         className={`btn-action ${user.isActive ? 'btn-delete' : 'btn-view'}`}
                         title={user.isActive ? 'Deactivate User' : 'Activate User'}
-                        onClick={() => handleToggleUserStatus(user._id, user.isActive)}
+                        onClick={() => handleToggleStatusClick(user)}
                       >
                         {user.isActive ? <FaUserSlash /> : <FaUserCheck />}
                       </button>
@@ -306,6 +319,28 @@ const UserManagement = () => {
           </div>
         </div>
       )}
+      
+      {/* Confirmation Modal for Status Toggle */}
+      <ConfirmationModal
+        isOpen={showStatusConfirmation}
+        onClose={() => setShowStatusConfirmation(false)}
+        onConfirm={() => {
+          if (userToToggle) {
+            handleToggleUserStatus(userToToggle._id, userToToggle.isActive);
+            setShowStatusConfirmation(false);
+            setUserToToggle(null);
+          }
+        }}
+        title={userToToggle?.isActive ? "Confirm Deactivation" : "Confirm Activation"}
+        message={
+          userToToggle?.isActive 
+            ? `Are you sure you want to deactivate ${userToToggle?.name}'s account? They will no longer be able to log in.` 
+            : `Are you sure you want to activate ${userToToggle?.name}'s account? They will be able to log in again.`
+        }
+        confirmText={userToToggle?.isActive ? "Yes, Deactivate" : "Yes, Activate"}
+        cancelText="Cancel"
+        type={userToToggle?.isActive ? "danger" : "info"}
+      />
     </div>
   );
 };

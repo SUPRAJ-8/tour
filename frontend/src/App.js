@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './assets/css/App.css';
 import './assets/css/AdminLayout.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Layout Components
 import Navbar from './components/layout/Navbar';
@@ -113,6 +115,7 @@ function App() {
         <Route path="/countries/:continent/:countryName" element={<MainLayout><CountryDetails /></MainLayout>} />
         <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
         </Routes>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       </DataProvider>
     </div>
   );
