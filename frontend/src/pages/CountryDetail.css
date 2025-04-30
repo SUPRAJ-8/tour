@@ -100,6 +100,15 @@
   font-size: 1.1rem;
 }
 
+.country-flag {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Travel Tips Section */
 .travel-tips-section {
   max-width: 1200px;

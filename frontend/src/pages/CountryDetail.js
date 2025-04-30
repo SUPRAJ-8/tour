@@ -103,6 +103,7 @@ const CountryDetail = ({ category }) => {
         <div className="hero-overlay">
           <h1>{country.name}</h1>
           <p>{country.description}</p>
+          <img src={country.flagImage} alt={`${country.name} flag`} className="country-flag" />
           <Link to={`/countries/${category}`} className="back-button">
             &larr; Back to {category === 'asia' ? 'Asian' : 'European'} Countries
           </Link>

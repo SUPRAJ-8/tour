@@ -610,7 +610,7 @@
 
 .modal-header {
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #e9ecef;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1403,4 +1403,40 @@
     gap: 1rem;
     text-align: center;
   }
+}
+
+/* Image preview and validation styles */
+.form-group .error {
+  border-color: #dc3545;
+}
+
+.form-group .error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.form-group .image-preview {
+  max-width: 200px;
+  max-height: 150px;
+  object-fit: contain;
+  margin-top: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.form-group input[type="url"] {
+  transition: border-color 0.15s ease-in-out;
+}
+
+.form-group input[type="url"]:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.form-group input[type="url"].error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }

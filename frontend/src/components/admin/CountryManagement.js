@@ -73,6 +73,24 @@ const CountryManagement = () => {
     heroImage: "",
   });
 
+  const [imageErrors, setImageErrors] = useState({
+    mainImage: false,
+    heroImage: false,
+  });
+
+  const validateImageUrl = async (url) => {
+    try {
+      const img = new Image();
+      return new Promise((resolve) => {
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = url;
+      });
+    } catch (error) {
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (!dataLoading) {
       setLoading(false);
@@ -88,16 +106,40 @@ const CountryManagement = () => {
     return matchesSearch && matchesContinent;
   });
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
+
+    // Validate image URLs when they change
+    if (name === 'mainImage' || name === 'heroImage') {
+      const isValid = await validateImageUrl(value);
+      setImageErrors(prev => ({
+        ...prev,
+        [name]: !isValid
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate both image URLs before submitting
+    const mainImageValid = await validateImageUrl(formData.mainImage);
+    const heroImageValid = await validateImageUrl(formData.heroImage);
+    
+    setImageErrors({
+      mainImage: !mainImageValid,
+      heroImage: !heroImageValid
+    });
+
+    if (!mainImageValid || !heroImageValid) {
+      setError("Please provide valid image URLs");
+      return;
+    }
+
     try {
       if (currentCountry) {
         const response = await axios.patch(
@@ -333,7 +375,22 @@ const CountryManagement = () => {
                       value={formData.mainImage}
                       onChange={handleInputChange}
                       required
+                      className={imageErrors.mainImage ? "error" : ""}
                     />
+                    {imageErrors.mainImage && (
+                      <span className="error-message">Please provide a valid image URL</span>
+                    )}
+                    {formData.mainImage && !imageErrors.mainImage && (
+                      <img 
+                        src={formData.mainImage} 
+                        alt="Main preview" 
+                        className="image-preview"
+                        onError={(e) => {
+                          setImageErrors(prev => ({ ...prev, mainImage: true }));
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
                   </div>
 
                   <div className="form-group">
@@ -344,7 +401,22 @@ const CountryManagement = () => {
                       value={formData.heroImage}
                       onChange={handleInputChange}
                       required
+                      className={imageErrors.heroImage ? "error" : ""}
                     />
+                    {imageErrors.heroImage && (
+                      <span className="error-message">Please provide a valid image URL</span>
+                    )}
+                    {formData.heroImage && !imageErrors.heroImage && (
+                      <img 
+                        src={formData.heroImage} 
+                        alt="Hero preview" 
+                        className="image-preview"
+                        onError={(e) => {
+                          setImageErrors(prev => ({ ...prev, heroImage: true }));
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
 

@@ -103,7 +103,7 @@ const AsianCountries = () => {
           <Link to={`/countries/asia/${country._id}`} className="card-link" key={country._id}>
             <div className="country-card">
               <div className="country-image">
-                <img src={country.mainImage} alt={country.name} />
+                <img src={country.image} alt={country.name} />
                 <div className="country-badge">{country.region}</div>
               </div>
               <div className="country-content">
