@@ -82,29 +82,66 @@ const getCountryFlagUrl = (countryName) => {
 };
 
 // FlagImage component to handle flag display and error states
-const FlagImage = ({ countryName }) => {
+const FlagImage = ({ countryName, flagImageUrl }) => {
   const [imageError, setImageError] = useState(false);
-  const flagUrl = getCountryFlagUrl(countryName);
+  
+  // Try different sources in order of preference
+  const getImageSource = () => {
+    // 1. First try the direct flagImageUrl if provided
+    if (flagImageUrl && flagImageUrl.trim() !== '') {
+      return flagImageUrl;
+    }
+    
+    // 2. Then try the mapped country flag
+    const mappedFlag = getCountryFlagUrl(countryName);
+    if (mappedFlag) {
+      return mappedFlag;
+    }
+    
+    // 3. If all else fails, return null
+    return null;
+  };
+  
+  const flagUrl = getImageSource();
   
   const handleImageError = () => {
     setImageError(true);
   };
   
-  if (!flagUrl) {
-    return <div className="table-flag"><div className="no-flag">No flag</div></div>;
+  if (!flagUrl || imageError) {
+    return (
+      <div className="table-flag">
+        <div className="no-flag" style={{ 
+          width: '40px', 
+          height: '30px', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          backgroundColor: '#f0f0f0',
+          color: '#666',
+          fontSize: '10px',
+          borderRadius: '3px'
+        }}>
+          No flag
+        </div>
+      </div>
+    );
   }
   
   return (
     <div className="table-flag">
-      {!imageError ? (
-        <img 
-          src={flagUrl} 
-          alt={`${countryName} flag`} 
-          onError={handleImageError} 
-        />
-      ) : (
-        <div className="no-flag">Flag not found</div>
-      )}
+      <img 
+        src={flagUrl} 
+        alt={`${countryName} flag`} 
+        onError={handleImageError} 
+        style={{ 
+          width: '40px', 
+          height: '30px', 
+          objectFit: 'cover',
+          border: '1px solid #ddd',
+          borderRadius: '3px'
+        }}
+      />
     </div>
   );
 };
@@ -376,7 +413,7 @@ const CountryManagement = () => {
               {filteredCountries.map((country) => (
                 <tr key={country._id}>
                   <td>
-                    <FlagImage countryName={country.name} />
+                    <FlagImage countryName={country.name} flagImageUrl={country.flagImage} />
                   </td>
                   <td>{country.name}</td>
                   <td>
@@ -538,6 +575,7 @@ const CountryManagement = () => {
                         src={formData.flagImage} 
                         alt="Flag preview" 
                         className="image-preview"
+                        style={{ maxWidth: '100px', maxHeight: '60px', objectFit: 'contain' }}
                         onError={(e) => {
                           // Don't set error, just hide the preview
                           e.target.style.display = 'none';
