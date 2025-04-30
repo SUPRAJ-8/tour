@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './CountryDetail.css';
-
-// Import country data (in a real app, this would come from an API)
-import { getAsianCountries, getEuropeanCountries } from '../utils/countryData';
 
 // Static tour images
 const tourImages = [
@@ -23,28 +21,39 @@ const CountryDetail = ({ category }) => {
   const [loading, setLoading] = useState(true);
   const [country, setCountry] = useState(null);
   const [tourPackages, setTourPackages] = useState([]);
+  const [timestamp, setTimestamp] = useState(new Date().getTime());
 
+  // Function to force a complete data refresh
+  const forceRefresh = useCallback(async () => {
+    setLoading(true);
+    setTimestamp(new Date().getTime());
+    try {
+      // Directly fetch from the API with cache busting
+      const response = await axios.get(`/api/countries/name/${countryId}?_=${Date.now()}`);
+      setCountry(response.data);
+      console.log('Forced refresh completed, new data:', response.data);
+    } catch (error) {
+      console.error('Error during forced refresh:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [countryId]);
+  
+  // Set up a one-time refresh when component mounts
   useEffect(() => {
-    // Simulate loading country data
-    const timer = setTimeout(() => {
-      let countryData;
-      
-      if (category === 'asia') {
-        countryData = getAsianCountries().find(c => c.id === countryId);
-      } else if (category === 'europe') {
-        countryData = getEuropeanCountries().find(c => c.id === countryId);
-      }
-      
-      if (!countryData) {
-        navigate('/not-found');
-        return;
-      }
-      
-      setCountry(countryData);
-      
-      // Generate tour packages based on country
+    // Force a refresh when the component mounts
+    forceRefresh();
+  }, [forceRefresh]);
+
+  // This effect handles generating tour packages once we have country data
+  useEffect(() => {
+    // Skip if we don't have country data yet
+    if (!country) return;
+    
+    // Generate tour packages based on country
+    const generateTourPackages = () => {
       const durations = ['5 Days 4 Nights', '6 Days 5 Nights', '8 Days 7 Nights', '9 Days 8 Nights'];
-      const attractions = countryData.highlights || ['City Tour', 'Beach Tour', 'Mountain Tour', 'Cultural Tour'];
+      const attractions = country.popularDestinations || ['City Tour', 'Beach Tour', 'Mountain Tour', 'Cultural Tour'];
       const tourPackagesData = [];
       
       // Create 4 tour packages for the country
@@ -56,13 +65,13 @@ const CountryDetail = ({ category }) => {
         // Create tour title based on country and attractions
         let title;
         if (i === 0) {
-          title = `${nights}N/${days}D ${countryData.name} Complete Tour`;
+          title = `${nights}N/${days}D ${country.name} Complete Tour`;
         } else if (attractions.length >= 3 && i < 3) {
           // Use actual attractions if available
           const usedAttractions = attractions.slice(0, Math.min(3, attractions.length));
           title = `${nights}N/${days}D ${usedAttractions.join('-')} Tour`;
         } else {
-          title = `${nights}N/${days}D ${countryData.name} Explorer Tour`;
+          title = `${nights}N/${days}D ${country.name} Explorer Tour`;
         }
         
         // Create a unique image URL for each tour
@@ -74,18 +83,17 @@ const CountryDetail = ({ category }) => {
           image: tourImages[imageIndex],
           rating: 4.5 + (Math.random() * 0.5).toFixed(1), // Random rating between 4.5 and 5.0
           reviewCount: Math.floor(Math.random() * 50) + 5, // Random review count between 5 and 55
-          location: countryData.name,
+          location: country.name,
           duration: duration,
           tag: i === 0 ? 'Hottest Tour' : 'Most Popular'
         });
       }
       
       setTourPackages(tourPackagesData);
-      setLoading(false);
-    }, 500);
+    };
     
-    return () => clearTimeout(timer);
-  }, [category, countryId, navigate]);
+    generateTourPackages();
+  }, [country]);
 
   if (loading) {
     return (
@@ -99,11 +107,30 @@ const CountryDetail = ({ category }) => {
   return (
     <div className="country-detail-container">
       {/* Hero Section */}
-      <div className="country-hero" style={{ backgroundImage: `url(${country.image})` }}>
+      <div 
+        className="country-hero" 
+        style={{ 
+          backgroundImage: `url(${(country.heroImage || country.image)}?nocache=${Date.now()})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          imageRendering: 'high-quality'
+        }}
+        onError={(e) => {
+          // If hero image fails, try to use the main image as fallback
+          if (country.image && country.heroImage !== country.image) {
+            e.target.style.backgroundImage = `url(${country.image}?nocache=${Date.now()})`;
+          }
+        }}
+      >
         <div className="hero-overlay">
           <h1>{country.name}</h1>
           <p>{country.description}</p>
-          <img src={country.flagImage} alt={`${country.name} flag`} className="country-flag" />
+          <img 
+            src={`${country.flagImage}?t=${timestamp}`} 
+            alt={`${country.name} flag`} 
+            className="country-flag" 
+          />
           <Link to={`/countries/${category}`} className="back-button">
             &larr; Back to {category === 'asia' ? 'Asian' : 'European'} Countries
           </Link>

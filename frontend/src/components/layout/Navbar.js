@@ -75,7 +75,7 @@ const Navbar = () => {
               {showDropdown && (
                 <ul className="dropdown-menu">
                   <li>
-                    <Link to="/dashboard" onClick={() => {
+                    <Link to="/admin-dashboard" onClick={() => {
                       setIsOpen(false);
                       setShowDropdown(false);
                     }}>

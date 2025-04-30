@@ -21,9 +21,9 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If user is already authenticated and is an admin, redirect to dashboard
+    // If user is already authenticated and is an admin, redirect to admin dashboard
     if (isAuthenticated && user && user.role === 'admin') {
-      navigate('/dashboard');
+      navigate('/admin-dashboard');
     }
     
     // Check for saved email in localStorage (Remember Me feature)

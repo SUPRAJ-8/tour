@@ -61,12 +61,20 @@
   border-radius: 10px;
   overflow: hidden;
   height: 400px;
+  /* Prevent image flickering during transitions */
+  transform: translateZ(0);
+  will-change: transform;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .country-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Improve image quality */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transition: opacity 0.3s ease;
 }
 
 .country-info-overlay {

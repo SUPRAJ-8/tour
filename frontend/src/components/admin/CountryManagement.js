@@ -55,8 +55,60 @@ const styles = {
   },
 };
 
+// Function to get flag URL based on country name
+const getCountryFlagUrl = (countryName) => {
+  // Map country names to their local flag image filenames
+  const countryToFilename = {
+    "Japan": "japan.jpg",
+    "Thailand": "thailand.jpg",
+    "Vietnam": "vietnam.jpg",
+    "China": "china.jpg",
+    "Singapore": "singapore.jpg",
+    "Malaysia": "malaysia.jpg",
+    "Italy": "italy.jpg",
+    "France": "france.jpg",
+    "Spain": "spain.jpg",
+    "Germany": "germany.jpg",
+    "United Kingdom": "uk.jpg",
+    "Switzerland": "switzerland.jpg",
+    "Greece": "greece.jpg",
+    "Portugal": "portugal.jpg"
+  };
+  
+  const filename = countryToFilename[countryName];
+  return filename ? `/images/flags/${filename}` : null;
+};
+
+// FlagImage component to handle flag display and error states
+const FlagImage = ({ countryName }) => {
+  const [imageError, setImageError] = useState(false);
+  const flagUrl = getCountryFlagUrl(countryName);
+  
+  const handleImageError = () => {
+    setImageError(true);
+  };
+  
+  if (!flagUrl) {
+    return <div className="table-flag"><div className="no-flag">No flag</div></div>;
+  }
+  
+  return (
+    <div className="table-flag">
+      {!imageError ? (
+        <img 
+          src={flagUrl} 
+          alt={`${countryName} flag`} 
+          onError={handleImageError} 
+        />
+      ) : (
+        <div className="no-flag">Flag not found</div>
+      )}
+    </div>
+  );
+};
+
 const CountryManagement = () => {
-  const { countries, setCountries, dataLoading } = useData();
+  const { countries, dataLoading, addCountry, updateCountry, deleteCountry, refreshData } = useData();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,24 +123,26 @@ const CountryManagement = () => {
     description: "",
     mainImage: "",
     heroImage: "",
+    flagImage: "",
+    capital: "",
+    language: "",
+    currency: "",
+    timeZone: "",
+    popularDestinations: [],
+    bestTimeToVisit: "",
+    travelTips: [],
   });
 
   const [imageErrors, setImageErrors] = useState({
     mainImage: false,
     heroImage: false,
+    flagImage: false,
   });
 
-  const validateImageUrl = async (url) => {
-    try {
-      const img = new Image();
-      return new Promise((resolve) => {
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = url;
-      });
-    } catch (error) {
-      return false;
-    }
+  const validateImageUrl = async (path) => {
+    // Always return true to accept any path format
+    // This allows both URLs and local paths to be accepted
+    return true;
   };
 
   useEffect(() => {
@@ -114,7 +168,7 @@ const CountryManagement = () => {
     }));
 
     // Validate image URLs when they change
-    if (name === 'mainImage' || name === 'heroImage') {
+    if (name === 'mainImage' || name === 'heroImage' || name === 'flagImage') {
       const isValid = await validateImageUrl(value);
       setImageErrors(prev => ({
         ...prev,
@@ -126,36 +180,44 @@ const CountryManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate both image URLs before submitting
-    const mainImageValid = await validateImageUrl(formData.mainImage);
-    const heroImageValid = await validateImageUrl(formData.heroImage);
-    
-    setImageErrors({
-      mainImage: !mainImageValid,
-      heroImage: !heroImageValid
-    });
-
-    if (!mainImageValid || !heroImageValid) {
-      setError("Please provide valid image URLs");
-      return;
-    }
-
     try {
-      if (currentCountry) {
-        const response = await axios.patch(
-          `/api/countries/${currentCountry._id}`,
-          formData
-        );
-        setCountries((prev) =>
-          prev.map((c) => (c._id === currentCountry._id ? response.data : c))
-        );
-      } else {
-        const response = await axios.post("/api/countries", formData);
-        setCountries((prev) => [...prev, response.data]);
+      // Create a copy of the form data to avoid modifying the original state directly
+      const updatedFormData = { ...formData };
+      
+      // Explicitly ensure heroImage is included and not empty
+      if (!updatedFormData.heroImage) {
+        updatedFormData.heroImage = updatedFormData.mainImage; // Use main image as fallback
       }
+
+      // Map form fields to database fields
+      const countryData = {
+        ...updatedFormData,
+        image: updatedFormData.mainImage, // Map mainImage to image field in database
+        _id: currentCountry ? currentCountry._id : undefined, // Ensure ID is included for updates
+      };
+      
+      console.log("Submitting country data:", countryData);
+      console.log("Hero image:", countryData.heroImage);
+      
+      let result;
+      if (currentCountry) {
+        // Update existing country using DataContext method
+        result = await updateCountry(currentCountry._id, countryData);
+        console.log("Country updated:", result);
+      } else {
+        // Add new country using DataContext method
+        result = await addCountry(countryData);
+        console.log("Country added:", result);
+      }
+      
+      // Refresh data to ensure changes are reflected everywhere
+      refreshData();
+      
+      // Close modal and reset form
       setShowModal(false);
       resetForm();
     } catch (err) {
+      console.error("Error saving country:", err);
       setError(err.response?.data?.message || "An error occurred");
     }
   };
@@ -163,8 +225,11 @@ const CountryManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this country?")) {
       try {
-        await axios.delete(`/api/countries/${id}`);
-        setCountries((prev) => prev.filter((country) => country._id !== id));
+        // Use DataContext deleteCountry method
+        await deleteCountry(id);
+        
+        // Refresh data to ensure changes are reflected everywhere
+        refreshData();
       } catch (err) {
         setError(err.response?.data?.message || "An error occurred");
       }
@@ -176,15 +241,32 @@ const CountryManagement = () => {
   };
 
   const handleEdit = (country) => {
+    // Store the full country object for reference during update
     setCurrentCountry(country);
+    
+    // Set form data with proper image mappings
     setFormData({
       name: country.name,
       continent: country.continent,
       description: country.description,
-      mainImage: country.mainImage || "",
+      // Map image fields correctly
+      mainImage: country.image || "", // Use image field from database for mainImage
       heroImage: country.heroImage || "",
+      flagImage: country.flagImage || "",
+      capital: country.capital || "",
+      language: country.language || "",
+      currency: country.currency || "",
+      timeZone: country.timeZone || "",
+      popularDestinations: country.popularDestinations || [],
+      bestTimeToVisit: country.bestTimeToVisit || "",
+      travelTips: country.travelTips || [],
     });
+    
+    // Show the edit modal
     setShowModal(true);
+    
+    // Log for debugging
+    console.log("Editing country:", country);
   };
 
   const resetForm = () => {
@@ -194,6 +276,14 @@ const CountryManagement = () => {
       description: "",
       mainImage: "",
       heroImage: "",
+      flagImage: "",
+      capital: "",
+      language: "",
+      currency: "",
+      timeZone: "",
+      popularDestinations: [],
+      bestTimeToVisit: "",
+      travelTips: [],
     });
     setCurrentCountry(null);
   };
@@ -268,13 +358,7 @@ const CountryManagement = () => {
               {filteredCountries.map((country) => (
                 <tr key={country._id}>
                   <td>
-                    <div className="table-flag">
-                      {country.flagImage ? (
-                        <img src={country.flagImage} alt={`${country.name} flag`} />
-                      ) : (
-                        <div className="no-flag">No flag</div>
-                      )}
-                    </div>
+                    <FlagImage countryName={country.name} />
                   </td>
                   <td>{country.name}</td>
                   <td>
@@ -368,25 +452,24 @@ const CountryManagement = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Front Main Image URL:</label>
+                    <label>Main Image Path:</label>
                     <input
-                      type="url"
+                      type="text"
                       name="mainImage"
                       value={formData.mainImage}
                       onChange={handleInputChange}
                       required
                       className={imageErrors.mainImage ? "error" : ""}
+                      placeholder="/images/countries/japan.jpg"
                     />
-                    {imageErrors.mainImage && (
-                      <span className="error-message">Please provide a valid image URL</span>
-                    )}
-                    {formData.mainImage && !imageErrors.mainImage && (
+
+                    {formData.mainImage && (
                       <img 
                         src={formData.mainImage} 
                         alt="Main preview" 
                         className="image-preview"
                         onError={(e) => {
-                          setImageErrors(prev => ({ ...prev, mainImage: true }));
+                          // Don't set error, just hide the preview
                           e.target.style.display = 'none';
                         }}
                       />
@@ -395,6 +478,7 @@ const CountryManagement = () => {
 
                   <div className="form-group">
                     <label>Hero Image URL:</label>
+                    <p className="field-description">Use a high-quality image URL (must start with http:// or https://)</p>
                     <input
                       type="url"
                       name="heroImage"
@@ -402,21 +486,123 @@ const CountryManagement = () => {
                       onChange={handleInputChange}
                       required
                       className={imageErrors.heroImage ? "error" : ""}
+                      placeholder="https://example.com/images/japan-hero.jpg"
                     />
                     {imageErrors.heroImage && (
-                      <span className="error-message">Please provide a valid image URL</span>
+                      <p className="error-message">Please enter a valid image URL (http:// or https://)</p>
                     )}
-                    {formData.heroImage && !imageErrors.heroImage && (
+
+                    {formData.heroImage && (
+                      <div className="preview-container">
+                        <img 
+                          src={formData.heroImage} 
+                          alt="Hero preview" 
+                          className="image-preview"
+                          onError={(e) => {
+                            // Don't set error, just hide the preview
+                            e.target.style.display = 'none';
+                            // Show error message
+                            setImageErrors(prev => ({
+                              ...prev,
+                              heroImage: true
+                            }));
+                          }}
+                          onLoad={(e) => {
+                            // Clear error if image loads successfully
+                            setImageErrors(prev => ({
+                              ...prev,
+                              heroImage: false
+                            }));
+                          }}
+                        />
+                        <p className="preview-note">Preview (if image doesn't appear, the URL may be invalid)</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label>Flag Image Path:</label>
+                    <input
+                      type="text"
+                      name="flagImage"
+                      value={formData.flagImage}
+                      onChange={handleInputChange}
+                      required
+                      className={imageErrors.flagImage ? "error" : ""}
+                      placeholder="/images/flags/japan.jpg"
+                    />
+
+                    {formData.flagImage && (
                       <img 
-                        src={formData.heroImage} 
-                        alt="Hero preview" 
+                        src={formData.flagImage} 
+                        alt="Flag preview" 
                         className="image-preview"
                         onError={(e) => {
-                          setImageErrors(prev => ({ ...prev, heroImage: true }));
+                          // Don't set error, just hide the preview
                           e.target.style.display = 'none';
                         }}
                       />
                     )}
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Capital:</label>
+                    <input
+                      type="text"
+                      name="capital"
+                      value={formData.capital}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Capital city"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Language:</label>
+                    <input
+                      type="text"
+                      name="language"
+                      value={formData.language}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Official language"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Currency:</label>
+                    <input
+                      type="text"
+                      name="currency"
+                      value={formData.currency}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Currency name"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Time Zone:</label>
+                    <input
+                      type="text"
+                      name="timeZone"
+                      value={formData.timeZone}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="UTC+X:XX"
+                    />
+                  </div>
+
+                  <div className="form-group full-width">
+                    <label>Best Time to Visit:</label>
+                    <input
+                      type="text"
+                      name="bestTimeToVisit"
+                      value={formData.bestTimeToVisit}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="e.g., Spring (March-May)"
+                    />
                   </div>
                 </div>
 

@@ -11,19 +11,36 @@ const CountryDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchCountry = async () => {
-      try {
-        const response = await axios.get(`/api/countries/name/${countryName}`);
-        setCountry(response.data);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load country details');
-        setLoading(false);
-      }
-    };
+  const [timestamp, setTimestamp] = useState(Date.now());
 
-    fetchCountry();
+  // Function to force a complete data refresh
+  const forceRefresh = async () => {
+    try {
+      setLoading(true);
+      // Log the country name we're trying to fetch
+      console.log('Forcing refresh for country:', countryName);
+      
+      // Make the API call with cache busting
+      const response = await axios.get(`/api/countries/name/${countryName}?_=${Date.now()}`);
+      
+      // Log the response to help with debugging
+      console.log('Fresh country data received:', response.data);
+      
+      // Update the state with the country data
+      setCountry(response.data);
+      setTimestamp(Date.now()); // Update timestamp for image cache busting
+      setLoading(false);
+    } catch (err) {
+      console.error('Error during forced refresh:', err);
+      setError('Failed to load country details');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (countryName) {
+      forceRefresh();
+    }
   }, [countryName]);
 
   if (loading) {
@@ -53,7 +70,34 @@ const CountryDetails = () => {
       </div>
 
       <div className="country-hero">
-        <img src={country.image} alt={country.name} className="country-image" />
+        {/* Use timestamp variable for consistent cache busting */}
+        <img 
+          src={`${country.image}?nocache=${timestamp}`} 
+          alt={country.name} 
+          className="country-image" 
+          style={{
+            objectFit: 'cover',
+            width: '100%',
+            height: '100%',
+            imageRendering: 'high-quality'
+          }}
+          onLoad={(e) => {
+            // Once the main image is loaded, try to load the hero image if different
+            if (country.heroImage && country.heroImage !== country.image) {
+              const heroImg = new Image();
+              heroImg.onload = () => {
+                e.target.src = `${country.heroImage}?nocache=${timestamp}`;
+              };
+              heroImg.onerror = () => {
+                console.log('Hero image failed to load, keeping main image');
+              };
+              heroImg.src = `${country.heroImage}?nocache=${timestamp}`;
+            }
+          }}
+          onError={(e) => {
+            console.error('Both images failed to load');
+          }}
+        />
         <div className="country-info-overlay">
           <p className="country-description">{country.description}</p>
         </div>

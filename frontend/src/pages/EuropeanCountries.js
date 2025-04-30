@@ -40,7 +40,12 @@ const EuropeanCountries = () => {
   const handleCountrySelect = (e) => {
     const countryId = e.target.value;
     if (countryId) {
-      window.location.href = `/countries/europe/${countryId}`;
+      // Find the country by ID to get its name
+      const selectedCountry = europeanCountries.find(country => country._id === countryId);
+      if (selectedCountry) {
+        // Navigate to country detail page using lowercase name
+        window.location.href = `/countries/europe/${selectedCountry.name.toLowerCase()}`;
+      }
     }
   };
 
@@ -100,7 +105,7 @@ const EuropeanCountries = () => {
 
       <div className="european-countries-grid">
         {filteredCountries.map((country) => (
-          <Link to={`/countries/europe/${country._id}`} className="card-link" key={country._id}>
+          <Link to={`/countries/europe/${country.name.toLowerCase()}`} className="card-link" key={country._id}>
             <div className="country-card">
               <div className="country-image">
                 <img src={country.image} alt={country.name} />

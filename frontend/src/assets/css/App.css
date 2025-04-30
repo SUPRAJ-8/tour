@@ -258,6 +258,76 @@
   padding: 1.5rem;
 }
 
+/* Country Card Styles */
+.country-card,
+[class*="country-card"] {
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.country-image img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.country-content {
+  padding: 20px;
+}
+
+.country-content h2,
+.country-content h3 {
+  display: flex;
+  align-items: center;
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.country-flag {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  display: inline-block;
+}
+
+.country-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.country-description,
+[class*="description"] {
+  color: #666;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  display: block;
+  overflow: visible;
+  height: auto;
+  max-height: none;
+}
+
+.explore-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  width: 100%;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .tour-content {

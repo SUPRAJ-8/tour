@@ -22,6 +22,10 @@ const CountrySchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  heroImage: {
+    type: String,
+    trim: true
+  },
   flagImage: {
     type: String,
     trim: true

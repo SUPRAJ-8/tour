@@ -200,6 +200,11 @@ export const DataProvider = ({ children }) => {
 
   const updateCountry = async (id, countryData) => {
     try {
+      // Make sure heroImage is included
+      if (!countryData.heroImage && countryData.image) {
+        countryData.heroImage = countryData.image;
+      }
+
       // Format the popularDestinations and travelTips to remove empty entries
       if (countryData.popularDestinations) {
         countryData.popularDestinations =
@@ -212,12 +217,17 @@ export const DataProvider = ({ children }) => {
         );
       }
 
+      console.log("Updating country with data:", countryData);
       const res = await axios.patch(`/api/countries/${id}`, countryData);
+      console.log("Update response:", res.data);
 
       // Update the countries array with the updated country
       setCountries(
         countries.map((country) => (country._id === id ? res.data : country))
       );
+
+      // Force a refresh of the data
+      setLastUpdated(Date.now());
 
       return res.data;
     } catch (err) {

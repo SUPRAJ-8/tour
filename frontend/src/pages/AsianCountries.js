@@ -40,7 +40,12 @@ const AsianCountries = () => {
   const handleCountrySelect = (e) => {
     const countryId = e.target.value;
     if (countryId) {
-      window.location.href = `/countries/asia/${countryId}`;
+      // Find the country by ID to get its name
+      const selectedCountry = asianCountries.find(country => country._id === countryId);
+      if (selectedCountry) {
+        // Navigate to country detail page using lowercase name
+        window.location.href = `/countries/asia/${selectedCountry.name.toLowerCase()}`;
+      }
     }
   };
 
@@ -100,7 +105,7 @@ const AsianCountries = () => {
 
       <div className="asian-countries-grid">
         {filteredCountries.map((country) => (
-          <Link to={`/countries/asia/${country._id}`} className="card-link" key={country._id}>
+          <Link to={`/countries/asia/${country.name.toLowerCase()}`} className="card-link" key={country._id}>
             <div className="country-card">
               <div className="country-image">
                 <img src={country.image} alt={country.name} />

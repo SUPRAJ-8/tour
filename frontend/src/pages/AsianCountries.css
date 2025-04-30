@@ -228,8 +228,15 @@
 .country-description {
   color: #666;
   margin-bottom: 1.5rem;
-  line-height: 1.6;
+  line-height: 1.4;
   flex-grow: 1;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: initial;
+  -webkit-box-orient: vertical;
+  overflow: visible;
+  height: auto;
+  max-height: none;
 }
 
 .country-info {
