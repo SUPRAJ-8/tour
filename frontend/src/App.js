@@ -13,6 +13,7 @@ import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
 import TourDetails from './pages/TourDetails';
+import TestTourDetails from './pages/TestTourDetails';
 import TourDetail from './pages/TourDetail';
 import Destinations from './pages/Destinations';
 import About from './pages/About';

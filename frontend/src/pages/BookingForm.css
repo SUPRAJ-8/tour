@@ -5,20 +5,106 @@
 .booking-header {
   background-color: var(--primary-color);
   color: var(--white-color);
-  padding: 5rem 0;
+  padding: 3rem 0;
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  position: relative;
 }
 
-.booking-title {
+.back-link {
+  position: absolute;
+  left: 2rem;
+  top: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: white;
+}
+
+.booking-header h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
 
-.booking-subtitle {
+.booking-header p {
   font-size: 1.2rem;
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* Progress Steps */
+.booking-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--gray-light-color);
+  color: var(--gray-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-number {
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.progress-step.completed .step-number {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.progress-line {
+  flex: 1;
+  height: 3px;
+  background-color: var(--gray-light-color);
+  margin: 0 0.5rem;
+  position: relative;
+  top: -20px;
+  max-width: 100px;
+  transition: background-color 0.3s ease;
+}
+
+.progress-step.active + .progress-line,
+.progress-step.completed + .progress-line {
+  background-color: var(--primary-color);
+}
+
+.step-label {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .step-label {
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 .booking-content {
@@ -34,16 +120,26 @@
   box-shadow: var(--shadow);
 }
 
-.booking-form-container h2 {
+.form-step {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-step h3 {
   font-size: 1.75rem;
   margin-bottom: 2rem;
   color: var(--dark-color);
+  border-bottom: 2px solid var(--primary-light-color);
+  padding-bottom: 1rem;
 }
 
 .booking-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
 }
 
 .date-picker-container {
@@ -59,10 +155,26 @@
   pointer-events: none;
 }
 
-.form-text {
+.form-text, .form-hint {
   font-size: 0.875rem;
   color: var(--gray-color);
   margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-hint svg {
+  color: var(--primary-color);
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .payment-methods {
@@ -88,11 +200,17 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 1.5rem;
   border: 2px solid var(--gray-light-color);
   border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+}
+
+.payment-method:hover label {
+  border-color: var(--primary-light-color);
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .payment-method input:checked + label {
@@ -208,24 +326,84 @@
   margin-bottom: 0.5rem;
 }
 
-.booking-success {
+.success-container {
   background-color: var(--white-color);
   border-radius: 8px;
   padding: 3rem;
   text-align: center;
   box-shadow: var(--shadow);
-  margin: 3rem 0;
+  margin: 3rem auto;
+  max-width: 800px;
+  animation: fadeIn 0.8s ease;
 }
 
-.booking-success h2 {
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  color: var(--success-color);
+  animation: scaleIn 0.5s ease 0.3s both;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+.success-container h2 {
   font-size: 2rem;
   margin-bottom: 1rem;
   color: var(--success-color);
 }
 
-.booking-success p {
+.success-container p {
   margin-bottom: 1.5rem;
   color: var(--gray-color);
+  font-size: 1.1rem;
+}
+
+.booking-details {
+  background-color: var(--light-color);
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.booking-detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.booking-detail-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.detail-value {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.booking-note {
+  font-style: italic;
+  color: var(--gray-color);
+  margin-bottom: 2rem;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .error-container {

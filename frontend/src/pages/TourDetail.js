@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, FaMoneyBillWave, 
+  FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand } from 'react-icons/fa';
 import './TourDetail.css';
 import { getAsianCountries, getEuropeanCountries } from '../utils/countryData';
 
@@ -213,121 +215,310 @@ const TourDetail = () => {
   }
 
   return (
-    <div className="tour-detail-container">
-      {/* Hero Section with Image Grid */}
-      <div className="tour-hero-grid">
-        <div className="back-button-container">
-          <button className="back-button" onClick={() => navigate(`/countries/${tour.category}/${countryId}`)}>
-            ← Back to {country.name}
-          </button>
-        </div>
-        
-        <div className="tour-title-container">
-          <h1>{tour.title}</h1>
-        </div>
-        
-        <div className="hero-grid-container">
-          {tour.heroImages.map((image, index) => (
-            <div 
-              key={index} 
-              className="hero-grid-item"
-              style={{ backgroundImage: `url(${image})` }}
-            >
-            </div>
-          ))}
-          
-          <button className="view-all-images" onClick={() => setShowAllImages(true)}>
-            View All Images
-          </button>
+    <section className="tour-details-page">
+      {/* Image Gallery */}
+      <div className="tour-gallery-container">
+        <div className="gallery-grid">
+          {tour.heroImages && tour.heroImages.length > 0 ? (
+            tour.heroImages.slice(0, 5).map((image, index) => (
+              <div 
+                key={index} 
+                className={`gallery-item item-${index + 1}`}
+                style={{ backgroundImage: `url(${image})` }}
+              >
+                {index === 4 && (
+                  <button className="view-all-btn" onClick={() => setShowAllImages(true)}>
+                    <FaExpand /> View All Images
+                  </button>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="no-images">No images available</div>
+          )}
         </div>
       </div>
-      
-      {/* Tour Content */}
-      <div className="tour-content">
-        <div className="tour-main">
-          {/* Gallery */}
-          <div className="tour-gallery">
-            <h2>Tour Gallery</h2>
-            <div className="gallery-grid">
-              {tour.gallery.map((image, index) => (
-                <div className="gallery-item" key={index}>
-                  <img src={image} alt={`Tour gallery ${index + 1}`} />
-                </div>
-              ))}
+
+      <div className="container">
+        <div className="tour-details-content">
+          <div className="tour-main-content">
+            {/* Breadcrumb */}
+            <div className="breadcrumb">
+              <Link to="/">Home</Link> / 
+              <Link to="/tours">Tours</Link> / 
+              <Link to={`/countries/${tour.category}/${countryId}`}>{country.name}</Link> / 
+              <span>{tour.title}</span>
             </div>
-          </div>
-          
-          {/* Overview */}
-          <div className="tour-overview">
-            <h2>Tour Overview</h2>
-            <p>{tour.overview}</p>
-          </div>
-          
-          {/* Highlights */}
-          <div className="tour-highlights">
-            <h2>Tour Highlights</h2>
-            <ul>
-              {tour.highlights.map((highlight, index) => (
-                <li key={index}>{highlight}</li>
-              ))}
-            </ul>
-          </div>
-          
-          {/* Itinerary */}
-          <div className="tour-itinerary">
-            <h2>Itinerary</h2>
-            <div className="itinerary-timeline">
-              {tour.itinerary.map((day) => (
-                <div className="itinerary-day" key={day.day}>
-                  <div className="day-header">
-                    <div className="day-number">Day {day.day}</div>
-                    <div className="day-title">{day.title}</div>
+
+            {/* Tour Header */}
+            <div className="tour-header">
+              <h1 className="tour-title">{tour.title}</h1>
+              <div className="tour-rating">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar key={i} className={i < 4.5 ? 'star-filled' : 'star-empty'} />
+                ))}
+                <span className="rating-text">4.5 (24 reviews)</span>
+              </div>
+            </div>
+
+            {/* Tour Actions */}
+            <div className="tour-actions">
+              <button className="action-btn">
+                <FaHeart /> Add to Wishlist
+              </button>
+              <button className="action-btn">
+                <FaShare /> Share
+              </button>
+              <button className="action-btn">
+                <FaDownload /> Download PDF
+              </button>
+            </div>
+
+            {/* Tour Info Cards */}
+            <div className="tour-info-cards">
+              <div className="info-card">
+                <div className="info-icon">
+                  <FaMapMarkerAlt />
+                </div>
+                <div className="info-content">
+                  <h4>Destination</h4>
+                  <p>{country.name}</p>
+                </div>
+              </div>
+              <div className="info-card">
+                <div className="info-icon">
+                  <FaCalendarAlt />
+                </div>
+                <div className="info-content">
+                  <h4>Duration</h4>
+                  <p>{tour.duration}</p>
+                </div>
+              </div>
+              <div className="info-card">
+                <div className="info-icon">
+                  <FaUsers />
+                </div>
+                <div className="info-content">
+                  <h4>Group Size</h4>
+                  <p>Max 15 people</p>
+                </div>
+              </div>
+              <div className="info-card">
+                <div className="info-icon">
+                  <FaClock />
+                </div>
+                <div className="info-content">
+                  <h4>Tour Type</h4>
+                  <p>Group Tour</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tour Overview */}
+            <div className="tour-section">
+              <h2 className="section-title">Overview</h2>
+              <div className="tour-overview">
+                <p>{tour.overview}</p>
+              </div>
+            </div>
+
+            {/* Tour Highlights */}
+            <div className="tour-section">
+              <h2 className="section-title">Tour Highlights</h2>
+              <div className="tour-highlights">
+                <ul className="highlights-list">
+                  {tour.highlights.map((highlight, index) => (
+                    <li key={index}>
+                      <FaCheck className="highlight-icon" />
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Tour Itinerary */}
+            <div className="tour-section">
+              <h2 className="section-title">Detailed Itinerary</h2>
+              <div className="tour-itinerary">
+                {tour.itinerary.map((day) => (
+                  <div className="itinerary-day" key={day.day}>
+                    <div className="day-header">
+                      <div className="day-number">Day {day.day}</div>
+                      <div className="day-title">{day.title}</div>
+                    </div>
+                    <div className="day-content">
+                      <ul>
+                        {day.activities.map((activity, index) => (
+                          <li key={index}>{activity}</li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  <div className="day-activities">
-                    <ul>
-                      {day.activities.map((activity, index) => (
-                        <li key={index}>{activity}</li>
+                ))}
+              </div>
+            </div>
+
+            {/* Inclusions & Exclusions */}
+            <div className="tour-section">
+              <h2 className="section-title">What's Included/Excluded</h2>
+              <div className="inclusions-exclusions">
+                <div className="inclusions">
+                  <h3>Included</h3>
+                  <ul>
+                    {tour.inclusions.map((item, index) => (
+                      <li key={index}>
+                        <FaCheck className="included-icon" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="exclusions">
+                  <h3>Excluded</h3>
+                  <ul>
+                    {tour.exclusions.map((item, index) => (
+                      <li key={index}>
+                        <FaTimes className="excluded-icon" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="tour-section">
+              <h2 className="section-title">Additional Information</h2>
+              <div className="additional-info">
+                <div className="info-item">
+                  <FaInfoCircle />
+                  <div>
+                    <h4>Difficulty Level</h4>
+                    <p>Easy to Moderate</p>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <FaPassport />
+                  <div>
+                    <h4>Visa Requirements</h4>
+                    <p>Visa on arrival available for most nationalities</p>
+                  </div>
+                </div>
+                <div className="info-item">
+                  <FaUmbrellaBeach />
+                  <div>
+                    <h4>Best Time to Visit</h4>
+                    <p>{country.bestTimeToVisit || 'October to April'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="tour-section">
+              <h2 className="section-title">Reviews</h2>
+              <div className="reviews-container">
+                <div className="review-summary">
+                  <div className="average-rating">
+                    <h3>4.5</h3>
+                    <div className="stars">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar key={i} className={i < 4.5 ? 'star-filled' : 'star-empty'} />
                       ))}
-                    </ul>
+                    </div>
+                    <p>Based on 24 reviews</p>
                   </div>
                 </div>
-              ))}
+                
+                <div className="reviews-list">
+                  {[
+                    { name: 'John Doe', date: '2024-04-15', rating: 5, text: 'Amazing experience! The tour guide was knowledgeable and the itinerary was perfect.' },
+                    { name: 'Sarah Johnson', date: '2024-03-22', rating: 4, text: 'Great tour overall. Loved the activities and accommodations were comfortable.' },
+                    { name: 'Michael Brown', date: '2024-02-10', rating: 5, text: 'Excellent service from start to finish. Would definitely book again!' }
+                  ].map((review, index) => (
+                    <div className="review-card" key={index}>
+                      <div className="review-header">
+                        <div className="review-user">
+                          <img 
+                            src={`/images/default-user-${index + 1}.jpg`} 
+                            alt={review.name} 
+                            className="review-user-image" 
+                            onError={(e) => { e.target.src = '/images/default-user.jpg' }}
+                          />
+                          <div>
+                            <h4>{review.name}</h4>
+                            <p className="review-date">{new Date(review.date).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <div className="review-rating">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar key={i} className={i < review.rating ? 'star-filled' : 'star-empty'} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="review-text">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div className="tour-sidebar">
-          {/* Price Card */}
-          <div className="price-card">
-            <div className="price-header">
-              <h3>Price Details</h3>
-              <div className="price-amount">${tour.price}</div>
-              <div className="price-per">per person</div>
-            </div>
-            <div className="price-body">
-              <div className="tour-inclusions">
-                <h4>Inclusions</h4>
-                <ul>
-                  {tour.inclusions.map((inclusion, index) => (
-                    <li key={index}>{inclusion}</li>
-                  ))}
-                </ul>
+
+          <div className="tour-sidebar">
+            <div className="booking-card">
+              {/* Price information removed */}
+
+              <div className="tour-duration">
+                <div className="duration-icon">
+                  <FaCalendarAlt />
+                </div>
+                <div className="duration-text">
+                  <span>{tour.duration}</span>
+                </div>
               </div>
-              <div className="tour-exclusions">
-                <h4>Exclusions</h4>
-                <ul>
-                  {tour.exclusions.map((exclusion, index) => (
-                    <li key={index}>{exclusion}</li>
-                  ))}
-                </ul>
+
+              <div className="booking-info">
+                <div className="booking-info-item">
+                  <FaClock />
+                  <div>
+                    <span className="info-label">Tour Type</span>
+                    <span className="info-value">Group Tour</span>
+                  </div>
+                </div>
+                <div className="booking-info-item">
+                  <FaUsers />
+                  <div>
+                    <span className="info-label">Group Size</span>
+                    <span className="info-value">Max 15 people</span>
+                  </div>
+                </div>
+                <div className="booking-info-item">
+                  <div>
+                    <span className="info-label">Difficulty</span>
+                    <span className="info-value">Medium</span>
+                  </div>
+                </div>
               </div>
-              <button className="book-now-button">Book Now</button>
-              <button className="inquiry-button">Send Inquiry</button>
+
+              <Link 
+                to={`/book/${tourId}?country=${countryId}&category=${tour.category}`} 
+                className="book-now-btn"
+              >
+                Book Now
+              </Link>
+              
+              <div className="booking-contact">
+                <p>Need help? Contact us:</p>
+                <a href="tel:+9779876543210" className="contact-phone">+977 9876543210</a>
+                <a href="mailto:info@toursnepal.com" className="contact-email">info@toursnepal.com</a>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

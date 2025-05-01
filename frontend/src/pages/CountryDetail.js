@@ -434,13 +434,13 @@ const CountryDetail = ({ category }) => {
         <h2>Tour Packages</h2>
         
         {/* Database Tours Section */}
-        {databaseTours.length > 0 && (
+        {databaseTours.length > 0 ? (
           <div className="database-tours-section">
             <h3 className="section-subtitle">Available Tours</h3>
             <div className="tour-cards-grid">
               {databaseTours.map((tour) => (
                 <div className="tour-card-wrapper" key={tour._id}>
-                  <Link to={`/tour/${tour._id}`} className="tour-card">
+                  <Link to={`/tours/${tour._id}`} className="tour-card">
                     <div className="tour-card-image">
                       <img src={tour.coverImage} alt={tour.title} />
                       {tour.featured && (
@@ -462,112 +462,23 @@ const CountryDetail = ({ category }) => {
                       <div className="tour-duration">
                         <span className="duration-icon">🗓️</span> {tour.duration} days
                       </div>
-                      <div className="tour-price">
-                        <span className="price-icon">💰</span> ${tour.price}
-                      </div>
                     </div>
                   </Link>
                 </div>
               ))}
             </div>
           </div>
+        ) : (
+          <div className="no-tours-message">
+            <h3>Sorry, currently unavailable. Coming soon</h3>
+            <p>We're working on adding tour packages for {country.name}. Please check back later!</p>
+          </div>
         )}
         
-        {/* Dynamic Tour Packages Section */}
-        <div className="dynamic-tours-section">
-          <h3 className="section-subtitle">Suggested Tour Packages</h3>
-          <div className="tour-cards-grid">
-            {tourPackages.map((tour) => (
-              <div className="tour-card-wrapper" key={tour.id}>
-                <Link to={`/countries/${category}/${countryId}/tours/${tour.id}`} className="tour-card">
-                  <div className="tour-card-image">
-                    <img src={tour.image} alt={tour.title} />
-                    <div className={`tour-tag ${tour.tag === 'Hottest Tour' ? 'hot' : 'popular'}`}>
-                      {tour.tag}
-                    </div>
-                    {savedTours.includes(tour.id) && (
-                      <div className="saved-badge">Saved to Database</div>
-                    )}
-                  </div>
-                  <div className="tour-card-content">
-                    {isAdmin && !savedTours.includes(tour.id) && (
-                      <button 
-                        className="save-to-db-btn"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Check if tour already exists before trying to save
-                          const existingTour = await checkIfTourExists(tour.title);
-                          if (existingTour) {
-                            setSavedTours(prev => [...prev, tour.id]);
-                            toast.info(`"${tour.title}" is already saved in the database!`);
-                          } else {
-                            saveTourToDatabase(tour);
-                          }
-                        }}
-                        disabled={savingTour}
-                      >
-                        {savingTour ? 'Saving...' : 'Save to Database'}
-                      </button>
-                    )}
-                    <div className="tour-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className="star filled">★</span>
-                      ))}
-                      <span className="review-count">({tour.reviewCount})</span>
-                    </div>
-                    <h3 className="tour-title">{tour.title}</h3>
-                    <div className="tour-location">
-                      <span className="location-icon">📍</span> {tour.location}
-                    </div>
-                    <div className="tour-divider"></div>
-                    <div className="tour-duration">
-                      <span className="duration-icon">🗓️</span> {tour.duration}
-                    </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Dynamic Tour Packages Section - Removed */}
       </div>
       
-      {/* Country Information Section */}
-      <div className="country-info-section">
-        <h2>About {country.name}</h2>
-        <div className="country-info-content">
-          <p>{country.description}</p>
-          
-          {country.highlights && country.highlights.length > 0 && (
-            <div className="country-highlights">
-              <h3>Highlights</h3>
-              <ul>
-                {country.highlights.map((highlight, index) => (
-                  <li key={index}>{highlight}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          {country.bestTimeToVisit && (
-            <div className="best-time">
-              <h3>Best Time to Visit</h3>
-              <p>{country.bestTimeToVisit}</p>
-            </div>
-          )}
-          
-          {country.travelTips && country.travelTips.length > 0 && (
-            <div className="travel-tips">
-              <h3>Travel Tips</h3>
-              <ul>
-                {country.travelTips.map((tip, index) => (
-                  <li key={index}>{tip}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Country Information Section - Removed */}
     </div>
   );
 };

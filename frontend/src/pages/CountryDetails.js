@@ -187,7 +187,10 @@ const CountryDetails = () => {
           </h2>
           
           {tours.length === 0 ? (
-            <p className="no-tours-message">No tour packages available for {country.name} yet. Check back soon!</p>
+            <div className="no-tours-message">
+              <h3>Sorry, currently unavailable. Coming soon</h3>
+              <p>We're working on adding tour packages for {country.name}. Please check back later!</p>
+            </div>
           ) : (
             <div className="tours-grid">
               {tours.map(tour => (
@@ -206,7 +209,6 @@ const CountryDetails = () => {
                     <h3>{tour.title}</h3>
                     <div className="tour-details">
                       <span className="tour-duration">{tour.duration} days</span>
-                      <span className="tour-price">${tour.price}</span>
                     </div>
                     <Link 
                       to={`/countries/${continent}/${countryName}/tours/${tour._id}`} 
