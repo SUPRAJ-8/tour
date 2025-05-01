@@ -22,7 +22,7 @@ const CountryDetail = ({ category }) => {
   const { countryId } = useParams();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const { addTour, refreshData } = useData();
+  const { addTour } = useData();
   const [loading, setLoading] = useState(true);
   const [country, setCountry] = useState(null);
   const [tourPackages, setTourPackages] = useState([]);
@@ -31,6 +31,25 @@ const CountryDetail = ({ category }) => {
   const [savedTours, setSavedTours] = useState([]);
   const [databaseTours, setDatabaseTours] = useState([]);
 
+  // Function to force a complete data refresh
+  const forceRefresh = useCallback(async () => {
+    setLoading(true);
+    setTimestamp(new Date().getTime());
+    try {
+      // Directly fetch from the API with cache busting
+      const response = await axios.get(`/api/countries/name/${countryId}?_=${Date.now()}`);
+      setCountry(response.data);
+      console.log('Forced refresh completed, new data:', response.data);
+      
+      // Also fetch all tours for this country
+      await fetchToursForCountry();
+    } catch (error) {
+      console.error('Error during forced refresh:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [countryId]);
+  
   // Function to fetch tours for this country from the database
   const fetchToursForCountry = useCallback(async () => {
     try {
@@ -66,25 +85,6 @@ const CountryDetail = ({ category }) => {
       console.error('Error fetching tours for country:', error);
     }
   }, [countryId]);
-
-  // Function to force a complete data refresh
-  const forceRefresh = useCallback(async () => {
-    setLoading(true);
-    setTimestamp(new Date().getTime());
-    try {
-      // Directly fetch from the API with cache busting
-      const response = await axios.get(`/api/countries/name/${countryId}?_=${Date.now()}`);
-      setCountry(response.data);
-      console.log('Forced refresh completed, new data:', response.data);
-      
-      // Also fetch all tours for this country
-      await fetchToursForCountry();
-    } catch (error) {
-      console.error('Error during forced refresh:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [countryId, fetchToursForCountry]);
   
   // Function to check if a tour already exists in the database
   const checkIfTourExists = async (tourTitle) => {
@@ -139,112 +139,105 @@ const CountryDetail = ({ category }) => {
       // Check the structure of the response data
       let destinationsArray = [];
       
+      // Handle different response structures
       if (Array.isArray(destinationsResponse.data)) {
         destinationsArray = destinationsResponse.data;
       } else if (destinationsResponse.data && Array.isArray(destinationsResponse.data.data)) {
         destinationsArray = destinationsResponse.data.data;
       } else if (destinationsResponse.data && typeof destinationsResponse.data === 'object') {
+        // If it's a single destination object
         destinationsArray = [destinationsResponse.data];
       }
       
-      // Find a destination for this country
-      let destinationId = null;
+      console.log('Destinations array:', destinationsArray);
       
-      // Check if we have a destination for this country
-      const matchingDestination = destinationsArray.find(
-        dest => dest.country && dest.country.toLowerCase() === country.name.toLowerCase()
-      );
+      // Find a suitable destination - first try to match by country
+      let destination = destinationsArray.find(d => 
+        d && d.country && d.country.toLowerCase() === country.name.toLowerCase());
       
-      if (matchingDestination) {
-        destinationId = matchingDestination._id;
-        console.log('Found matching destination:', matchingDestination.name);
-      } else {
-        console.log('No matching destination found, will use first available or create new');
-        
-        // If no matching destination, use the first one as a fallback
-        if (destinationsArray.length > 0) {
-          destinationId = destinationsArray[0]._id;
-          console.log('Using first destination as fallback:', destinationsArray[0].name);
-        } else {
-          console.log('No destinations available, will try to create one');
-          
-          // Try to create a new destination for this country
-          try {
-            const newDestination = {
-              name: country.name,
-              description: `Explore the beautiful country of ${country.name}`,
-              country: country.name,
-              continent: category || 'asia', // Default to Asia if category not provided
-              coverImage: country.image || tour.image
-            };
-            
-            const createDestResponse = await axios.post('/api/destinations', newDestination);
-            if (createDestResponse.data && createDestResponse.data._id) {
-              destinationId = createDestResponse.data._id;
-              console.log('Created new destination:', createDestResponse.data.name);
-            }
-          } catch (destError) {
-            console.error('Error creating destination:', destError);
-            toast.error('Could not create destination. Tour may not be properly categorized.');
-          }
+      // If no country-specific destination found, use any destination from the same continent
+      if (!destination) {
+        destination = destinationsArray.find(d => 
+          d && d.continent && d.continent.toLowerCase() === (category || 'asia').toLowerCase());
+      }
+      
+      // If still no destination found, use the first available destination
+      if (!destination && destinationsArray.length > 0) {
+        destination = destinationsArray[0];
+      }
+      
+      if (!destination) {
+        // If no destinations found, try creating a minimal destination
+        try {
+          console.log('No destinations found, creating a minimal one');
+          const newDestResponse = await axios.post('/api/destinations', {
+            name: `${country.name}`,
+            country: country.name,
+            continent: 'Asia',
+            description: `Destinations in ${country.name}`,
+            coverImage: tour.image
+          });
+          destination = newDestResponse.data;
+        } catch (createError) {
+          console.error('Error creating minimal destination:', createError);
+          throw new Error('No destinations available and could not create one. Please create a destination in the admin panel first.');
         }
       }
       
-      // Parse the duration string to get days and nights
-      const durationParts = tour.duration.split(' ');
-      const days = parseInt(durationParts[0]) || 5;
-      const nights = parseInt(durationParts[3]) || 4;
+      console.log('Using destination:', destination);
       
-      // Generate a more realistic price based on days
-      const basePrice = 100 + (days * 150);
-      const price = basePrice + Math.floor(Math.random() * 100);
-      const discountPrice = price - Math.floor(price * 0.1); // 10% discount
+      // Create the tour with the correct fields based on the Tour model
+      const days = parseInt(tour.duration.split(' ')[0]);
+      const nights = parseInt(tour.duration.split(' ')[3] || '0');
       
-      // Generate a detailed description
-      const description = `Experience the beauty and culture of ${country.name} with our ${days}-day ${tour.title}. This carefully crafted itinerary takes you through the most iconic sights and hidden gems of ${country.name}, providing an unforgettable travel experience with comfortable accommodations, expert guides, and authentic local experiences.`;
+      // Generate a proper price based on duration
+      const basePrice = 50000; // Base price for shortest tours
+      const pricePerDay = 15000; // Additional price per day
+      const calculatedPrice = basePrice + (days * pricePerDay);
+      const discountRate = 0.15; // 15% discount
+      const discountPrice = Math.round(calculatedPrice * (1 - discountRate));
       
-      // Generate a dynamic itinerary based on tour duration
+      // Create a more detailed description
+      const description = `Experience the beauty and culture of ${country.name} with our ${days}-day comprehensive tour package. ` +
+        `Visit iconic landmarks, enjoy local cuisine, and immerse yourself in the rich cultural heritage of ${country.name}. ` +
+        `This all-inclusive package features comfortable accommodations, guided tours, and unforgettable experiences.`;
+      
+      // Generate a proper itinerary based on the actual duration
       const itinerary = [];
       for (let i = 1; i <= days; i++) {
-        let dayDescription = '';
-        
+        let dayActivities = [];
         if (i === 1) {
-          dayDescription = `Arrival in ${country.name} - Welcome dinner and hotel check-in`;
+          dayActivities = ['Arrival and airport transfer', 'Hotel check-in', 'Welcome dinner'];
         } else if (i === days) {
-          dayDescription = `Farewell breakfast - Airport transfer and departure`;
+          dayActivities = ['Breakfast at hotel', 'Last-minute shopping', 'Airport transfer and departure'];
         } else {
-          const activities = [
-            `Visit to ${country.name}'s famous landmarks`,
-            'Cultural experience with local artisans',
-            'Guided tour of historical sites',
-            'Free time for shopping and exploration',
-            'Scenic drive through countryside',
-            'Traditional cooking class',
-            'Visit to local markets',
-            'Boat tour of scenic waterways'
+          // Different activities for different days
+          const activitySets = [
+            ['City tour', 'Visit to historical sites', 'Local cuisine experience'],
+            ['Cultural landmarks tour', 'Traditional performance', 'Shopping at local markets'],
+            ['Nature excursion', 'Outdoor activities', 'Scenic viewpoints'],
+            ['Museum visits', 'Art galleries', 'Culinary workshop']
           ];
-          
-          dayDescription = activities[i % activities.length];
+          dayActivities = activitySets[(i - 2) % activitySets.length];
         }
         
         itinerary.push({
           day: i,
-          description: `Day ${i}: ${dayDescription}`,
-          activities: ['Morning activity', 'Lunch at local restaurant', 'Afternoon excursion', 'Evening entertainment']
+          description: `Day ${i}: ${dayActivities[0]}`,
+          activities: dayActivities
         });
       }
       
-      // Prepare the tour data
       const tourData = {
         title: tour.title,
         description: description,
-        destination: destinationId,
+        destination: destination._id,
         duration: days,
-        price: price,
+        price: calculatedPrice,
+        currency: 'NPR',
         discountPrice: discountPrice,
-        maxGroupSize: 12,
+        maxGroupSize: 15,
         difficulty: 'easy',
-        ratings: 4.5,
         coverImage: tour.image,
         images: [tour.image],
         itinerary: itinerary,
@@ -300,10 +293,6 @@ const CountryDetail = ({ category }) => {
       
       // Mark this tour as saved
       setSavedTours(prev => [...prev, tour.id]);
-      
-      // Refresh data to update the database tours list
-      await refreshData();
-      await fetchToursForCountry();
       
       // Show success message
       toast.success(`"${tour.title}" has been saved to the database!`);
@@ -476,100 +465,84 @@ const CountryDetail = ({ category }) => {
         {/* Dynamic Tour Packages Section */}
         <div className="dynamic-tours-section">
           <h3 className="section-subtitle">Suggested Tour Packages</h3>
-          <div className="tour-cards-grid">
+          <div className="tour-packages-grid">
             {tourPackages.map((tour) => (
-              <div className="tour-card-wrapper" key={tour.id}>
-                <Link to={`/countries/${category}/${countryId}/tours/${tour.id}`} className="tour-card">
-                  <div className="tour-card-image">
-                    <img src={tour.image} alt={tour.title} />
-                    <div className={`tour-tag ${tour.tag === 'Hottest Tour' ? 'hot' : 'popular'}`}>
-                      {tour.tag}
-                    </div>
-                    {savedTours.includes(tour.id) && (
-                      <div className="saved-badge">Saved to Database</div>
-                    )}
+              <div key={tour.id} className="tour-card">
+                <div className="tour-image-container">
+                  <img src={tour.image} alt={tour.title} className="tour-image" />
+                  {tour.tag && <span className="tour-tag">{tour.tag}</span>}
+                  {isAdmin && !savedTours.includes(tour.id) && (
+                    <button 
+                      className="save-to-db-button" 
+                      onClick={() => saveTourToDatabase(tour)}
+                      disabled={savingTour}
+                    >
+                      {savingTour ? 'Saving...' : 'Save to Database'}
+                    </button>
+                  )}
+                  <div className="tour-rating">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star} className="star filled">★</span>
+                    ))}
+                    <span className="review-count">({tour.reviewCount})</span>
                   </div>
-                  <div className="tour-card-content">
-                    {isAdmin && !savedTours.includes(tour.id) && (
-                      <button 
-                        className="save-to-db-btn"
-                        onClick={async (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Check if tour already exists before trying to save
-                          const existingTour = await checkIfTourExists(tour.title);
-                          if (existingTour) {
-                            setSavedTours(prev => [...prev, tour.id]);
-                            toast.info(`"${tour.title}" is already saved in the database!`);
-                          } else {
-                            saveTourToDatabase(tour);
-                          }
-                        }}
-                        disabled={savingTour}
-                      >
-                        {savingTour ? 'Saving...' : 'Save to Database'}
-                      </button>
-                    )}
-                    <div className="tour-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className="star filled">★</span>
-                      ))}
-                      <span className="review-count">({tour.reviewCount})</span>
-                    </div>
-                    <h3 className="tour-title">{tour.title}</h3>
-                    <div className="tour-location">
-                      <span className="location-icon">📍</span> {tour.location}
-                    </div>
-                    <div className="tour-divider"></div>
-                    <div className="tour-duration">
-                      <span className="duration-icon">🗓️</span> {tour.duration}
-                    </div>
+                  <h3 className="tour-title">{tour.title}</h3>
+                  <div className="tour-location">
+                    <span className="location-icon">📍</span> {tour.location}
                   </div>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      
-      {/* Country Information Section */}
-      <div className="country-info-section">
-        <h2>About {country.name}</h2>
-        <div className="country-info-content">
-          <p>{country.description}</p>
-          
-          {country.highlights && country.highlights.length > 0 && (
-            <div className="country-highlights">
-              <h3>Highlights</h3>
-              <ul>
-                {country.highlights.map((highlight, index) => (
-                  <li key={index}>{highlight}</li>
-                ))}
-              </ul>
+                  <div className="tour-divider"></div>
+                  <div className="tour-duration">
+                    <span className="duration-icon">🗓️</span> {tour.duration}
+                  </div>
+                </div>
+              </Link>
             </div>
-          )}
-          
-          {country.bestTimeToVisit && (
-            <div className="best-time">
-              <h3>Best Time to Visit</h3>
-              <p>{country.bestTimeToVisit}</p>
-            </div>
-          )}
-          
-          {country.travelTips && country.travelTips.length > 0 && (
-            <div className="travel-tips">
-              <h3>Travel Tips</h3>
-              <ul>
-                {country.travelTips.map((tip, index) => (
-                  <li key={index}>{tip}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
   );
 };
+
+export default CountryDetail;
+            <div className="tour-image-container">
+              <img src={tour.image} alt={tour.title} className="tour-image" />
+              {tour.tag && <span className="tour-tag">{tour.tag}</span>}
+              {isAdmin && !savedTours.includes(tour.id) && (
+                <button 
+                  className="save-to-db-button" 
+                  onClick={() => saveTourToDatabase(tour)}
+                  disabled={savingTour}
+                >
+                  {savingTour ? 'Saving...' : 'Save to Database'}
+                </button>
+              )}
+              {isAdmin && savedTours.includes(tour.id) && (
+                <span className="saved-badge">Saved to Database</span>
+              )}
+            </div>
+            <div className="tour-details">
+              <div className="tour-rating">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className={i < Math.floor(tour.rating) ? "star filled" : "star"}>
+                    ★
+                  </span>
+                ))}
+                <span className="review-count">({tour.reviewCount})</span>
+              </div>
+              <h3 className="tour-title">{tour.title}</h3>
+              <p className="tour-location">
+                <span className="location-icon">📍</span> {tour.location}
+              </p>
+              <p className="tour-duration">
+                <span className="duration-icon">🕒</span> {tour.duration}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export default CountryDetail;

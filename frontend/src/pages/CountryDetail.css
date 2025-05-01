@@ -290,25 +290,27 @@
 
 /* Tour Packages Section */
 .tour-packages-section {
-  margin: 3rem 0;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 3rem 0;
 }
 
 .tour-packages-section h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
   text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
   color: #333;
 }
 
 .tour-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
   margin: 0 auto;
-  width: 100%;
+  max-width: 1200px;
+  padding: 0 1rem;
+}
+
+.tour-card-wrapper {
+  position: relative;
 }
 
 .tour-card {
@@ -575,4 +577,48 @@
   .tour-cards-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Save to Database Button */
+.save-to-db-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.tour-card-wrapper:hover .save-to-db-btn {
+  opacity: 1;
+}
+
+.save-to-db-btn:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.save-to-db-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Saved to Database Badge */
+.saved-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  z-index: 10;
 }

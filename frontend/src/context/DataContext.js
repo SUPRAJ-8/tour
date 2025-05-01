@@ -69,8 +69,35 @@ export const DataProvider = ({ children }) => {
   }, [lastUpdated]);
 
   // Functions to update data that will be shared across the application
-  const refreshData = () => {
-    setLastUpdated(Date.now());
+  const refreshData = async () => {
+    try {
+      console.log('Refreshing data from API...');
+      
+      // Fetch fresh data from the API
+      const [countriesRes, toursRes] = await Promise.allSettled([
+        axios.get("/api/countries"),
+        axios.get("/api/tours"),
+      ]);
+
+      // Handle countries response
+      if (countriesRes.status === "fulfilled") {
+        console.log('Countries refreshed:', countriesRes.value.data.length);
+        setCountries(countriesRes.value.data);
+      }
+
+      // Handle tours response
+      if (toursRes.status === "fulfilled") {
+        console.log('Tours refreshed:', toursRes.value.data.length);
+        setTours(toursRes.value.data);
+      }
+      
+      // Update the timestamp to trigger any useEffect hooks
+      setLastUpdated(Date.now());
+      return true;
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      return false;
+    }
   };
 
   // Tour CRUD operations
@@ -106,7 +133,14 @@ export const DataProvider = ({ children }) => {
       }
 
       const res = await axios.post("/api/tours", tourData);
-      setTours([...tours, res.data]);
+      
+      // Update the local state with the new tour
+      // Ensure tours is always an array before updating
+      setTours(prevTours => Array.isArray(prevTours) ? [...prevTours, res.data] : [res.data]);
+      
+      // Force a refresh to ensure all components get the updated data
+      await refreshData();
+      
       return res.data;
     } catch (err) {
       console.error("Error adding tour:", err);
@@ -146,7 +180,17 @@ export const DataProvider = ({ children }) => {
       }
 
       const res = await axios.patch(`/api/tours/${id}`, tourData);
-      setTours(tours.map((tour) => (tour._id === id ? res.data : tour)));
+      
+      // Update the local state with the updated tour
+      // Ensure tours is always an array before updating
+      setTours(prevTours => {
+        if (!Array.isArray(prevTours)) return [res.data];
+        return prevTours.map((tour) => (tour._id === id ? res.data : tour));
+      });
+      
+      // Force a refresh to ensure all components get the updated data
+      await refreshData();
+      
       return res.data;
     } catch (err) {
       console.error("Error updating tour:", err);
@@ -160,7 +204,14 @@ export const DataProvider = ({ children }) => {
       await axios.delete(`/api/tours/${id}`);
 
       // Remove the tour from the local state
-      setTours(tours.filter((tour) => tour._id !== id));
+      // Ensure tours is always an array before updating
+      setTours(prevTours => {
+        if (!Array.isArray(prevTours)) return [];
+        return prevTours.filter((tour) => tour._id !== id);
+      });
+      
+      // Force a refresh to ensure all components get the updated data
+      await refreshData();
 
       return true;
     } catch (err) {

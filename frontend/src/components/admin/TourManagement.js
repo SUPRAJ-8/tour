@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useData } from '../../context/DataContext';
@@ -10,6 +10,7 @@ const TourManagement = () => {
   const { addTour, updateTour, deleteTour, refreshData, countries } = useData();
   const [tours, setTours] = useState([]);  
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
@@ -21,7 +22,6 @@ const TourManagement = () => {
   const [tourToDelete, setTourToDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentTour, setCurrentTour] = useState(null);
-  const [destinations, setDestinations] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
     country: '',
@@ -47,32 +47,16 @@ const TourManagement = () => {
 
   useEffect(() => {
     fetchTours();
-    fetchDestinations();
   }, []);
-
-  const fetchDestinations = async () => {
-    try {
-      const response = await axios.get('/api/destinations');
-      // Ensure destinations is always an array
-      const destinationsData = response.data || [];
-      setDestinations(Array.isArray(destinationsData) ? destinationsData : []);
-    } catch (error) {
-      console.error('Error fetching destinations:', error);
-      toast.error('Failed to load destinations');
-      setDestinations([]); // Set to empty array on error
-    }
-  };
 
   const fetchTours = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
       const response = await axios.get(`/api/tours?page=${page}&limit=${pagination.limit}`);
-      // Extract tours from the nested data property
       const toursData = response.data.data || [];
       setTours(Array.isArray(toursData) ? toursData : []);
       
-      // Update pagination if available
       if (response.data.pagination) {
         setPagination(response.data.pagination);
       }
@@ -85,18 +69,48 @@ const TourManagement = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      // Call the refreshData function from context to refresh all data
+      // This will now fetch fresh data from the API
+      const refreshSuccess = await refreshData();
+      
+      if (refreshSuccess) {
+        // Then fetch the tours again to update the local state
+        const response = await axios.get(`/api/tours?page=${pagination.page}&limit=${pagination.limit}`);
+        const toursData = response.data.data || [];
+        setTours(Array.isArray(toursData) ? toursData : []);
+        
+        if (response.data.pagination) {
+          setPagination(response.data.pagination);
+        }
+        
+        toast.success('Tour data refreshed successfully!');
+        console.log('Tour management refreshed with latest data');
+      } else {
+        toast.warning('Data may not be fully refreshed. Please check the console for details.');
+      }
+    } catch (error) {
+      console.error('Error refreshing tours:', error);
+      toast.error('Failed to refresh tours. Please try again.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
   const filteredTours = tours.filter(tour => 
-    tour.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (tour.country?.name && tour.country.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    (tour.title && tour.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (tour.destination?.name && tour.destination.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const filteredCountries = Array.isArray(countries) 
     ? countries.filter(country => 
-        country.name.toLowerCase().includes(countrySearchTerm.toLowerCase())
+        country && country.name && country.name.toLowerCase().includes(countrySearchTerm.toLowerCase())
       )
     : [];
 
@@ -123,7 +137,7 @@ const TourManagement = () => {
     try {
       await deleteTour(id);
       toast.success('Tour deleted successfully!');
-      fetchTours(); // Refresh the list
+      // No need to call fetchTours() here as the context will handle the data refresh
     } catch (error) {
       console.error('Error deleting tour:', error);
       toast.error('Failed to delete tour. Please try again.');
@@ -153,32 +167,49 @@ const TourManagement = () => {
       status: 'active',
       featured: false
     });
+    
+    setCountrySearchTerm('');
+    
     setShowModal(true);
   };
 
   const handleEditClick = (tour) => {
     setCurrentTour(tour);
-    // Map tour data to form fields
     setFormData({
       title: tour.title || '',
-      country: tour.country || '',
+      country: tour.destination?.country || '',
       description: tour.description || '',
       coverImage: tour.coverImage || '',
-      heroImages: tour.heroImages?.length ? tour.heroImages : ['', '', '', '', ''],
-      days: tour.days || 1,
-      nights: tour.nights || 0,
-      highlights: tour.highlights?.length ? tour.highlights : [''],
-      includes: tour.includes?.length ? tour.includes : [''],
-      excludes: tour.excludes?.length ? tour.excludes : [''],
+      heroImages: tour.images && tour.images.length > 0 
+        ? [...tour.images, ...Array(5 - tour.images.length).fill('')] 
+        : ['', '', '', '', ''],
+      days: tour.duration || 1,
+      nights: (tour.duration > 0) ? tour.duration - 1 : 0,
+      highlights: tour.highlights && tour.highlights.length > 0 
+        ? [...tour.highlights] 
+        : [''],
+      includes: tour.includes && tour.includes.length > 0 
+        ? [...tour.includes] 
+        : [''],
+      excludes: tour.excludes && tour.excludes.length > 0 
+        ? [...tour.excludes] 
+        : [''],
       visaRequirements: tour.visaRequirements || '',
       bestTimeToVisit: tour.bestTimeToVisit || '',
-      travelTips: tour.travelTips?.length ? tour.travelTips : [''],
+      travelTips: tour.travelTips && tour.travelTips.length > 0 
+        ? [...tour.travelTips] 
+        : [''],
       price: tour.price || 0,
       discountPrice: tour.discountPrice || 0,
       difficulty: tour.difficulty || 'easy',
       status: tour.status || 'active',
       featured: tour.featured || false
     });
+    
+    if (tour.destination && tour.destination.country) {
+      setCountrySearchTerm(tour.destination.country);
+    }
+    
     setShowModal(true);
   };
 
@@ -194,13 +225,11 @@ const TourManagement = () => {
     const updatedArray = [...formData[field]];
     
     if (subfield) {
-      // Handle nested objects like itinerary
       updatedArray[index] = {
         ...updatedArray[index],
         [subfield]: value
       };
     } else {
-      // Handle simple arrays like images
       updatedArray[index] = value;
     }
     
@@ -230,7 +259,6 @@ const TourManagement = () => {
     const updatedArray = [...formData[field]];
     updatedArray.splice(index, 1);
     
-    // If removing an itinerary day, update the day numbers
     if (field === 'itinerary') {
       updatedArray.forEach((item, idx) => {
         item.day = idx + 1;
@@ -276,49 +304,285 @@ const TourManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!formData.title) {
+      toast.error('Please enter a tour package name');
+      return;
+    }
+    
+    if (!formData.country) {
+      toast.error('Please select a country');
+      return;
+    }
+    
+    if (!formData.coverImage) {
+      toast.error('Please enter a main cover image URL');
+      return;
+    }
+    
     try {
-      // Prepare form data for submission
+      // Helper function to determine continent based on country
+      const getContinent = (country) => {
+        // Map of countries to continents (simplified version)
+        const continentMap = {
+          // Asia
+          'Thailand': 'Asia',
+          'Nepal': 'Asia',
+          'India': 'Asia',
+          'China': 'Asia',
+          'Japan': 'Asia',
+          'Vietnam': 'Asia',
+          'Cambodia': 'Asia',
+          'Malaysia': 'Asia',
+          'Singapore': 'Asia',
+          'Indonesia': 'Asia',
+          'Philippines': 'Asia',
+          'South Korea': 'Asia',
+          'Sri Lanka': 'Asia',
+          'Maldives': 'Asia',
+          'Bhutan': 'Asia',
+          'Myanmar': 'Asia',
+          'Laos': 'Asia',
+          'Bangladesh': 'Asia',
+          'Pakistan': 'Asia',
+          'Mongolia': 'Asia',
+          
+          // Europe
+          'France': 'Europe',
+          'Italy': 'Europe',
+          'Spain': 'Europe',
+          'United Kingdom': 'Europe',
+          'Germany': 'Europe',
+          'Greece': 'Europe',
+          'Portugal': 'Europe',
+          'Switzerland': 'Europe',
+          'Netherlands': 'Europe',
+          'Belgium': 'Europe',
+          'Austria': 'Europe',
+          'Sweden': 'Europe',
+          'Norway': 'Europe',
+          'Denmark': 'Europe',
+          'Finland': 'Europe',
+          'Ireland': 'Europe',
+          'Poland': 'Europe',
+          'Czech Republic': 'Europe',
+          'Hungary': 'Europe',
+          'Croatia': 'Europe',
+          
+          // North America
+          'United States': 'North America',
+          'Canada': 'North America',
+          'Mexico': 'North America',
+          'Costa Rica': 'North America',
+          'Panama': 'North America',
+          'Jamaica': 'North America',
+          'Cuba': 'North America',
+          'Bahamas': 'North America',
+          'Dominican Republic': 'North America',
+          'Puerto Rico': 'North America',
+          
+          // South America
+          'Brazil': 'South America',
+          'Argentina': 'South America',
+          'Peru': 'South America',
+          'Colombia': 'South America',
+          'Chile': 'South America',
+          'Ecuador': 'South America',
+          'Bolivia': 'South America',
+          'Venezuela': 'South America',
+          'Uruguay': 'South America',
+          'Paraguay': 'South America',
+          
+          // Africa
+          'South Africa': 'Africa',
+          'Egypt': 'Africa',
+          'Morocco': 'Africa',
+          'Kenya': 'Africa',
+          'Tanzania': 'Africa',
+          'Nigeria': 'Africa',
+          'Ghana': 'Africa',
+          'Ethiopia': 'Africa',
+          'Uganda': 'Africa',
+          'Zimbabwe': 'Africa',
+          
+          // Oceania
+          'Australia': 'Oceania',
+          'New Zealand': 'Oceania',
+          'Fiji': 'Oceania',
+          'Papua New Guinea': 'Oceania',
+          'Solomon Islands': 'Oceania',
+          'Vanuatu': 'Oceania',
+          'Samoa': 'Oceania',
+          'Tonga': 'Oceania'
+        };
+        
+        return continentMap[country] || 'Asia'; // Default to Asia if not found
+      };
+      
+      // Find destination ID for the selected country
+      let destinationId;
+      
+      try {
+        // Get all destinations
+        const destinationsResponse = await axios.get('/api/destinations');
+        const allDestinations = Array.isArray(destinationsResponse.data) 
+          ? destinationsResponse.data 
+          : (destinationsResponse.data.data || []);
+        
+        // Find a destination that matches the country
+        const matchingDestination = allDestinations.find(
+          dest => dest.country && dest.country.toLowerCase() === formData.country.toLowerCase()
+        );
+        
+        if (matchingDestination) {
+          destinationId = matchingDestination._id;
+          console.log('Found matching destination:', matchingDestination.name);
+        } else {
+          // Create a new destination for this country
+          try {
+            // We need to create a new destination for this country
+            toast.info(`Creating new destination for ${formData.country}...`);
+            
+            // Determine the continent for this country
+            const continent = getContinent(formData.country);
+            
+            const newDestinationData = {
+              name: `${formData.country}`,
+              description: `Explore the beautiful country of ${formData.country}`,
+              country: formData.country,
+              continent: continent,
+              coverImage: formData.coverImage,
+              featured: false
+            };
+            
+            // Try to create a destination directly
+            const createDestResponse = await axios.post('/api/destinations', newDestinationData, {
+              headers: {
+                'Content-Type': 'application/json',
+                // Add authorization headers if needed
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+            
+            if (createDestResponse.data && createDestResponse.data._id) {
+              destinationId = createDestResponse.data._id;
+              console.log('Created new destination:', createDestResponse.data.name);
+            } else {
+              // If we can't create, use the first destination as fallback
+              if (allDestinations.length > 0) {
+                destinationId = allDestinations[0]._id;
+                console.log('Using default destination:', allDestinations[0].name);
+                toast.warning(`Using default destination (${allDestinations[0].name}) for this tour.`);
+              } else {
+                throw new Error('No destinations available');
+              }
+            }
+          } catch (createError) {
+            console.error('Error creating destination:', createError);
+            
+            // Fallback to using first destination
+            if (allDestinations.length > 0) {
+              destinationId = allDestinations[0]._id;
+              console.log('Using default destination after create error:', allDestinations[0].name);
+              toast.warning(`Using default destination (${allDestinations[0].name}) for this tour.`);
+            } else {
+              throw new Error('No destinations available');
+            }
+          }
+        }
+      } catch (destError) {
+        console.error('Error finding destination:', destError);
+        toast.error('Error finding destination. Please try again.');
+        return;
+      }
+      
+      if (!destinationId) {
+        toast.error('No valid destination found. Please contact administrator.');
+        return;
+      }
+      
+      // Now create the tour with the destination ID
       const tourData = {
-        ...formData,
-        // Map the fields to match the backend Tour model structure
-        destination: formData.country, // Using country as destination
-        duration: formData.days,
+        title: formData.title,
+        description: formData.description || 'No description provided',
+        destination: destinationId,
+        duration: parseInt(formData.days) || 1,
+        price: parseFloat(formData.price) || 0,
+        discountPrice: parseFloat(formData.discountPrice) || 0,
+        maxGroupSize: 10,
+        difficulty: formData.difficulty || 'easy',
         coverImage: formData.coverImage,
         images: formData.heroImages.filter(img => img.trim() !== ''),
         includes: formData.includes.filter(item => item.trim() !== ''),
         excludes: formData.excludes.filter(item => item.trim() !== ''),
         highlights: formData.highlights.filter(item => item.trim() !== ''),
+        visaRequirements: formData.visaRequirements || '',
+        bestTimeToVisit: formData.bestTimeToVisit || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        // Add createdBy if it's a new tour - assuming we have a user ID from auth context
-        createdBy: currentTour ? undefined : '64f9c39c1d67b5d1f9fcb1a3' // Replace with actual user ID from auth context
+        featured: formData.featured || false,
+        status: formData.status || 'active',
+        createdBy: '64f9c39c1d67b5d1f9fcb1a3'
       };
+      
+      console.log('Submitting tour data:', tourData);
       
       let result;
       if (currentTour) {
-        // Update existing tour
+        // Use the context's updateTour method
         result = await updateTour(currentTour._id, tourData);
         toast.success(`${tourData.title} has been updated successfully!`);
       } else {
-        // Add new tour
+        // Use the context's addTour method
         result = await addTour(tourData);
         toast.success(`${tourData.title} has been added successfully!`);
       }
       
-      // Close modal and refresh data
       setShowModal(false);
-      
-      // Refresh both the local tour list and the global data context
-      fetchTours();
-      
-      // Force a refresh of the DataContext to update the main website
-      if (typeof refreshData === 'function') {
-        refreshData();
-      }
+      // No need to call fetchTours() here as the context will handle the data refresh
     } catch (error) {
       console.error('Error saving tour:', error);
-      toast.error(`Failed to save tour: ${error.response?.data?.message || 'An unknown error occurred'}`);
+      
+      // Extract a meaningful error message
+      let errorMessage = 'An unknown error occurred';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response) {
+        if (error.response.data && typeof error.response.data === 'object') {
+          if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else {
+            // Convert object to string for display
+            errorMessage = JSON.stringify(error.response.data);
+          }
+        } else if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        }
+      }
+      
+      toast.error(`Failed to save tour: ${errorMessage}`);
     }
   };
+
+  // Group tours by country
+  const groupToursByCountry = () => {
+    const groupedTours = {};
+    
+    filteredTours.forEach(tour => {
+      const country = tour.destination?.country || 'Other';
+      
+      if (!groupedTours[country]) {
+        groupedTours[country] = [];
+      }
+      
+      groupedTours[country].push(tour);
+    });
+    
+    return groupedTours;
+  };
+  
+  const groupedTours = groupToursByCountry();
 
   if (loading) {
     return <div className="loading">Loading tours...</div>;
@@ -332,9 +596,19 @@ const TourManagement = () => {
     <div className="tour-management">
       <div className="header-actions">
         <h2>Tour Management</h2>
-        <button className="btn-primary" onClick={handleAddNewClick}>
-          <FaPlus /> Add New Tour
-        </button>
+        <div className="action-buttons-container">
+          <button 
+            className={`btn-secondary ${refreshing ? 'refreshing' : ''}`} 
+            onClick={handleRefresh} 
+            disabled={refreshing}
+            title="Refresh tour data"
+          >
+            <FaSyncAlt className={refreshing ? 'spin' : ''} /> {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button className="btn-primary" onClick={handleAddNewClick}>
+            <FaPlus /> Add New Tour
+          </button>
+        </div>
       </div>
 
       <div className="search-filter-container">
@@ -354,56 +628,60 @@ const TourManagement = () => {
       ) : (
         <>
           <div className="table-responsive">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Duration</th>
-                  <th>Destination</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTours.map((tour) => (
-                  <tr key={tour._id}>
-                    <td>{tour.title}</td>
-                    <td>{tour.days} days / {tour.nights} nights</td>
-                    <td>${tour.price}</td>
-                    <td>{tour.country?.name || 'N/A'}</td>
-                    <td>
-                      <span className={`status ${tour.status?.toLowerCase() || 'pending'}`}>
-                        {tour.status || 'Pending'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn-icon" title="View">
-                          <FaEye />
-                        </button>
-                        <button 
-                          className="btn-icon" 
-                          title="Edit"
-                          onClick={() => handleEditClick(tour)}
-                        >
-                          <FaEdit />
-                        </button>
-                        <button 
-                          className="btn-icon delete" 
-                          title="Delete"
-                          onClick={() => handleDeleteClick(tour)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {Object.keys(groupedTours).map(country => (
+              <div key={country} className="country-tour-group">
+              
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Duration</th>
+                      <th>Price</th>
+                      <th>Destination</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupedTours[country].map((tour) => (
+                      <tr key={tour._id}>
+                        <td>{tour.title}</td>
+                        <td>{tour.duration} days</td>
+                        <td>${tour.price}</td>
+                        <td>{tour.destination?.name || 'N/A'}</td>
+                        <td>
+                          <span className={`status ${tour.status?.toLowerCase() || 'pending'}`}>
+                            {tour.status || 'Pending'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="btn-icon" title="View">
+                              <FaEye />
+                            </button>
+                            <button 
+                              className="btn-icon" 
+                              title="Edit"
+                              onClick={() => handleEditClick(tour)}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button 
+                              className="btn-icon delete" 
+                              title="Delete"
+                              onClick={() => handleDeleteClick(tour)}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
-          
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="pagination">
               <button 
@@ -424,7 +702,6 @@ const TourManagement = () => {
         </>
       )}
 
-      {/* Tour Form Modal */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content tour-form-modal">
@@ -447,7 +724,7 @@ const TourManagement = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Country</label>
+                  <label>Country*</label>
                   <div className="custom-dropdown">
                     <input
                       type="text"
@@ -789,7 +1066,6 @@ const TourManagement = () => {
         </div>
       )}
 
-      {/* Confirmation Modal for Delete */}
       <ConfirmationModal
         isOpen={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}

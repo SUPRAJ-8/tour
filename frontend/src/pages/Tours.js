@@ -41,6 +41,9 @@ const Tours = () => {
   }, [allCountries]);
 
   useEffect(() => {
+    // Debug: Log all tours to find the Japan Complete Tour
+    console.log('All tours from context:', allTours);
+    
     // Process tours regardless of whether data is loaded or not
     setLoading(true);
     

@@ -11,6 +11,12 @@
   margin-bottom: 20px;
 }
 
+.action-buttons-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .search-filter-container {
   margin-bottom: 20px;
 }
@@ -48,6 +54,45 @@
   align-items: center;
   gap: 5px;
   font-weight: 500;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary.refreshing {
+  background-color: #e8f5e9;
+  border-color: #a5d6a7;
+  color: #2e7d32;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
 }
 
 .btn-primary:hover {
@@ -466,4 +511,39 @@
   color: #999;
   font-style: italic;
   cursor: default;
+}
+
+/* Country Tour Groups */
+.country-tour-group {
+  margin-bottom: 30px;
+}
+
+.country-heading {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-size: 18px;
+  color: #2c3e50;
+  border-left: 4px solid #4caf50;
+  display: flex;
+  align-items: center;
+}
+
+.country-heading::before {
+  content: '🌍';
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+/* Responsive adjustments for country groups */
+@media (max-width: 768px) {
+  .country-tour-group {
+    margin-bottom: 20px;
+  }
+  
+  .country-heading {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
 }
