@@ -194,32 +194,26 @@
 
 .popular-tour-card {
   background-color: var(--white-color);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .popular-tour-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .popular-tour-image {
-  position: relative;
   height: 200px;
-  overflow: hidden;
+  position: relative;
 }
 
 .popular-tour-image img {
-  width: 100%;
-  height: 100%;
+  width: 304.39px;
+  height: 189px;
   object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.popular-tour-card:hover .popular-tour-image img {
-  transform: scale(1.05);
 }
 
 .popular-tour-badge {
@@ -347,20 +341,57 @@
 }
 
 .tour-card-image img {
-  width: 100%;
-  height: 100%;
+  width: 304.39px;
+  height: 189px;
   object-fit: cover;
 }
 
-.tour-card-price {
+.tour-popular-badge {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  background-color: var(--primary-color);
-  color: var(--white-color);
-  padding: 0.5rem 1rem;
-  border-top-left-radius: 8px;
-  font-weight: 600;
+  top: 10px;
+  left: 10px;
+  background-color: #2196f3;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 1;
+}
+
+.tour-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tour-rating-stars {
+  display: flex;
+  color: #ffc107;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.tour-rating-count {
+  color: #777;
+  font-size: 12px;
+}
+
+.tour-location, .tour-duration-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  color: #666;
+}
+
+.tour-location svg, .tour-duration-info svg {
+  margin-right: 5px;
+  font-size: 12px;
+  color: #2196f3;
 }
 
 .tour-card-content {
@@ -368,9 +399,14 @@
 }
 
 .tour-card-title {
-  margin-bottom: 1rem;
-  color: var(--dark-color);
-  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .tour-card-info {

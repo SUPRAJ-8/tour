@@ -3,6 +3,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaRegStar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import './CountryDetail.css';
 
@@ -440,27 +441,30 @@ const CountryDetail = ({ category }) => {
             <div className="tour-cards-grid">
               {databaseTours.map((tour) => (
                 <div className="tour-card-wrapper" key={tour._id}>
-                  <Link to={`/tours/${tour._id}`} className="tour-card">
+                  <Link to={`/tours/${tour._id}`} className="country-tour-card">
                     <div className="tour-card-image">
                       <img src={tour.coverImage} alt={tour.title} />
                       {tour.featured && (
                         <div className="tour-tag hot">Featured</div>
                       )}
+                      <div className="tour-duration-overlay">
+                        <FaCalendarAlt className="duration-icon-overlay" />
+                        <span>{tour.duration} Days {tour.duration - 1} Nights</span>
+                      </div>
                     </div>
                     <div className="tour-card-content">
                       <div className="tour-rating">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <span key={star} className="star filled">★</span>
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <span key={index} className={index < Math.floor(tour.ratingsAverage || 5) ? "star-icon" : "star-icon empty"}>
+                            {index < Math.floor(tour.ratingsAverage || 5) ? <FaStar /> : <FaRegStar />}
+                          </span>
                         ))}
-                        <span className="review-count">({tour.reviewsCount || 'New'})</span>
+                        <span className="review-count">({tour.ratingsQuantity || tour.reviewsCount || 'New'})</span>
                       </div>
                       <h3 className="tour-title">{tour.title}</h3>
                       <div className="tour-location">
-                        <span className="location-icon">📍</span> {tour.destination?.country || country.name}
-                      </div>
-                      <div className="tour-divider"></div>
-                      <div className="tour-duration">
-                        <span className="duration-icon">🗓️</span> {tour.duration} days
+                        <FaMapMarkerAlt className="location-icon" />
+                        <span>{tour.destination?.country || country.name}</span>
                       </div>
                     </div>
                   </Link>
