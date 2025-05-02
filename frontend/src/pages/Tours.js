@@ -1,402 +1,550 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useData } from '../context/DataContext';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaFilter, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaLock } from 'react-icons/fa';
 import './Tours.css';
 
 const Tours = () => {
-  // Use the shared data context
-  const { 
-    tours: allTours, 
-    countries: allCountries, 
-    loading: dataLoading
-  } = useData();
-  
-  // Debug: Log the data context
-  console.log('Data context:', { allTours, allCountries, dataLoading });
-  
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    destination: '',
-    duration: '',
-    difficulty: ''
-  });
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [country, setCountry] = useState('');  
+  const [travelWith, setTravelWith] = useState('');  
+  const [showTravelOptions, setShowTravelOptions] = useState(false);
+  const [showCountryOptions, setShowCountryOptions] = useState(true);
+  const [showDurationOptions, setShowDurationOptions] = useState(false);
+  const [duration, setDuration] = useState('');
   const [countries, setCountries] = useState([]);
-  const [mobileFiltersVisible, setMobileFiltersVisible] = useState(false);
-  
-  // Use countries from the shared context
-  useEffect(() => {
-    // Process countries regardless of whether the array is empty
-    try {
-      // Filter out Nepal with safety checks
-      const filteredCountries = allCountries.filter(country => 
-        country && country.name !== 'Nepal'
-      );
-      setCountries(filteredCountries);
-    } catch (error) {
-      console.error('Error processing countries:', error);
-      setCountries([]);
-    }
-  }, [allCountries]);
 
   useEffect(() => {
-    // Debug: Log all tours from context
-    console.log('All tours from context:', allTours);
-    
-    // Process tours regardless of whether data is loaded or not
-    setLoading(true);
-    
-    try {
-      // Apply filters to the tours from context
-      let filteredTours = Array.isArray(allTours) ? [...allTours] : [];
-      
-      // Only proceed with filtering if we have tours
-      if (filteredTours.length > 0) {
-        // Filter by destination/country (with safety checks)
-        if (filters.destination) {
-          filteredTours = filteredTours.filter(tour => {
-            // Check if the tour has country data
-            if (!tour?.country) return false;
+    const fetchTours = async () => {
+      try {
+        setLoading(true);
+        
+        // First try to fetch tours from the Tour Management endpoint
+        try {
+          // Try all possible API endpoints to find tours
+          const managementResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/tours/all`);
+          console.log('Tour Management API Response:', managementResponse.data);
+          
+          // Process management tours data
+          let managementTours = [];
+          if (managementResponse.data.tours) {
+            managementTours = managementResponse.data.tours;
+          } else if (Array.isArray(managementResponse.data)) {
+            managementTours = managementResponse.data;
+          } else if (managementResponse.data.data && managementResponse.data.data.tours) {
+            managementTours = managementResponse.data.data.tours;
+          }
+          
+          if (managementTours.length > 0) {
+            console.log('Successfully fetched tours from Tour Management');
+            setTours(managementTours);
             
-            // Match by country ID if it's a direct ID match
-            if (tour.country._id === filters.destination) return true;
+            // Extract countries from management tours
+            const uniqueCountries = [...new Set(managementTours.map(tour => {
+              return tour.country || (tour.startLocation ? tour.startLocation.description.split(',')[0].trim() : 'Other');
+            }))];
             
-            // Match by country name (case insensitive)
-            const countryName = tour.country.name?.toLowerCase() || '';
-            const filterDestination = filters.destination.toLowerCase();
-            return countryName.includes(filterDestination);
-          });
+            setCountries(uniqueCountries.sort());
+            setLoading(false);
+            return; // Exit if we successfully got tours from management
+          }
+        } catch (managementError) {
+          console.log('Could not fetch tours from Tour Management:', managementError);
+          // Continue with regular API endpoint
         }
         
-        // Filter by duration (with safety checks)
-        if (filters.duration) {
-          const [min, max] = filters.duration.split('-').map(Number);
-          if (min && max) {
-            filteredTours = filteredTours.filter(tour => 
-              tour?.duration && tour.duration >= min && tour.duration <= max
-            );
+        // If management tours failed, try other possible endpoints
+        let response;
+        try {
+          response = await axios.get(`${process.env.REACT_APP_API_URL}/api/tours`);
+          console.log('Regular API Response:', response.data);
+        } catch (regularApiError) {
+          console.log('Regular API failed, trying fallback endpoint');
+          try {
+            response = await axios.get(`${process.env.REACT_APP_API_URL}/tours`);
+            console.log('Fallback API Response:', response.data);
+          } catch (fallbackError) {
+            console.log('All API endpoints failed');
+            throw new Error('Could not fetch tours from any endpoint');
           }
         }
         
-        // Filter by difficulty (with safety checks)
-        if (filters.difficulty) {
-          filteredTours = filteredTours.filter(tour => 
-            tour?.difficulty && tour.difficulty === filters.difficulty
-          );
+        // Handle different possible response structures
+        let toursData;
+        if (response.data.data && response.data.data.tours) {
+          toursData = response.data.data.tours;
+        } else if (Array.isArray(response.data)) {
+          toursData = response.data;
+        } else if (response.data.tours) {
+          toursData = response.data.tours;
+        } else {
+          toursData = [];
+          console.error('Unexpected API response structure:', response.data);
         }
         
-        // Filter out Nepal tours (with safety checks)
-        filteredTours = filteredTours.filter(tour => {
-          if (!tour) return false;
-          const title = tour.title || '';
-          const countryName = tour.country?.name || '';
-          const destination = tour.destination || '';
-          return !title.includes('Nepal') && 
-                 !countryName.includes('Nepal') &&
-                 !destination.includes('Nepal');
+        // If still no tours found, add some default tours for testing
+        if (toursData.length === 0) {
+          console.log('No tours found in any API response, adding default tours');
+          toursData = [
+            {
+              _id: '1',
+              name: 'Beautiful Thailand Tour',
+              summary: 'Explore the beautiful beaches and temples of Thailand',
+              description: 'A 7-day tour of Thailand\'s most beautiful locations',
+              duration: 7,
+              price: 1299,
+              imageCover: 'https://images.unsplash.com/photo-1528181304800-259b08848526?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+              country: 'Thailand',
+              ratingsAverage: 4.7,
+              ratingsQuantity: 23
+            },
+            {
+              _id: '2',
+              name: 'Japan Cherry Blossom Tour',
+              summary: 'Experience the beauty of Japan during cherry blossom season',
+              description: 'A 10-day tour of Japan during the cherry blossom season',
+              duration: 10,
+              price: 2499,
+              imageCover: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+              country: 'Japan',
+              ratingsAverage: 4.9,
+              ratingsQuantity: 47
+            },
+            {
+              _id: '3',
+              name: 'Vietnam Heritage Tour',
+              summary: 'Discover the rich heritage and culture of Vietnam',
+              description: 'A 9-day tour of Vietnam\'s most important cultural sites',
+              duration: 9,
+              price: 1799,
+              imageCover: 'https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+              country: 'Vietnam',
+              ratingsAverage: 4.5,
+              ratingsQuantity: 31
+            },
+            {
+              _id: '4',
+              name: 'Bali Paradise Tour',
+              summary: 'Relax in the paradise island of Bali',
+              description: 'A 5-day relaxing tour of Bali\'s most beautiful beaches and temples',
+              duration: 5,
+              price: 999,
+              imageCover: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+              country: 'Indonesia',
+              ratingsAverage: 4.8,
+              ratingsQuantity: 28
+            }
+          ];
+        }
+        
+        // Debug log tours data
+        console.log('Final tours data:', toursData);
+        
+        setTours(toursData);
+        
+        // Extract unique countries from tours
+        // Fallback to different possible structures
+        const uniqueCountries = [];
+        toursData.forEach(tour => {
+          let country = '';
+          
+          // Try different possible structures to extract country
+          if (tour.startLocation && tour.startLocation.description) {
+            country = tour.startLocation.description.split(',')[0].trim();
+          } else if (tour.country) {
+            country = tour.country;
+          } else if (tour.location) {
+            country = typeof tour.location === 'string' ? 
+              tour.location.split(',')[0].trim() : 
+              tour.location.description ? tour.location.description.split(',')[0].trim() : '';
+          }
+          
+          if (country && !uniqueCountries.includes(country)) {
+            uniqueCountries.push(country);
+          }
         });
+        
+        // Log the countries found in the database
+        console.log('Countries found in database:', uniqueCountries);
+        
+        // If no countries were found, add some defaults
+        if (uniqueCountries.length === 0) {
+          const defaultCountries = [
+            'Thailand', 'Japan', 'Vietnam', 'Indonesia', 'Malaysia', 'Singapore', 'Philippines',
+            'China', 'South Korea', 'India', 'Nepal', 'Bhutan', 'Sri Lanka', 'Maldives',
+            'Australia', 'New Zealand', 'United States', 'Canada', 'Mexico',
+            'Brazil', 'Argentina', 'Peru', 'Chile', 
+            'United Kingdom', 'France', 'Italy', 'Spain', 'Germany', 'Greece',
+            'Egypt', 'Morocco', 'South Africa', 'Kenya', 'Tanzania'
+          ];
+          uniqueCountries.push(...defaultCountries);
+        }
+        
+        // Remove duplicates and sort
+        const uniqueSortedCountries = [...new Set(uniqueCountries)].sort();
+        console.log('All available countries:', uniqueSortedCountries);
+        
+        setCountries(uniqueSortedCountries);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tours:', error);
+        setLoading(false);
+        
+        // In case of error, still show default countries
+        const defaultCountries = [
+          'Thailand', 'Japan', 'Vietnam', 'Indonesia', 'Malaysia', 'Singapore', 'Philippines',
+          'China', 'South Korea', 'India', 'Nepal', 'Bhutan', 'Sri Lanka', 'Maldives',
+          'Australia', 'New Zealand', 'United States', 'Canada', 'Mexico',
+          'Brazil', 'Argentina', 'Peru', 'Chile', 
+          'United Kingdom', 'France', 'Italy', 'Spain', 'Germany', 'Greece',
+          'Egypt', 'Morocco', 'South Africa', 'Kenya', 'Tanzania'
+        ];
+        
+        setCountries(defaultCountries.sort());
       }
-      
-      setTours(filteredTours);
-    } catch (error) {
-      console.error('Error filtering tours:', error);
-      setTours([]);
-    } finally {
-      // Always set loading to false, even if there were errors
-      setLoading(false);
+    };
+    
+    fetchTours();
+  }, []);
+  
+  // Filter tours based on selected filters
+  const filteredTours = tours.filter(tour => {
+    // Filter by search term
+    const matchesSearch = 
+      (tour.name && tour.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
+      (tour.summary && tour.summary.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (tour.description && tour.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Filter by country
+    let tourCountry = '';
+    if (tour.startLocation && tour.startLocation.description) {
+      tourCountry = tour.startLocation.description.split(',')[0].trim();
+    } else if (tour.country) {
+      tourCountry = tour.country;
+    } else if (tour.location) {
+      tourCountry = typeof tour.location === 'string' ? 
+        tour.location.split(',')[0].trim() : 
+        tour.location.description ? tour.location.description.split(',')[0].trim() : '';
     }
-  }, [filters, allTours]);
-
-  const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  if (loading || dataLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loader"></div>
-        <p>Loading amazing tours...</p>
-      </div>
-    );
-  }
-
-  // Toggle mobile filters visibility
-  const toggleMobileFilters = () => {
-    setMobileFiltersVisible(!mobileFiltersVisible);
-  };
-
+    
+    const matchesCountry = country === '' || tourCountry === country;
+    
+    // Filter by travel with
+    const matchesTravelWith = travelWith === '' || tour.travelWith === travelWith;
+    
+    // Tour Type filter removed
+    const matchesTourType = true;
+    
+    // Filter by duration
+    let matchesDuration = true;
+    if (tour.duration) {
+      if (duration === '1-3') {
+        matchesDuration = tour.duration >= 1 && tour.duration <= 3;
+      } else if (duration === '4-7') {
+        matchesDuration = tour.duration >= 4 && tour.duration <= 7;
+      } else if (duration === '8-14') {
+        matchesDuration = tour.duration >= 8 && tour.duration <= 14;
+      } else if (duration === '15+') {
+        matchesDuration = tour.duration >= 15;
+      }
+    }
+    
+    return matchesSearch && matchesCountry && matchesTravelWith && matchesTourType && matchesDuration;
+  });
+  
   // Reset all filters
   const resetFilters = () => {
-    setFilters({
-      destination: '',
-      duration: '',
-      difficulty: ''
-    });
+    setSearchTerm('');
+    setCountry('');
+    setTravelWith('');
+    setDuration('');
   };
 
-  // Group tours by country with fallback for missing data
-  const toursByCountry = {};
-  
-  // Add dummy data for testing if no tours are available
-  const dummyTours = [
-    {
-      _id: 'dummy1',
-      title: 'Bangkok Explorer',
-      country: { name: 'Thailand' },
-      destination: { name: 'Bangkok' },
-      duration: 5,
-      difficulty: 'easy',
-      maxGroupSize: 12,
-      ratingsAverage: 4.8,
-      ratingsQuantity: 24,
-      coverImage: 'https://images.unsplash.com/photo-1508009603885-50cf7c8dd0d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80',
-      description: 'Explore the vibrant streets of Bangkok and experience authentic Thai culture',
-      highlights: ['Grand Palace Visit', 'Street Food Tour', 'Canal Boat Ride']
-    },
-    {
-      _id: 'dummy2',
-      title: 'Tokyo Adventure',
-      country: { name: 'Japan' },
-      destination: { name: 'Tokyo' },
-      duration: 7,
-      difficulty: 'moderate',
-      maxGroupSize: 10,
-      ratingsAverage: 4.9,
-      ratingsQuantity: 36,
-      coverImage: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80',
-      description: 'Discover the perfect blend of tradition and modernity in Tokyo',
-      highlights: ['Shibuya Crossing', 'Mt. Fuji Day Trip', 'Traditional Tea Ceremony']
-    },
-    {
-      _id: 'dummy3',
-      title: 'Hanoi Heritage Tour',
-      country: { name: 'Vietnam' },
-      destination: { name: 'Hanoi' },
-      duration: 6,
-      difficulty: 'easy',
-      maxGroupSize: 15,
-      ratingsAverage: 4.7,
-      ratingsQuantity: 18,
-      coverImage: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
-      description: 'Experience the rich cultural heritage of Vietnam\'s capital city',
-      highlights: ['Old Quarter Walking Tour', 'Water Puppet Show', 'Street Food Experience']
-    },
-    {
-      _id: 'dummy4',
-      title: 'Bali Paradise',
-      country: { name: 'Indonesia' },
-      destination: { name: 'Bali' },
-      duration: 8,
-      difficulty: 'easy',
-      maxGroupSize: 12,
-      ratingsAverage: 4.8,
-      ratingsQuantity: 42,
-      coverImage: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1038&q=80',
-      description: 'Relax on pristine beaches and explore the spiritual side of Bali',
-      highlights: ['Ubud Monkey Forest', 'Tegalalang Rice Terraces', 'Uluwatu Temple']
-    },
-    {
-      _id: 'dummy5',
-      title: 'Kuala Lumpur City Break',
-      country: { name: 'Malaysia' },
-      destination: { name: 'Kuala Lumpur' },
-      duration: 4,
-      difficulty: 'easy',
-      maxGroupSize: 15,
-      ratingsAverage: 4.6,
-      ratingsQuantity: 28,
-      coverImage: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80',
-      description: 'Discover the multicultural charm of Malaysia\'s capital city',
-      highlights: ['Petronas Twin Towers', 'Batu Caves', 'Central Market']
-    }
-  ];
-  
-  // Use real tours if available, otherwise use dummy data
-  const toursToDisplay = (tours && tours.length > 0) ? tours : dummyTours;
-  
-  // Group tours by country
-  if (toursToDisplay.length > 0) {
-    toursToDisplay.forEach(tour => {
-      if (tour && tour.country && tour.country.name) {
-        const countryName = tour.country.name;
-        if (!toursByCountry[countryName]) {
-          toursByCountry[countryName] = [];
-        }
-        toursByCountry[countryName].push(tour);
-      }
-    });
-  }
-  
-  // Sort countries alphabetically
-  const sortedCountries = Object.keys(toursByCountry).sort();
-
   return (
-    <section className="tours-page">
-      <div className="tours-hero">
-        <div className="container">
-          <h1>Explore Our Tours</h1>
-          <p>Discover amazing places at exclusive deals</p>
-        </div>
+    <div className="tours-page">
+      <div className="tours-header">
+        <h1 className="tours-title">Explore Our Tours</h1>
+        <Link to="/admin/tour-management" className="admin-link">
+          <FaCog className="admin-icon" />
+          <span>Tour Management</span>
+        </Link>
       </div>
       
-      <div className="container">
-        <div className="tours-content">
-          <div className={`tours-sidebar ${mobileFiltersVisible ? 'active' : ''}`}>
-            <div className="sidebar-header">
-              <h2>Filter Tours</h2>
-              <button className="close-filters" onClick={toggleMobileFilters}>
-                <FaTimes />
-              </button>
-            </div>
-            
-            <div className="filter-group">
-              <label>Destination</label>
-              <select 
-                name="destination" 
-                value={filters.destination} 
-                onChange={handleFilterChange}
-              >
-                <option value="">All Destinations</option>
-                {countries.map(country => (
-                  <option key={country._id} value={country._id}>
-                    {country.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>Duration</label>
-              <select 
-                name="duration" 
-                value={filters.duration} 
-                onChange={handleFilterChange}
-              >
-                <option value="">Any Duration</option>
-                <option value="1-3">1-3 days</option>
-                <option value="4-6">4-6 days</option>
-                <option value="7-9">7-9 days</option>
-                <option value="10-15">10-15 days</option>
-                <option value="15-30">15+ days</option>
-              </select>
-            </div>
-            
-            <div className="filter-group">
-              <label>Difficulty</label>
-              <select 
-                name="difficulty" 
-                value={filters.difficulty} 
-                onChange={handleFilterChange}
-              >
-                <option value="">Any Difficulty</option>
-                <option value="easy">Easy</option>
-                <option value="moderate">Moderate</option>
-                <option value="difficult">Difficult</option>
-              </select>
-            </div>
-            
-            <button className="reset-filters" onClick={resetFilters}>
-              Reset Filters
-            </button>
+      <div className="tours-container">
+        <div className="filters-wrapper">
+          {/* Filter Header */}
+          <div className="filter-title">
+            <span className="filter-title-icon"></span>
+            <h3>Filter</h3>
           </div>
           
-          <div className="tours-main">
-            <div className="mobile-filter-toggle" onClick={toggleMobileFilters}>
-              <FaFilter />
-              <span>Filter Tours</span>
+          {/* Search Section */}
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <span className="filter-label">Search</span>
+            <input 
+              type="text" 
+              placeholder="Enter any keyword" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {/* Tour Type filter removed as requested */}
+          
+          {/* Countries Filter */}
+          <div className="filter-item">
+            <div className="filter-header" onClick={() => setShowCountryOptions(!showCountryOptions)}>
+              <FaGlobe className="filter-icon" />
+              <span className="filter-label">Countries</span>
+              <FaChevronDown className={`dropdown-arrow ${showCountryOptions ? 'open' : ''}`} />
             </div>
-            
-            {/* Display tours based on filters */}
-            {sortedCountries.length === 0 ? (
-              <div className="no-tours">
-                <h3>No tours found</h3>
-                <p>Try adjusting your filters to find tours.</p>
-              </div>
-            ) : (
-              // Show tours grouped by country
-              sortedCountries.map(country => (
-                <div key={country} className="country-tours-section">
-                  <div className="country-header">
-                    <h2>{country} Tours</h2>
-                    <Link to={`/tours?destination=${country.toLowerCase()}`} className="view-all-link">
-                      View All {country} Tours
-                    </Link>
-                  </div>
-                  <div className="tours-grid">
-                    {toursByCountry[country].length > 0 ? (
-                      toursByCountry[country].map(tour => (
-                        <div key={tour._id} className="tour-card">
-                          <div className="tour-card-image">
-                            <img src={tour.coverImage} alt={tour.title} />
-                            {tour.difficulty === 'difficult' && (
-                              <span className="tour-badge difficulty-badge">Challenging</span>
-                            )}
-                            {tour.ratingsAverage >= 4.7 && (
-                              <span className="tour-badge top-rated-badge">Top Rated</span>
-                            )}
-                          </div>
-                          <div className="tour-card-content">
-                            <h3 className="tour-card-title">{tour.title}</h3>
-                            <div className="tour-card-info">
-                              <div className="info-item">
-                                <FaMapMarkerAlt />
-                                <span>{tour.destination?.name || country}</span>
-                              </div>
-                              <div className="info-item">
-                                <FaCalendarAlt />
-                                <span>{tour.duration} days</span>
-                              </div>
-                              <div className="info-item">
-                                <FaUsers />
-                                <span>Max: {tour.maxGroupSize || 15} people</span>
-                              </div>
-                            </div>
-                            <p className="tour-card-text">
-                              {tour.description?.substring(0, 100) || "Experience this amazing tour package"}...
-                            </p>
-                            
-                            {tour.highlights && tour.highlights.length > 0 && (
-                              <div className="tour-highlights">
-                                <h4>Highlights:</h4>
-                                <ul>
-                                  {tour.highlights.slice(0, 2).map((highlight, index) => (
-                                    <li key={index}>{highlight}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                            
-                            <div className="tour-card-footer">
-                              <div className="tour-card-rating">
-                                <FaStar />
-                                <span>{tour.ratingsAverage || 4.5}</span>
-                                <small>({tour.ratingsQuantity || 0} reviews)</small>
-                              </div>
-                              <Link to={`/tours/${tour._id}`} className="btn-outline">View Details</Link>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="no-tours-message">
-                        <h3>Sorry, currently unavailable. Coming soon</h3>
-                        <p>We're working on adding tour packages for {country}. Please check back later!</p>
-                      </div>
-                    )}
-                  </div>
+            {showCountryOptions && (
+              <div className="filter-dropdown">
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="country-all" 
+                    name="country" 
+                    value="" 
+                    checked={country === ''}
+                    onChange={() => setCountry('')} 
+                  />
+                  <label htmlFor="country-all">All Countries</label>
                 </div>
-              ))
+                {countries.map(countryName => (
+                  <div className="radio-option" key={countryName}>
+                    <input 
+                      type="radio" 
+                      id={`country-${countryName}`} 
+                      name="country" 
+                      value={countryName} 
+                      checked={country === countryName}
+                      onChange={() => setCountry(countryName)} 
+                    />
+                    <label htmlFor={`country-${countryName}`}>{countryName}</label>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+          
+          {/* Travel With Filter */}
+          <div className="filter-item">
+            <div className="filter-header" onClick={() => setShowTravelOptions(!showTravelOptions)}>
+              <FaUsers className="filter-icon" />
+              <span className="filter-label">Travel With</span>
+              <FaChevronDown className={`dropdown-arrow ${showTravelOptions ? 'open' : ''}`} />
+            </div>
+            
+            {/* Travel With Options */}
+            {showTravelOptions && (
+              <div className="filter-dropdown">
+                <div className="travel-options-grid">
+                  <div className="radio-option">
+                    <input 
+                      type="radio" 
+                      id="travel-couple" 
+                      name="travelWith" 
+                      value="couple" 
+                      checked={travelWith === 'couple'}
+                      onChange={() => setTravelWith('couple')} 
+                    />
+                    <label htmlFor="travel-couple">Couple</label>
+                  </div>
+                  <div className="radio-option">
+                    <input 
+                      type="radio" 
+                      id="travel-family" 
+                      name="travelWith" 
+                      value="family" 
+                      checked={travelWith === 'family'}
+                      onChange={() => setTravelWith('family')} 
+                    />
+                    <label htmlFor="travel-family">Family</label>
+                  </div>
+                  <div className="radio-option">
+                    <input 
+                      type="radio" 
+                      id="travel-friends" 
+                      name="travelWith" 
+                      value="friends" 
+                      checked={travelWith === 'friends'}
+                      onChange={() => setTravelWith('friends')} 
+                    />
+                    <label htmlFor="travel-friends">Friends</label>
+                  </div>
+                  <div className="radio-option">
+                    <input 
+                      type="radio" 
+                      id="travel-single" 
+                      name="travelWith" 
+                      value="solo" 
+                      checked={travelWith === 'solo'}
+                      onChange={() => setTravelWith('solo')} 
+                    />
+                    <label htmlFor="travel-single">Single</label>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Duration Filter */}
+          <div className="filter-item">
+            <div className="filter-header" onClick={() => setShowDurationOptions(!showDurationOptions)}>
+              <FaClock className="filter-icon" />
+              <span className="filter-label">Duration (Days)</span>
+              <FaChevronDown className={`dropdown-arrow ${showDurationOptions ? 'open' : ''}`} />
+            </div>
+            {showDurationOptions && (
+              <div className="filter-dropdown">
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="duration-all" 
+                    name="duration" 
+                    value="" 
+                    checked={duration === ''}
+                    onChange={() => setDuration('')} 
+                  />
+                  <label htmlFor="duration-all">All</label>
+                </div>
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="duration-1-3" 
+                    name="duration" 
+                    value="1-3" 
+                    checked={duration === '1-3'}
+                    onChange={() => setDuration('1-3')} 
+                  />
+                  <label htmlFor="duration-1-3">1-3 Days</label>
+                </div>
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="duration-4-7" 
+                    name="duration" 
+                    value="4-7" 
+                    checked={duration === '4-7'}
+                    onChange={() => setDuration('4-7')} 
+                  />
+                  <label htmlFor="duration-4-7">4-7 Days</label>
+                </div>
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="duration-8-14" 
+                    name="duration" 
+                    value="8-14" 
+                    checked={duration === '8-14'}
+                    onChange={() => setDuration('8-14')} 
+                  />
+                  <label htmlFor="duration-8-14">8-14 Days</label>
+                </div>
+                <div className="radio-option">
+                  <input 
+                    type="radio" 
+                    id="duration-15+" 
+                    name="duration" 
+                    value="15+" 
+                    checked={duration === '15+'}
+                    onChange={() => setDuration('15+')} 
+                  />
+                  <label htmlFor="duration-15+">15+ Days</label>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <button className="reset-filters-btn" onClick={resetFilters}>
+            Reset Filters
+          </button>
+        </div>
+        
+        {/* Tours Content */}
+        <div className="tours-content">
+          {loading ? (
+            <div className="loading">Loading tours...</div>
+          ) : filteredTours.length > 0 ? (
+            <div>
+              {/* Group tours by country */}
+              {(() => {
+                // Get unique countries from filtered tours
+                const tourCountries = [];
+                const toursByCountry = {};
+                
+                // Group tours by country
+                filteredTours.forEach(tour => {
+                  let country = '';
+                  
+                  // Extract country from tour data - prioritize the direct country field
+                  if (tour.country) {
+                    country = tour.country;
+                  } else if (tour.startLocation && tour.startLocation.description) {
+                    country = tour.startLocation.description.split(',')[0].trim();
+                  } else if (tour.location) {
+                    country = typeof tour.location === 'string' ? 
+                      tour.location.split(',')[0].trim() : 
+                      tour.location.description ? tour.location.description.split(',')[0].trim() : 'Other';
+                  } else {
+                    country = 'Other';
+                  }
+                  
+                  console.log(`Tour: ${tour.name}, Country: ${country}`);
+                  
+                  // Add country to list if not already there
+                  if (!tourCountries.includes(country)) {
+                    tourCountries.push(country);
+                  }
+                  
+                  // Add tour to country group
+                  if (!toursByCountry[country]) {
+                    toursByCountry[country] = [];
+                  }
+                  toursByCountry[country].push(tour);
+                });
+                
+                // Sort countries alphabetically
+                tourCountries.sort();
+                
+                // Return JSX for each country group
+                return tourCountries.map(country => (
+                  <div key={country} className="country-tour-section">
+                    <h2 className="country-heading">
+                      <FaGlobe className="country-icon" /> {country}
+                    </h2>
+                    <div className="tours-grid">
+                      {toursByCountry[country].map(tour => (
+                        <Link to={`/tour/${tour._id || tour.id}`} key={tour._id || tour.id} className="tour-card">
+                          <div className="tour-image">
+                            <img src={tour.imageCover || tour.image || 'https://via.placeholder.com/300x200'} alt={tour.name} />
+                            <div className="tour-duration">{tour.duration || '?'} days</div>
+                          </div>
+                          <div className="tour-info">
+                            <h3 className="tour-name">{tour.name}</h3>
+                            <p className="tour-summary">{tour.summary || tour.description || 'No description available'}</p>
+                            <div className="tour-details">
+                              <span className="tour-price">${tour.price || '?'}</span>
+                              <span className="tour-rating">★ {tour.ratingsAverage || '5.0'} ({tour.ratingsQuantity || '0'})</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ));
+              })()} 
+            </div>
+          ) : (
+            <div className="no-tours">No tours found matching your criteria. Try adjusting your filters.</div>
+          )}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
