@@ -677,32 +677,28 @@ const Tours = () => {
                         <ul className="pagination">
                           {Array.from({ length: Math.ceil(filteredAllTours.length / toursPerPage) }).map((_, index) => (
                             <li key={index} className="pagination-item">
-                              <a 
-                                href="#" 
+                              <button 
                                 className={`pagination-link ${currentPage === index + 1 ? 'active' : ''}`}
-                                onClick={(e) => {
-                                  e.preventDefault();
+                                onClick={() => {
                                   setCurrentPage(index + 1);
                                   window.scrollTo(0, 0);
                                 }}
                               >
                                 {index + 1}
-                              </a>
+                              </button>
                             </li>
                           ))}
                           {currentPage < Math.ceil(filteredAllTours.length / toursPerPage) && (
                             <li className="pagination-item">
-                              <a 
-                                href="#" 
+                              <button 
                                 className="pagination-next"
-                                onClick={(e) => {
-                                  e.preventDefault();
+                                onClick={() => {
                                   setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredAllTours.length / toursPerPage)));
                                   window.scrollTo(0, 0);
                                 }}
                               >
                                 Next <FaChevronRight />
-                              </a>
+                              </button>
                             </li>
                           )}
                         </ul>

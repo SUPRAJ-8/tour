@@ -1,6 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
 
+// API base URL - change this to your actual backend URL when deploying
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-backend-api.herokuapp.com' // Replace with your actual deployed backend URL
+  : '';
+
 const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
@@ -22,8 +27,8 @@ export const DataProvider = ({ children }) => {
       try {
         // Fetch countries and tours in parallel
         const [countriesRes, toursRes] = await Promise.allSettled([
-          axios.get("/api/countries"),
-          axios.get("/api/tours"),
+          axios.get(`${API_BASE_URL}/api/countries`),
+          axios.get(`${API_BASE_URL}/api/tours`),
         ]);
 
         // Handle countries response
@@ -75,8 +80,8 @@ export const DataProvider = ({ children }) => {
       
       // Fetch fresh data from the API
       const [countriesRes, toursRes] = await Promise.allSettled([
-        axios.get("/api/countries"),
-        axios.get("/api/tours"),
+        axios.get(`${API_BASE_URL}/api/countries`),
+        axios.get(`${API_BASE_URL}/api/tours`),
       ]);
 
       // Handle countries response
