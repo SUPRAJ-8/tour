@@ -17,9 +17,34 @@ const Tours = () => {
   const [showDurationOptions, setShowDurationOptions] = useState(false);
   const [duration, setDuration] = useState('');
   const [countries, setCountries] = useState([]);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'countries', 'regional', or 'list'
+  const [viewMode, setViewMode] = useState('grid'); // Only grid view is now available
   const [currentPage, setCurrentPage] = useState(1);
   const toursPerPage = 9; // 3 rows of 3 cards
+  
+  // Generate star rating display
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(<FaStar key={i} />);
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(<FaStar key={i} />);
+      } else {
+        stars.push(<FaRegStar key={i} />);
+      }
+    }
+    
+    return stars;
+  };
+  
+  // Format duration as "X Days Y Nights"
+  const formatDuration = (days) => {
+    if (!days || isNaN(days)) return '? Days ? Nights';
+    return `${days} Days ${days - 1} Nights`;
+  };
 
   useEffect(() => {
     const fetchTours = async () => {
@@ -353,46 +378,6 @@ const Tours = () => {
     <div className="tours-page">
       <div className="tours-header">
         <h1 className="tours-title">Explore Our Tours</h1>
-        <div className="tours-actions">
-          <div className="view-toggle">
-            <button 
-              className={`view-toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-              onClick={() => setViewMode('grid')}
-              title="Show all tours in grid"
-            >
-              <FaTh className="view-icon" />
-              <span className="view-text">All Tours</span>
-            </button>
-            <button 
-              className={`view-toggle-btn ${viewMode === 'countries' ? 'active' : ''}`}
-              onClick={() => setViewMode('countries')}
-              title="Show by country"
-            >
-              <FaMapMarkedAlt className="view-icon" />
-              <span className="view-text">Countries</span>
-            </button>
-            <button 
-              className={`view-toggle-btn ${viewMode === 'regional' ? 'active' : ''}`}
-              onClick={() => setViewMode('regional')}
-              title="Show by region"
-            >
-              <FaGlobeAmericas className="view-icon" />
-              <span className="view-text">Regional</span>
-            </button>
-            <button 
-              className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-              onClick={() => setViewMode('list')}
-              title="Show as list"
-            >
-              <FaList className="view-icon" />
-              <span className="view-text">List</span>
-            </button>
-          </div>
-          <Link to="/admin/tour-management" className="admin-link">
-            <FaCog className="admin-icon" />
-            <span>Tour Management</span>
-          </Link>
-        </div>
       </div>
       
       <div className="tours-container">
@@ -592,208 +577,95 @@ const Tours = () => {
             <div className="loading">Loading tours...</div>
           ) : (
             <>
-              {viewMode === 'grid' && (
-                // Grid View - All tours without any categorization
-                filteredAllTours.length > 0 ? (
-                  <>
-                    <div className="tours-grid-view">
-                      {filteredAllTours
-                        .slice((currentPage - 1) * toursPerPage, currentPage * toursPerPage)
-                        .map(tour => {
-                        const tourId = tour._id || tour.id;
-                        const tourName = tour.name || tour.title;
-                        const tourSummary = tour.summary || tour.description || 'No description available';
-                        const tourImage = tour.imageCover || tour.coverImage || tour.image || 'https://via.placeholder.com/300x200';
-                        const tourDuration = tour.duration || '?';
-                        const tourPrice = tour.price || '?';
-                        const tourRating = tour.ratingsAverage || 4.5;
-                        const tourReviews = tour.ratingsQuantity || Math.floor(Math.random() * 30) + 5;
-                        const countryName = tour.countryName || tour.country || 'Unknown';
-                        const isPopular = tour.isPopular || tour.popular || false; // Only show popular badge if marked in Tour Management
-                        
-                        // Generate the tour URL based on region and country
-                        const tourUrl = `/countries/${tour.regionKey}/${countryName.toLowerCase().replace(/\s+/g, '-')}/tour/${tourId}`;
-                        
-                        // Generate star rating display
-                        const renderStars = (rating) => {
-                          const stars = [];
-                          const fullStars = Math.floor(rating);
-                          const hasHalfStar = rating % 1 >= 0.5;
-                          
-                          for (let i = 0; i < 5; i++) {
-                            if (i < fullStars) {
-                              stars.push(<FaStar key={i} />);
-                            } else if (i === fullStars && hasHalfStar) {
-                              stars.push(<FaStar key={i} />);
-                            } else {
-                              stars.push(<FaRegStar key={i} />);
-                            }
-                          }
-                          
-                          return stars;
-                        };
-                        
-                        // Format duration as "X Days Y Nights"
-                        const formatDuration = (days) => {
-                          if (!days || isNaN(days)) return '? Days ? Nights';
-                          return `${days} Days ${days - 1} Nights`;
-                        };
-                        
-                        return (
-                          <Link to={tourUrl} key={tourId} className="tour-card">
-                            {isPopular && (
-                              <div className="tour-popular-badge">
-                                <FaBolt /> Most Popular
-                              </div>
-                            )}
-                            <div className="tour-image">
-                              <img src={tourImage} alt={tourName} />
+              {/* Grid View - All tours without any categorization */}
+              {filteredAllTours.length > 0 ? (
+                <>
+                  <div className="tours-grid-view">
+                    {filteredAllTours
+                      .slice((currentPage - 1) * toursPerPage, currentPage * toursPerPage)
+                      .map(tour => {
+                      const tourId = tour._id || tour.id;
+                      const tourName = tour.name || tour.title;
+                      const tourSummary = tour.summary || tour.description || 'No description available';
+                      const tourImage = tour.imageCover || tour.coverImage || tour.image || 'https://via.placeholder.com/300x200';
+                      const tourDuration = tour.duration || '?';
+                      const tourPrice = tour.price || '?';
+                      const tourRating = tour.ratingsAverage || 4.5;
+                      const tourReviews = tour.ratingsQuantity || Math.floor(Math.random() * 30) + 5;
+                      const countryName = tour.countryName || tour.country || 'Unknown';
+                      const isPopular = tour.isPopular || tour.popular || false; // Only show popular badge if marked in Tour Management
+                      
+                      // Generate the tour URL based on region and country
+                      const tourUrl = `/countries/${tour.regionKey}/${countryName.toLowerCase().replace(/\s+/g, '-')}/tour/${tourId}`;
+                      
+                      return (
+                        <Link to={tourUrl} key={tourId} className="tour-card">
+                          {isPopular && (
+                            <div className="tour-popular-badge">
+                              <FaBolt /> Most Popular
                             </div>
-                            <div className="tour-info">
-                              <div className="tour-rating">
-                                <div className="tour-rating-stars">
-                                  {renderStars(tourRating)}
-                                </div>
-                                <span className="tour-rating-count">({tourReviews})</span>
-                              </div>
-                              <h3 className="tour-name">{tourName}</h3>
-                              <div className="tour-location">
-                                <FaMapMarkerAlt />
-                                <span>{countryName}</span>
-                              </div>
-                              <div className="tour-duration-info">
-                                <FaCalendarAlt />
-                                <span>{formatDuration(tourDuration)}</span>
-                              </div>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Pagination */}
-                    {filteredAllTours.length > toursPerPage && (
-                      <div className="pagination-container">
-                        <ul className="pagination">
-                          {Array.from({ length: Math.ceil(filteredAllTours.length / toursPerPage) }).map((_, index) => (
-                            <li key={index} className="pagination-item">
-                              <button 
-                                className={`pagination-link ${currentPage === index + 1 ? 'active' : ''}`}
-                                onClick={() => {
-                                  setCurrentPage(index + 1);
-                                  window.scrollTo(0, 0);
-                                }}
-                              >
-                                {index + 1}
-                              </button>
-                            </li>
-                          ))}
-                          {currentPage < Math.ceil(filteredAllTours.length / toursPerPage) && (
-                            <li className="pagination-item">
-                              <button 
-                                className="pagination-next"
-                                onClick={() => {
-                                  setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredAllTours.length / toursPerPage)));
-                                  window.scrollTo(0, 0);
-                                }}
-                              >
-                                Next <FaChevronRight />
-                              </button>
-                            </li>
                           )}
-                        </ul>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="no-tours">No tours found matching your criteria. Try adjusting your filters.</div>
-                )
-              )}
-              
-              {viewMode === 'countries' && (
-                // Countries View - All countries without region categorization
-                <RegionalToursList toursData={filteredRegionalTours} loading={loading} viewMode="countries" />
-              )}
-              
-              {viewMode === 'regional' && (
-                // Regional View - Tours grouped by region and country
-                <RegionalToursList toursData={filteredRegionalTours} loading={loading} viewMode="regional" />
-              )}
-              
-              {viewMode === 'list' && (
-                // List View - Original implementation
-                filteredTours.length > 0 ? (
-                  <div>
-                    {/* Group tours by country */}
-                    {(() => {
-                      // Get unique countries from filtered tours
-                      const tourCountries = [];
-                      const toursByCountry = {};
-                      
-                      // Group tours by country
-                      filteredTours.forEach(tour => {
-                        let country = '';
-                        
-                        // Extract country from tour data - prioritize the direct country field
-                        if (tour.country) {
-                          country = tour.country;
-                        } else if (tour.startLocation && tour.startLocation.description) {
-                          country = tour.startLocation.description.split(',')[0].trim();
-                        } else if (tour.location) {
-                          country = typeof tour.location === 'string' ? 
-                            tour.location.split(',')[0].trim() : 
-                            tour.location.description ? tour.location.description.split(',')[0].trim() : '';
-                        } else {
-                          country = 'Other';
-                        }
-                        
-                        // Add country to list if not already there
-                        if (!tourCountries.includes(country)) {
-                          tourCountries.push(country);
-                        }
-                        
-                        // Add tour to country group
-                        if (!toursByCountry[country]) {
-                          toursByCountry[country] = [];
-                        }
-                        toursByCountry[country].push(tour);
-                      });
-                      
-                      // Sort countries alphabetically
-                      tourCountries.sort();
-                      
-                      // Return JSX for each country group
-                      return tourCountries.map(country => (
-                        <div key={country} className="country-tour-section">
-                          <h2 className="country-heading">
-                            <FaGlobe className="country-icon" /> {country}
-                          </h2>
-                          <div className="tours-grid">
-                            {toursByCountry[country].map(tour => (
-                              <Link to={`/tour/${tour._id || tour.id}`} key={tour._id || tour.id} className="tour-card">
-                                <div className="tour-image">
-                                  <img src={tour.imageCover || tour.image || 'https://via.placeholder.com/300x200'} alt={tour.name} />
-                                  <div className="tour-duration">{tour.duration || '?'} days</div>
-                                  <div className="tour-country">{country}</div>
-                                </div>
-                                <div className="tour-info">
-                                  <h3 className="tour-name">{tour.name}</h3>
-                                  <p className="tour-summary">{tour.summary || tour.description || 'No description available'}</p>
-                                  <div className="tour-details">
-                                    <span className="tour-price">${tour.price || '?'}</span>
-                                    <span className="tour-rating">★ {tour.ratingsAverage || '5.0'} ({tour.ratingsQuantity || '0'})</span>
-                                  </div>
-                                </div>
-                              </Link>
-                            ))}
+                          <div className="tour-image">
+                            <img src={tourImage} alt={tourName} />
                           </div>
-                        </div>
-                      ));
-                    })()} 
+                          <div className="tour-info">
+                            <div className="tour-rating">
+                              <div className="tour-rating-stars">
+                                {renderStars(tourRating)}
+                              </div>
+                              <span className="tour-rating-count">({tourReviews})</span>
+                            </div>
+                            <h3 className="tour-name">{tourName}</h3>
+                            <div className="tour-location">
+                              <FaMapMarkerAlt />
+                              <span>{countryName}</span>
+                            </div>
+                            <div className="tour-duration-info">
+                              <FaCalendarAlt />
+                              <span>{formatDuration(tourDuration)}</span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
-                ) : (
-                  <div className="no-tours">No tours found matching your criteria. Try adjusting your filters.</div>
-                )
+                  
+                  {/* Pagination */}
+                  {filteredAllTours.length > toursPerPage && (
+                    <div className="pagination-container">
+                      <ul className="pagination">
+                        {Array.from({ length: Math.ceil(filteredAllTours.length / toursPerPage) }).map((_, index) => (
+                          <li key={index} className="pagination-item">
+                            <button 
+                              className={`pagination-link ${currentPage === index + 1 ? 'active' : ''}`}
+                              onClick={() => {
+                                setCurrentPage(index + 1);
+                                window.scrollTo(0, 0);
+                              }}
+                            >
+                              {index + 1}
+                            </button>
+                          </li>
+                        ))}
+                        {currentPage < Math.ceil(filteredAllTours.length / toursPerPage) && (
+                          <li className="pagination-item">
+                            <button 
+                              className="pagination-next"
+                              onClick={() => {
+                                setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredAllTours.length / toursPerPage)));
+                                window.scrollTo(0, 0);
+                              }}
+                            >
+                              Next <FaChevronRight />
+                            </button>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="no-tours">No tours found matching your criteria. Try adjusting your filters.</div>
               )}
             </>
           )}

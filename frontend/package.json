@@ -2,7 +2,7 @@
   "name": "travel-tour-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://SUPRAJ-8.github.io/toor",
+  "homepage": "https://SUPRAJ-8.github.io/tour",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
