@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
 import './Navbar.css';
@@ -7,8 +7,32 @@ import './Navbar.css';
 const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Check if current page is home page
+  const isHomePage = location.pathname === '/';
+  
+  // Add scroll event listener to detect when user scrolls down
+  useEffect(() => {
+    const handleScroll = () => {
+      // Add scrolled class when user scrolls down more than 50px
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    // Clean up event listener on component unmount
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -24,7 +48,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${isHomePage ? 'transparent' : ''} ${scrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
         <Link to="/" className="navbar-logo">
           TravelTour

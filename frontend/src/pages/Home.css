@@ -5,6 +5,20 @@
   overflow: hidden;
 }
 
+.hero-slider-inner {
+  height: 80vh !important;
+}
+
+.hero-slider .slick-slider,
+.hero-slider .slick-list,
+.hero-slider .slick-track {
+  height: 100%;
+}
+
+.hero-slider .slick-slide > div {
+  height: 100%;
+}
+
 /* Original hero slide (fallback) */
 .hero-slide {
   height: 80vh;
@@ -30,7 +44,7 @@
 
 /* Tour Slide Styles */
 .tour-slide {
-  height: 80vh;
+  height: 500px;
   position: relative;
   color: var(--white-color);
 }
@@ -68,6 +82,36 @@
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+/* Hottest Tour Badge in Slider */
+.tour-slide-content .tour-card-badge.hottest-tour {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  background-color: #e74c3c;
+  color: white;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transform: translateX(-5px);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+  }
 }
 
 .tour-slide-title {
@@ -159,21 +203,11 @@
   opacity: 1;
 }
 
-.hero-content {
+/* Hero Section */
+.hero-section {
   position: relative;
-  z-index: 1;
-  max-width: 800px;
-  padding: 0 1rem;
-}
-
-.hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
+  height: 80vh;
+  overflow: hidden;
 }
 
 /* Most Popular Section */
@@ -206,7 +240,7 @@
 }
 
 .popular-tour-image {
-  height: 200px;
+  height: 252px;
   position: relative;
 }
 
@@ -310,7 +344,7 @@
 
 /* Popular Tours Section */
 .popular-tours-section {
-  padding: 4rem 0;
+
   background-color: #f9f9f9;
   display: block !important;
   visibility: visible !important;
@@ -337,7 +371,7 @@
 }
 
 .popular-tour-image {
-  height: 200px;
+  height: 252px;
   position: relative;
   overflow: hidden;
 }
@@ -409,7 +443,14 @@
 
 /* Featured Tours Section */
 .section {
-  padding: 4rem 0;
+  padding: 3rem 0;
+}
+
+/* Add padding to specific sections that need it */
+.featured-tours-section,
+.why-choose-us-section,
+.newsletter-section {
+  padding-top: 3rem;
 }
 
 .section-title {

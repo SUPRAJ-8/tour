@@ -3,32 +3,13 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useData } from '../context/DataContext';
 import { getSampleTours } from '../services/tourService';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaArrowRight, FaArrowLeft, FaSyncAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt } from 'react-icons/fa';
 import PopularTours from '../components/PopularTours';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import HottestTours from '../components/HottestTours';
 import './Home.css';
 import './Categories.css';
 
-// Custom arrow components for slider
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className="slider-arrow next-arrow" onClick={onClick}>
-      <FaArrowRight />
-    </div>
-  );
-};
 
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className="slider-arrow prev-arrow" onClick={onClick}>
-      <FaArrowLeft />
-    </div>
-  );
-};
 
 const Home = () => {
   // Use the shared data context
@@ -45,6 +26,7 @@ const Home = () => {
   const [asianTours, setAsianTours] = useState([]);
   const [europeanTours, setEuropeanTours] = useState([]);
   const [allTours, setAllTours] = useState([]);
+  const [hottestTours, setHottestTours] = useState([]);
   const [popularDestinations, setPopularDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
@@ -63,6 +45,24 @@ const Home = () => {
     return tour.popularTour === true || 
            tour.popularTour === 'true' || 
            tour.popularTour === 1;
+  };
+  
+  // Function to check if a tour is hottest
+  const isHottestTour = (tour) => {
+    // For debugging
+    console.log(`Checking if tour ${tour.title || tour.name} is hottest:`, {
+      hottestTour: tour.hottestTour,
+      type: typeof tour.hottestTour,
+      isTrue: tour.hottestTour === true,
+      isStringTrue: tour.hottestTour === 'true',
+      isOne: tour.hottestTour === 1,
+      stringValue: String(tour.hottestTour).toLowerCase()
+    });
+    
+    return tour.hottestTour === true || 
+           tour.hottestTour === 'true' || 
+           tour.hottestTour === 1 ||
+           String(tour.hottestTour).toLowerCase() === 'true';
   };
   
   // Function to manually refresh tour data
@@ -248,6 +248,27 @@ const Home = () => {
         // Get featured/popular tours from context
         setFeaturedTours(getPopularTours(6) || []);
         
+        // Get hottest tours for the hero slider (up to 10)
+        let hottestToursList = tours.filter(isHottestTour);
+        console.log('Hottest tours found:', hottestToursList.length);
+        
+        // If no hottest tours found, use the first 5 tours as hottest
+        if (hottestToursList.length === 0 && tours.length > 0) {
+          console.log('No hottest tours found, using first 5 tours');
+          hottestToursList = tours.slice(0, 5).map(tour => ({
+            ...tour,
+            hottestTour: true
+          }));
+        }
+        
+        // Ensure we have valid tour data with required fields
+        const validHottestTours = hottestToursList.filter(tour => 
+          tour && tour.title && (tour.coverImage || tour.imageCover)
+        ).slice(0, 10);
+        
+        console.log('Valid hottest tours:', validHottestTours.length);
+        setHottestTours(validHottestTours);
+        
         // Get Asian tours (with safety checks)
         const asianCountries = getCountriesByContinent('asia') || [];
         const asianCountryIds = asianCountries.map(country => country?._id).filter(Boolean);
@@ -274,6 +295,7 @@ const Home = () => {
         // Set empty arrays to prevent rendering errors
         setAllTours([]);
         setFeaturedTours([]);
+        setHottestTours([]);
         setAsianTours([]);
         setEuropeanTours([]);
         setPopularDestinations([]);
@@ -295,48 +317,8 @@ const Home = () => {
 
   return (
     <div className="home">
-      {/* Static Hero Section */}
-      <section className="hero-section">
-        <div className="hero-slide" style={{ 
-          backgroundImage: 'url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80")',
-          height: '80vh',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative'
-        }}>
-          <div className="hero-overlay" style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)'
-          }}></div>
-          <div className="hero-content" style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            color: 'white',
-            zIndex: 1,
-            width: '80%'
-          }}>
-            <h1 className="hero-title" style={{ fontSize: '3rem', marginBottom: '1rem' }}>Discover the World with Us</h1>
-            <p className="hero-subtitle" style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Explore Asia and Europe with our expertly crafted tour packages</p>
-            <Link to="/tours" className="btn btn-primary" style={{
-              padding: '12px 30px',
-              backgroundColor: '#1e88e5',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '4px',
-              fontWeight: 'bold',
-              fontSize: '1.1rem',
-              display: 'inline-block'
-            }}>Explore Tours</Link>
-          </div>
-        </div>
-      </section>
+      {/* Hottest Tours Section */}
+      <HottestTours />
 
       {/* Most Popular Tours Section */}
       {/* Popular Tours Section */}

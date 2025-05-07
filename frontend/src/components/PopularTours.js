@@ -79,7 +79,7 @@ const PopularTours = () => {
               <div className="popular-tour-image">
                 <img src={tour.coverImage || tour.imageCover} alt={tour.title || tour.name} />
                 <div className="popular-tour-badge"><FaBolt /> Most Popular</div>
-                <div className="heart-icon"><FaHeart /></div>
+                
               </div>
               <div className="popular-tour-content">
                 <div className="tour-rating">
