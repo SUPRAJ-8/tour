@@ -40,7 +40,9 @@ const TourManagement = () => {
     discountPrice: 0,
     difficulty: 'easy',
     status: 'active',
-    featured: false
+    featured: false,
+    hottestTour: false,
+    popularTour: false
   });
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
@@ -165,7 +167,8 @@ const TourManagement = () => {
       discountPrice: 0,
       difficulty: 'easy',
       status: 'active',
-      featured: false
+      featured: false,
+      hottestTour: false
     });
     
     setCountrySearchTerm('');
@@ -203,7 +206,9 @@ const TourManagement = () => {
       discountPrice: tour.discountPrice || 0,
       difficulty: tour.difficulty || 'easy',
       status: tour.status || 'active',
-      featured: tour.featured || false
+      featured: tour.featured || false,
+      hottestTour: tour.hottestTour || false,
+      popularTour: tour.popularTour || false
     });
     
     if (tour.destination && tour.destination.country) {
@@ -213,12 +218,69 @@ const TourManagement = () => {
     setShowModal(true);
   };
 
+  // Track previous badge state to prevent duplicate notifications
+  const [prevBadgeState, setPrevBadgeState] = useState({
+    featured: false,
+    hottestTour: false,
+    popularTour: false
+  });
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
+    const newValue = type === 'checkbox' ? checked : value;
+    
+    // Handle regular input changes
+    if (type !== 'checkbox' || !['popularTour', 'hottestTour', 'featured'].includes(name)) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: newValue
+      }));
+      return;
+    }
+    
+    // Special handling for badge checkboxes
+    if (checked) {
+      // Create a new form state with only this badge selected
+      const updatedFormData = {
+        ...formData,
+        featured: name === 'featured',
+        hottestTour: name === 'hottestTour',
+        popularTour: name === 'popularTour'
+      };
+      
+      setFormData(updatedFormData);
+      
+      // Only show toast if this is a new selection (not from re-render)
+      if (!prevBadgeState[name]) {
+        // Prevent duplicate toasts by dismissing all existing ones first
+        toast.dismiss();
+        
+        // Show the new toast with a fixed ID
+        toast.info(
+          `Tour marked as ${name === 'popularTour' ? 'Popular' : name === 'hottestTour' ? 'Hottest' : 'Featured'}`,
+          { toastId: 'badge-selection' }
+        );
+      }
+      
+      // Update the previous badge state
+      setPrevBadgeState({
+        featured: name === 'featured',
+        hottestTour: name === 'hottestTour',
+        popularTour: name === 'popularTour'
+      });
+    } else {
+      // If unchecking, just update that specific badge
+      setFormData(prev => ({
+        ...prev,
+        [name]: false
+      }));
+      
+      // Update the previous badge state for this badge
+      setPrevBadgeState(prev => ({
+        ...prev,
+        [name]: false
+      }));
+    }
   };
 
   const handleArrayInputChange = (index, field, value, subfield = null) => {
@@ -451,7 +513,8 @@ const TourManagement = () => {
               country: formData.country,
               continent: continent,
               coverImage: formData.coverImage,
-              featured: false
+              featured: false,
+              hottestTour: false
             };
             
             // Try to create a destination directly
@@ -512,18 +575,32 @@ const TourManagement = () => {
         difficulty: formData.difficulty || 'easy',
         coverImage: formData.coverImage,
         images: formData.heroImages.filter(img => img.trim() !== ''),
-        includes: formData.includes.filter(item => item.trim() !== ''),
-        excludes: formData.excludes.filter(item => item.trim() !== ''),
+        included: formData.includes.filter(item => item.trim() !== ''),
+        excluded: formData.excludes.filter(item => item.trim() !== ''),
         highlights: formData.highlights.filter(item => item.trim() !== ''),
         visaRequirements: formData.visaRequirements || '',
         bestTimeToVisit: formData.bestTimeToVisit || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        featured: formData.featured || false,
+        // Ensure boolean values are explicitly set as booleans
+        featured: Boolean(formData.featured),
+        hottestTour: Boolean(formData.hottestTour),
+        popularTour: Boolean(formData.popularTour),
         status: formData.status || 'active',
         createdBy: '64f9c39c1d67b5d1f9fcb1a3'
       };
       
+      // Log the boolean values for debugging
+      console.log('Boolean values being sent:', {
+        featured: tourData.featured,
+        hottestTour: tourData.hottestTour,
+        popularTour: tourData.popularTour,
+        featuredType: typeof tourData.featured,
+        hottestTourType: typeof tourData.hottestTour,
+        popularTourType: typeof tourData.popularTour
+      });
+      
       console.log('Submitting tour data:', tourData);
+      console.log('Popular Tour value being sent:', tourData.popularTour, typeof tourData.popularTour);
       
       let result;
       if (currentTour) {
@@ -1040,7 +1117,7 @@ const TourManagement = () => {
                   </div>
                 </div>
                 
-                <div className="form-group checkbox-group">
+                <div className="form-group checkbox-group" style={{ display: 'flex', gap: '20px' }}>
                   <label>
                     <input
                       type="checkbox"
@@ -1049,6 +1126,24 @@ const TourManagement = () => {
                       onChange={handleInputChange}
                     />
                     Featured Tour
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="hottestTour"
+                      checked={formData.hottestTour}
+                      onChange={handleInputChange}
+                    />
+                    Hottest Tour
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="popularTour"
+                      checked={formData.popularTour}
+                      onChange={handleInputChange}
+                    />
+                    Popular Tour
                   </label>
                 </div>
                 

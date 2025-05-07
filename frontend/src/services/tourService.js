@@ -214,7 +214,7 @@ export const getTourUrl = (region, country, tourId) => {
  * Returns sample tour data for development and testing
  * @returns {Array} Array of sample tour objects
  */
-const getSampleTours = () => {
+export const getSampleTours = () => {
   return [
     {
       id: 'tour-1',
@@ -227,7 +227,9 @@ const getSampleTours = () => {
       ratingsAverage: 4.7,
       ratingsQuantity: 23,
       country: 'Thailand',
-      continent: 'Asia'
+      continent: 'Asia',
+      popularTour: true,
+      hottestTour: false
     },
     {
       id: 'tour-2',
@@ -240,7 +242,9 @@ const getSampleTours = () => {
       ratingsAverage: 4.9,
       ratingsQuantity: 18,
       country: 'Japan',
-      continent: 'Asia'
+      continent: 'Asia',
+      popularTour: false,
+      hottestTour: true
     },
     {
       id: 'tour-3',
@@ -279,7 +283,9 @@ const getSampleTours = () => {
       ratingsAverage: 4.8,
       ratingsQuantity: 15,
       country: 'Vietnam',
-      continent: 'Asia'
+      continent: 'Asia',
+      popularTour: true,
+      hottestTour: false
     },
     {
       id: 'tour-6',
@@ -301,7 +307,7 @@ const getSampleTours = () => {
  * Processes sample tour data into the required format
  * @returns {Object} Object containing processed sample tour data
  */
-const processSampleTours = () => {
+export const processSampleTours = () => {
   const sampleTours = getSampleTours();
   
   // Organize tours by region and country

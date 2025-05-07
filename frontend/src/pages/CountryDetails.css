@@ -237,6 +237,7 @@
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 304.39px;
 }
 
 .tour-card:hover {
@@ -245,7 +246,8 @@
 }
 
 .tour-image-container {
-  height: 180px;
+  height: 189px;
+  width: 304.39px;
   overflow: hidden;
 }
 
@@ -265,7 +267,7 @@
 }
 
 .tour-content h3 {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   font-size: 18px;
   color: #2c3e50;
 }
@@ -273,7 +275,7 @@
 .tour-details {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 3px;
   font-size: 14px;
   color: #666;
 }

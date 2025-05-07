@@ -218,15 +218,26 @@
 
 .popular-tour-badge {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background-color: var(--primary-color);
-  color: var(--white-color);
-  padding: 5px 10px;
-  border-radius: 5px;
+  left: 0;
+  color: white;
+  padding: 5px 15px;
+  font-size: 0.9rem;
   font-size: 12px;
   font-weight: 600;
   z-index: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.popular-tour-badge.hottest-tour {
+  top: 15px;
+  background-color: #e74c3c;
+}
+
+.popular-tour-badge.popular-tour {
+  top: 55px;
+  background-color: #2980b9;
 }
 
 .popular-tour-content {
@@ -236,7 +247,6 @@
 .popular-tour-title {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 15px;
   color: var(--heading-color);
 }
 
@@ -298,6 +308,105 @@
   }
 }
 
+/* Popular Tours Section */
+.popular-tours-section {
+  padding: 4rem 0;
+  background-color: #f9f9f9;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.popular-tours-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.popular-tour-card {
+  background-color: var(--white-color);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popular-tour-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.popular-tour-image {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.popular-tour-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.popular-tour-card:hover .popular-tour-image img {
+  transform: scale(1.05);
+}
+
+.popular-tour-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #0095ff;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  z-index: 2;
+}
+
+.popular-tour-content {
+  padding: 16px 24px 0px 24px;
+}
+
+.popular-tour-title {
+  font-size: 30px;
+  color: var(--dark-color);
+}
+
+.popular-tour-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.info-item svg {
+  color: var(--primary-color);
+}
+
+.popular-tour-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+
 /* Featured Tours Section */
 .section {
   padding: 4rem 0;
@@ -344,6 +453,29 @@
   width: 304.39px;
   height: 189px;
   object-fit: cover;
+}
+
+.tour-card-badge {
+  position: absolute;
+  left: 0;
+  color: white;
+  padding: 5px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 2;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.tour-card-badge.hottest-tour {
+  top: 15px;
+  background-color: #e74c3c;
+}
+
+.tour-card-badge.popular-tour {
+  top: 55px;
+  background-color: #2980b9;
 }
 
 .tour-popular-badge {
@@ -418,7 +550,6 @@
 .info-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   color: var(--text-color);
 }
 

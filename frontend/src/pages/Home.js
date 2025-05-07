@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useData } from '../context/DataContext';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { getSampleTours } from '../services/tourService';
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaArrowRight, FaArrowLeft, FaSyncAlt } from 'react-icons/fa';
+import PopularTours from '../components/PopularTours';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -35,7 +37,8 @@ const Home = () => {
     countries, 
     loading: dataLoading, 
     getPopularTours,
-    getCountriesByContinent 
+    getCountriesByContinent,
+    refreshData
   } = useData();
   
   const [featuredTours, setFeaturedTours] = useState([]);
@@ -44,22 +47,203 @@ const Home = () => {
   const [allTours, setAllTours] = useState([]);
   const [popularDestinations, setPopularDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+  // Function to check if a tour is popular
+  const isPopularTour = (tour) => {
+    // For debugging
+    console.log(`Checking tour ${tour.title || tour.name}:`, {
+      popularTour: tour.popularTour,
+      type: typeof tour.popularTour,
+      isTrue: tour.popularTour === true,
+      isStringTrue: tour.popularTour === 'true',
+      isOne: tour.popularTour === 1
+    });
+    
+    return tour.popularTour === true || 
+           tour.popularTour === 'true' || 
+           tour.popularTour === 1;
+  };
+  
+  // Function to manually refresh tour data
+  const handleRefreshData = async () => {
+    console.log('Manually refreshing tour data...');
+    
+    try {
+      // First try to refresh data through the context
+      if (typeof refreshData === 'function') {
+        console.log('Using context refreshData function...');
+        await refreshData();
+        
+        // Wait a moment for the context to update
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('Context data refreshed, tours:', tours?.length);
+        
+        if (Array.isArray(tours) && tours.length > 0) {
+          console.log('Setting tours from refreshed context data');
+          setAllTours(tours);
+          setLastRefresh(Date.now());
+          return;
+        }
+      }
+      
+      // If context refresh failed or isn't available, make a direct API call
+      console.log('Making direct API call...');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/tours`);
+      
+      console.log('Fresh data from API:', response.data);
+      
+      let freshTours = [];
+      
+      // Handle different API response formats
+      if (response.data && Array.isArray(response.data)) {
+        freshTours = response.data;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
+        freshTours = response.data.data.tours;
+      } else if (response.data && Array.isArray(response.data.tours)) {
+        freshTours = response.data.tours;
+      } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+        freshTours = response.data.data;
+      } else if (response.data && response.data.success && response.data.data) {
+        // Handle the common {success: true, data: [...]} format
+        freshTours = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
+      }
+      
+      if (freshTours.length > 0) {
+        console.log('Setting fresh tours data from API:', freshTours.length);
+        console.log('Popular tours in API data:', freshTours.filter(t => t.popularTour).length);
+        setAllTours(freshTours);
+      } else {
+        // If API call fails or returns no data, use the context data
+        console.log('No tours found in API response, using context data');
+        if (Array.isArray(tours) && tours.length > 0) {
+          setAllTours(tours);
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      // On error, still try to use the context data
+      if (Array.isArray(tours) && tours.length > 0) {
+        console.log('Using tours from context after error:', tours.length);
+        setAllTours(tours);
+      }
+    }
+    
+    // Force UI refresh
+    setLastRefresh(Date.now());
+  };
 
   useEffect(() => {
-    // Only proceed if data loading is complete
-    if (!dataLoading) {
+    const loadTourData = async () => {
+      try {
+        setLoading(true);
+        console.log('Loading tour data, lastRefresh:', lastRefresh);
+        
+        let toursToUse = [];
+        
+        // Try to get data from API first
+        try {
+          const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+          const response = await axios.get(`${apiUrl}/api/tours`);
+          console.log('API response:', response.data);
+          
+          // Handle different API response formats
+          if (response.data && Array.isArray(response.data)) {
+            toursToUse = response.data;
+          } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
+            toursToUse = response.data.data.tours;
+          } else if (response.data && Array.isArray(response.data.tours)) {
+            toursToUse = response.data.tours;
+          }
+          
+          console.log('Tours from API:', toursToUse.length);
+        } catch (apiError) {
+          console.log('API error, falling back to context data:', apiError);
+        }
+        
+        // If API call failed or returned no data, try context data
+        if (toursToUse.length === 0 && Array.isArray(tours) && tours.length > 0) {
+          console.log('Using tours from context:', tours.length);
+          toursToUse = tours;
+        }
+        
+        // If still no data, use sample data
+        if (toursToUse.length === 0) {
+          console.log('No data from API or context, using sample data');
+          const sampleTours = getSampleTours();
+          console.log('Sample tours:', sampleTours.length);
+          toursToUse = sampleTours;
+        }
+        
+        // Log tours with popularTour property
+        const popularTours = toursToUse.filter(tour => {
+          const isPopular = tour.popularTour === true || 
+                           tour.popularTour === 'true' || 
+                           tour.popularTour === 1 || 
+                           String(tour.popularTour).toLowerCase() === 'true';
+          
+          console.log(`Tour ${tour.title || tour.name} popularTour:`, {
+            value: tour.popularTour,
+            type: typeof tour.popularTour,
+            isPopular: isPopular
+          });
+          
+          return isPopular;
+        });
+        
+        console.log('Popular tours found:', popularTours.length);
+        console.log('Popular tour details:', popularTours);
+        
+        // Set all tours and update loading state
+        setAllTours(toursToUse);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading tour data:', error);
+        // Fallback to sample data in case of error
+        const sampleTours = getSampleTours();
+        setAllTours(sampleTours);
+        setLoading(false);
+      }
+    };
+
+    loadTourData();
+
+    // Then proceed with loading actual data if available
+    if (!dataLoading && tours && tours.length > 0) {
       try {
         // Filter out Nepal tours (with safety checks for undefined properties)
         const filteredAllTours = tours.filter(tour => {
-          if (!tour) return false;
-          const title = tour.title || '';
-          const countryName = tour.country?.name || '';
-          const destination = tour.destination || '';
-          return !title.includes('Nepal') && 
-                 !countryName.includes('Nepal') &&
-                 !destination.includes('Nepal');
+          try {
+            if (!tour) return false;
+            const title = tour.title || tour.name || '';
+            const countryName = tour.country?.name || tour.country || '';
+            
+            // Handle destination properly based on its type
+            let destinationName = '';
+            if (typeof tour.destination === 'string') {
+              destinationName = tour.destination;
+            } else if (tour.destination && tour.destination.name) {
+              destinationName = tour.destination.name;
+            } else if (tour.destination && tour.destination.country) {
+              destinationName = tour.destination.country;
+            }
+            
+            return !title.includes('Nepal') && 
+                   !countryName.includes('Nepal') &&
+                   !destinationName.includes('Nepal');
+          } catch (err) {
+            console.log('Error filtering tour:', tour, err);
+            return true; // Include the tour if there's an error filtering
+          }
         });
-        setAllTours(filteredAllTours);
+        
+        // Only update if we have actual data
+        if (filteredAllTours.length > 0) {
+          console.log('Using actual tour data:', filteredAllTours.length);
+          setAllTours(filteredAllTours);
+        }
         
         // Get featured/popular tours from context
         setFeaturedTours(getPopularTours(6) || []);
@@ -98,7 +282,7 @@ const Home = () => {
         setLoading(false);
       }
     }
-  }, [tours, countries, dataLoading, getPopularTours, getCountriesByContinent]);
+  }, [tours, countries, dataLoading, getPopularTours, getCountriesByContinent, lastRefresh]);
   
   if (loading || dataLoading) {
     return (
@@ -111,102 +295,52 @@ const Home = () => {
 
   return (
     <div className="home">
-      {/* Tour Packages Slider Section */}
-      <section className="hero-slider">
-        {allTours.length > 0 ? (
-          <Slider
-            dots={true}
-            infinite={true}
-            speed={500}
-            slidesToShow={1}
-            slidesToScroll={1}
-            autoplay={true}
-            autoplaySpeed={8000}
-            pauseOnHover={true}
-            nextArrow={<NextArrow />}
-            prevArrow={<PrevArrow />}
-          >
-            {allTours.map(tour => (
-              <div key={tour._id} className="tour-slide">
-                <div className="tour-slide-image" style={{ backgroundImage: `url(${tour.coverImage})` }}></div>
-                <div className="tour-slide-overlay"></div>
-                <div className="tour-slide-content">
-                  <h1 className="tour-slide-title">{tour.title}</h1>
-                  <p className="tour-slide-description">Experience the world with our international tour packages</p>
-                  <div className="tour-slide-info">
-                    <div className="slide-info-item">
-                      <FaMapMarkerAlt />
-                      <span>{tour.destination.name}</span>
-                    </div>
-                    <div className="slide-info-item">
-                      <FaCalendarAlt />
-                      <span>{tour.duration} days</span>
-                    </div>
-                    <div className="slide-info-item">
-                      <FaUsers />
-                      <span>Max: {tour.maxGroupSize} people</span>
-                    </div>
-                  </div>
-                  <p className="tour-slide-price">NPR {tour.price} <span>per person</span></p>
-                  <Link to={`/tours/${tour._id}`} className="btn btn-primary">View Details</Link>
-                </div>
-              </div>
-            ))}
-          </Slider>
-        ) : (
-          <div className="hero-slide" style={{ backgroundImage: 'url("/images/hero-bg.jpg")' }}>
-            <div className="hero-content">
-              <h1 className="hero-title">International Tour Specialists</h1>
-              <p className="hero-subtitle">Explore Asia and Europe with our expertly crafted tour packages</p>
-              <Link to="/tours" className="btn btn-primary">Explore Tours</Link>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Most Popular Section */}
-      <section className="section most-popular-section">
-        <div className="container">
-          <h2 className="section-title">Most Popular Tours</h2>
-          <p className="section-subtitle">Our travelers' favorite experiences</p>
-          
-          <div className="popular-tours-grid">
-            {allTours.slice(0, 4).map(tour => (
-              <div key={tour._id} className="popular-tour-card">
-                <div className="popular-tour-image">
-                  <img src={tour.coverImage} alt={tour.title} />
-                  <div className="popular-tour-badge">Most Popular</div>
-                </div>
-                <div className="popular-tour-content">
-                  <h3 className="popular-tour-title">{tour.title}</h3>
-                  <div className="popular-tour-info">
-                    <div className="info-item">
-                      <FaMapMarkerAlt />
-                      <span>{tour.destination?.name}</span>
-                    </div>
-                    <div className="info-item">
-                      <FaCalendarAlt />
-                      <span>{tour.duration} days</span>
-                    </div>
-                    <div className="info-item">
-                      <FaStar />
-                      <span>{tour.ratingsAverage || 4.5} ({tour.ratingsQuantity || 12})</span>
-                    </div>
-                  </div>
-                  <div className="popular-tour-footer">
-                    <div className="popular-tour-price">NPR {tour.price}</div>
-                    <Link to={`/tours/${tour._id}`} className="btn btn-sm btn-outline">View Details</Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-4">
-            <Link to="/tours" className="btn btn-primary">View All Tours</Link>
+      {/* Static Hero Section */}
+      <section className="hero-section">
+        <div className="hero-slide" style={{ 
+          backgroundImage: 'url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1050&q=80")',
+          height: '80vh',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          position: 'relative'
+        }}>
+          <div className="hero-overlay" style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+          }}></div>
+          <div className="hero-content" style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            color: 'white',
+            zIndex: 1,
+            width: '80%'
+          }}>
+            <h1 className="hero-title" style={{ fontSize: '3rem', marginBottom: '1rem' }}>Discover the World with Us</h1>
+            <p className="hero-subtitle" style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Explore Asia and Europe with our expertly crafted tour packages</p>
+            <Link to="/tours" className="btn btn-primary" style={{
+              padding: '12px 30px',
+              backgroundColor: '#1e88e5',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              fontSize: '1.1rem',
+              display: 'inline-block'
+            }}>Explore Tours</Link>
           </div>
         </div>
       </section>
+
+      {/* Most Popular Tours Section */}
+      {/* Popular Tours Section */}
+      <PopularTours />
       
       {/* Categories Section */}
       <section className="section categories-section">
@@ -218,7 +352,7 @@ const Home = () => {
             {/* Asia Category */}
             <div className="category-card">
               <div className="category-image">
-                <img src="/images/categories/asia.jpg" alt="Asia Tours" />
+                <img src={`${process.env.PUBLIC_URL}/images/categories/asia.jpg`} alt="Asia Tours" />
                 <div className="category-overlay"></div>
               </div>
               <div className="category-content">
@@ -238,7 +372,7 @@ const Home = () => {
             {/* Europe Category */}
             <div className="category-card">
               <div className="category-image">
-                <img src="/images/categories/europe.jpg" alt="Europe Tours" />
+                <img src={`${process.env.PUBLIC_URL}/images/categories/europe.jpg`} alt="Europe Tours" />
                 <div className="category-overlay"></div>
               </div>
               <div className="category-content">
@@ -269,15 +403,17 @@ const Home = () => {
               featuredTours.map(tour => (
                 <div key={tour._id} className="tour-card">
                   <div className="tour-card-image">
-                    <img src={tour.coverImage} alt={tour.title} />
+                    <img src={tour.coverImage || tour.imageCover} alt={tour.title || tour.name} />
                     <div className="tour-card-price">NPR {tour.price}</div>
+                    {tour.hottestTour && <div className="tour-card-badge hottest-tour">Hottest Tour</div>}
+                    {tour.popularTour && <div className="tour-card-badge popular-tour">Popular Tour</div>}
                   </div>
                   <div className="tour-card-content">
-                    <h3 className="tour-card-title">{tour.title}</h3>
+                    <h3 className="tour-card-title">{tour.title || tour.name}</h3>
                     <div className="tour-card-info">
                       <div className="info-item">
                         <FaMapMarkerAlt />
-                        <span>{tour.destination.name}</span>
+                        <span>{tour.destination?.name || tour.country}</span>
                       </div>
                       <div className="info-item">
                         <FaCalendarAlt />
@@ -289,7 +425,7 @@ const Home = () => {
                         <FaStar />
                         <span>{tour.ratingsAverage} ({tour.ratingsQuantity})</span>
                       </div>
-                      <Link to={`/tours/${tour._id}`} className="btn btn-outline">View Details</Link>
+                      <Link to={`/tours/${tour._id || tour.id}`} className="btn btn-secondary">View Details</Link>
                     </div>
                   </div>
                 </div>

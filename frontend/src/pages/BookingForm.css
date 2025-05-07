@@ -250,7 +250,6 @@
 
 .tour-info {
   display: flex;
-  border-bottom: 1px solid var(--gray-light-color);
 }
 
 .tour-image {

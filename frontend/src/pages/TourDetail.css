@@ -164,7 +164,7 @@
 .tour-rating {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  
 }
 
 .star-filled {
@@ -413,7 +413,7 @@
 .info-item {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
+
 }
 
 .info-item svg {

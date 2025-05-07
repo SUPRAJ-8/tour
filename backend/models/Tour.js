@@ -73,6 +73,14 @@ const TourSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  hottestTour: {
+    type: Boolean,
+    default: false
+  },
+  popularTour: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now(),

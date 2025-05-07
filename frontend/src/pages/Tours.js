@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight } from 'react-icons/fa';
+import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire } from 'react-icons/fa';
 import { fetchAllTours } from '../services/tourService';
 import RegionalToursList from '../components/RegionalToursList';
 import './Tours.css';
@@ -587,26 +587,54 @@ const Tours = () => {
                       const tourId = tour._id || tour.id;
                       const tourName = tour.name || tour.title;
                       const tourSummary = tour.summary || tour.description || 'No description available';
-                      const tourImage = tour.imageCover || tour.coverImage || tour.image || 'https://via.placeholder.com/300x200';
+                      const tourImage = tour.imageCover || tour.coverImage || tour.image || 'https://via.placeholder.com/304.39x189';
                       const tourDuration = tour.duration || '?';
                       const tourPrice = tour.price || '?';
                       const tourRating = tour.ratingsAverage || 4.5;
                       const tourReviews = tour.ratingsQuantity || Math.floor(Math.random() * 30) + 5;
                       const countryName = tour.countryName || tour.country || 'Unknown';
-                      const isPopular = tour.isPopular || tour.popular || false; // Only show popular badge if marked in Tour Management
+                      // Check for different badge types
+                      const isHottest = tour.hottestTour === true;
+                      const isPopular = tour.popularTour === true;
+                      const isFeatured = tour.featured === true;
+                      
+                      // For debugging
+                      if (tour.hottestTour || tour.popularTour || tour.featured) {
+                        console.log(`Tour ${tourName} badge status:`, {
+                          hottestTour: tour.hottestTour,
+                          popularTour: tour.popularTour,
+                          featured: tour.featured,
+                          tourId: tourId
+                        });
+                      }
                       
                       // Generate the tour URL based on region and country
                       const tourUrl = `/countries/${tour.regionKey}/${countryName.toLowerCase().replace(/\s+/g, '-')}/tour/${tourId}`;
                       
                       return (
                         <Link to={tourUrl} key={tourId} className="tour-card">
-                          {isPopular && (
-                            <div className="tour-popular-badge">
+                          {/* Display appropriate badge based on tour properties */}
+                          {isHottest && (
+                            <div className="tour-popular-badge hottest-badge">
+                              <FaFire /> Hottest Tour
+                            </div>
+                          )}
+                          {isPopular && !isHottest && (
+                            <div className="tour-popular-badge popular-badge">
                               <FaBolt /> Most Popular
                             </div>
                           )}
+                          {isFeatured && !isHottest && !isPopular && (
+                            <div className="tour-popular-badge featured-badge">
+                              <FaStar /> Featured Tour
+                            </div>
+                          )}
                           <div className="tour-image">
-                            <img src={tourImage} alt={tourName} />
+                            <img 
+                              src={tourImage} 
+                              alt={tourName} 
+                              style={{ width: '304.39px', height: '189px', objectFit: 'cover' }}
+                            />
                           </div>
                           <div className="tour-info">
                             <div className="tour-rating">
