@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaBolt, FaHeart } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaBolt, FaHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { BsCalendar3 } from 'react-icons/bs';
 import './PopularTours.css';
 
 const PopularTours = () => {
   const [popularTours, setPopularTours] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const toursPerPage = 3; // Fixed at 3 cards per page
+  
+  // Function to navigate to next set of cards
+  const navigateNext = () => {
+    setCurrentIndex(prev => Math.min(popularTours.length - toursPerPage, prev + 1));
+  };
+  
+  // Function to navigate to previous set of cards
+  const navigatePrevious = () => {
+    setCurrentIndex(prev => Math.max(0, prev - 1));
+  };
+  
+  // Function to handle pagination dot clicks
+  const handleDotClick = (index) => {
+    setCurrentIndex(index);
+  };
 
   useEffect(() => {
     const fetchPopularTours = async () => {
@@ -38,11 +55,26 @@ const PopularTours = () => {
         
         console.log('Popular tours found:', popular.length);
         
-        // If no popular tours found, use the first 3 tours
+        // If no popular tours found, use the first tours that are multiples of 3
         if (popular.length === 0) {
-          setPopularTours(tours.slice(0, 3));
+          // Make sure we have a number of tours divisible by 3 for clean pagination
+          const numTours = Math.min(Math.floor(tours.length / 3) * 3, 12);
+          setPopularTours(tours.slice(0, numTours));
         } else {
-          setPopularTours(popular.slice(0, 3));
+          // For popular tours, ensure we have a number divisible by 3
+          const numPopular = Math.ceil(popular.length / 3) * 3;
+          
+          // If we don't have enough popular tours, pad with non-popular ones
+          if (popular.length < numPopular && popular.length % 3 !== 0) {
+            const neededExtras = 3 - (popular.length % 3);
+            const nonPopularTours = tours.filter(t => 
+              !popular.some(p => (p._id || p.id) === (t._id || t.id))
+            ).slice(0, neededExtras);
+            
+            setPopularTours([...popular, ...nonPopularTours]);
+          } else {
+            setPopularTours(popular);
+          }
         }
         
         setLoading(false);
@@ -60,7 +92,7 @@ const PopularTours = () => {
       <section className="section popular-tours-section">
         <div className="container">
           <h2 className="section-title">Most Popular Tours</h2>
-          <p className="section-subtitle">Our travelers' favorite experiences</p>
+          <p className="section-subtitle">Discover Top International Tour Packages: Your Adventure Awaits!</p>
           <div className="loading">Loading popular tours...</div>
         </div>
       </section>
@@ -70,11 +102,30 @@ const PopularTours = () => {
   return (
     <section className="section popular-tours-section">
       <div className="container">
-        <h2 className="section-title">Most Popular Tours</h2>
-        <p className="section-subtitle">Our travelers' favorite experiences</p>
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">Most Popular Tours</h2>
+            <h1 className="section-subtitle">Discover Top International Tour Packages:<br/>Your Adventure Awaits!</h1>
+          </div>
+          <Link to="/tours" className="view-all-tours-button">
+            View All Tours <FaChevronRight className="view-all-icon" />
+          </Link>
+        </div>
         
-        <div className="popular-tours-grid">
-          {popularTours.map(tour => (
+        <div className="popular-tours-container">
+          <button 
+            className="nav-arrow nav-arrow-left" 
+            onClick={navigatePrevious}
+            disabled={currentIndex === 0}
+          >
+            <FaChevronLeft />
+          </button>
+          
+          <div className="popular-tours-scroll-container">
+            <div className="popular-tours-row">
+            {popularTours
+              .slice(currentIndex, currentIndex + toursPerPage)
+              .map((tour, index) => (
             <div key={tour._id || tour.id} className="popular-tour-card">
               <div className="popular-tour-image">
                 <img src={tour.coverImage || tour.imageCover} alt={tour.title || tour.name} />
@@ -102,11 +153,29 @@ const PopularTours = () => {
               </div>
             </div>
           ))}
+            </div>
+          </div>
+          
+          <button 
+            className="nav-arrow nav-arrow-right" 
+            onClick={navigateNext}
+            disabled={currentIndex >= popularTours.length - toursPerPage}
+          >
+            <FaChevronRight />
+          </button>
         </div>
         
-        <div className="text-center mt-4">
-          <Link to="/tours" className="btn btn-primary">View All Tours</Link>
+        <div className="pagination-dots">
+          {Array.from({ length: Math.max(1, popularTours.length - toursPerPage + 1) }).map((_, index) => (
+            <span 
+              key={index} 
+              className={`pagination-dot ${currentIndex === index ? 'active' : ''}`}
+              onClick={() => handleDotClick(index)}
+            />
+          ))}
         </div>
+        
+
       </div>
     </section>
   );

@@ -265,20 +265,9 @@
 .section-title {
   font-size: 1.5rem;
   color: var(--dark-color);
-  margin-bottom: 1.5rem;
   position: relative;
-  padding-bottom: 0.75rem;
 }
 
-.section-title:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 50px;
-  height: 3px;
-  background-color: var(--primary-color);
-}
 
 /* Tour Overview */
 .tour-overview p {

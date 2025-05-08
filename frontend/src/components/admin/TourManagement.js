@@ -530,11 +530,21 @@ const TourManagement = () => {
               destinationId = createDestResponse.data._id;
               console.log('Created new destination:', createDestResponse.data.name);
             } else {
-              // If we can't create, use the first destination as fallback
-              if (allDestinations.length > 0) {
+              // If we can't create, try to find a destination that most closely matches the country
+              // First try to find a partial match
+              const partialMatch = allDestinations.find(
+                dest => dest.country && dest.country.toLowerCase().includes(formData.country.toLowerCase())
+              );
+              
+              if (partialMatch) {
+                destinationId = partialMatch._id;
+                console.log('Using partially matching destination:', partialMatch.name);
+                toast.warning(`Using closest matching destination (${partialMatch.name}) for this tour.`);
+              } else if (allDestinations.length > 0) {
+                // If no partial match, create a temporary object that preserves the country
                 destinationId = allDestinations[0]._id;
                 console.log('Using default destination:', allDestinations[0].name);
-                toast.warning(`Using default destination (${allDestinations[0].name}) for this tour.`);
+                toast.warning(`Using default destination (${allDestinations[0].name}) for this tour, but preserving ${formData.country} in the tour data.`);
               } else {
                 throw new Error('No destinations available');
               }
@@ -542,11 +552,19 @@ const TourManagement = () => {
           } catch (createError) {
             console.error('Error creating destination:', createError);
             
-            // Fallback to using first destination
-            if (allDestinations.length > 0) {
+            // Fallback to using first destination but try to find a partial match first
+            const partialMatch = allDestinations.find(
+              dest => dest.country && dest.country.toLowerCase().includes(formData.country.toLowerCase())
+            );
+            
+            if (partialMatch) {
+              destinationId = partialMatch._id;
+              console.log('Using partially matching destination after error:', partialMatch.name);
+              toast.warning(`Using closest matching destination (${partialMatch.name}) for this tour.`);
+            } else if (allDestinations.length > 0) {
               destinationId = allDestinations[0]._id;
               console.log('Using default destination after create error:', allDestinations[0].name);
-              toast.warning(`Using default destination (${allDestinations[0].name}) for this tour.`);
+              toast.warning(`Using default destination (${allDestinations[0].name}) for this tour, but preserving ${formData.country} in the tour data.`);
             } else {
               throw new Error('No destinations available');
             }
@@ -568,6 +586,8 @@ const TourManagement = () => {
         title: formData.title,
         description: formData.description || 'No description provided',
         destination: destinationId,
+        // Store the original country selection even if we had to use a different destination
+        originalCountry: formData.country,
         duration: parseInt(formData.days) || 1,
         price: parseFloat(formData.price) || 0,
         discountPrice: parseFloat(formData.discountPrice) || 0,
