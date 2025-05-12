@@ -1,0 +1,13 @@
+{
+  "name": "tour",
+  "version": "1.0.0",
+  "description": "Tour management application",
+  "scripts": {
+    "start": "cd frontend && npm start",
+    "server": "cd backend && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
