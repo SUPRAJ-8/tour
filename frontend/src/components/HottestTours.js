@@ -43,18 +43,16 @@ const HottestTours = () => {
           tours = response.data;
         } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
           tours = response.data.data.tours;
-        } else if (response.data && Array.isArray(response.data.tours)) {
+        } else if (response.data && response.data.tours && Array.isArray(response.data.tours)) {
           tours = response.data.tours;
         } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
           tours = response.data.data;
         }
         
-        // Filter for hottest tours
+        // Filter for active and hottest tours
         const hottest = tours.filter(tour => 
-          tour.hottestTour === true || 
-          tour.hottestTour === 'true' || 
-          tour.hottestTour === 1 || 
-          String(tour.hottestTour).toLowerCase() === 'true'
+          (tour.hottestTour === true || tour.hottestTour === 'true') &&
+          (tour.status === 'active' || tour.status === undefined) // include undefined for backward compatibility
         );
         
         console.log('Hottest tours found:', hottest.length);

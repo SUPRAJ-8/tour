@@ -42,50 +42,10 @@ const users = [
 
 const destinations = [
   {
-    name: 'Kathmandu Valley',
-    country: 'Nepal',
-    continent: 'Asia',
-    description: 'The cultural and historical heart of Nepal, featuring ancient temples, palaces, and vibrant city life.',
-    coverImage: 'https://images.unsplash.com/photo-1605640840605-14ac1855827b',
-    images: [
-      'https://images.unsplash.com/photo-1605640840605-14ac1855827b',
-      'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
-      'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e'
-    ],
-    attractions: [
-      'Pashupatinath Temple',
-      'Boudhanath Stupa',
-      'Swayambhunath (Monkey Temple)',
-      'Kathmandu Durbar Square',
-      'Patan Durbar Square'
-    ],
-    featured: true
-  },
-  {
-    name: 'Pokhara',
-    country: 'Nepal',
-    continent: 'Asia',
-    description: 'A picturesque lakeside city with stunning views of the Annapurna mountain range, perfect for adventure activities.',
-    coverImage: 'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e',
-    images: [
-      'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e',
-      'https://images.unsplash.com/photo-1605640840605-14ac1855827b',
-      'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7'
-    ],
-    attractions: [
-      'Phewa Lake',
-      'World Peace Pagoda',
-      'Sarangkot',
-      'Davis Falls',
-      'Mahendra Cave'
-    ],
-    featured: true
-  },
-  {
-    name: 'Chitwan National Park',
-    country: 'Nepal',
-    continent: 'Asia',
-    description: 'A UNESCO World Heritage site known for its rich wildlife, including Bengal tigers, rhinos, and diverse bird species.',
+    name: 'Generic Destination',
+    country: 'Generic Country',
+    continent: 'Generic Continent',
+    description: 'A generic destination known for its rich wildlife, including generic animals, and diverse bird species.',
     coverImage: 'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
     images: [
       'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
@@ -93,51 +53,11 @@ const destinations = [
       'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e'
     ],
     attractions: [
-      'Jungle Safari',
-      'Elephant Breeding Center',
-      'Canoe Ride',
-      'Tharu Cultural Program',
-      'Bird Watching'
-    ],
-    featured: false
-  },
-  {
-    name: 'Everest Region',
-    country: 'Nepal',
-    continent: 'Asia',
-    description: 'Home to the world\'s highest peak, Mount Everest, offering spectacular trekking routes and breathtaking mountain views.',
-    coverImage: 'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e',
-    images: [
-      'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e',
-      'https://images.unsplash.com/photo-1605640840605-14ac1855827b',
-      'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7'
-    ],
-    attractions: [
-      'Mount Everest Base Camp',
-      'Kala Patthar',
-      'Namche Bazaar',
-      'Tengboche Monastery',
-      'Gokyo Lakes'
-    ],
-    featured: true
-  },
-  {
-    name: 'Lumbini',
-    country: 'Nepal',
-    continent: 'Asia',
-    description: 'The birthplace of Lord Buddha and a UNESCO World Heritage site, featuring numerous monasteries and the sacred Mayadevi Temple.',
-    coverImage: 'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
-    images: [
-      'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
-      'https://images.unsplash.com/photo-1605640840605-14ac1855827b',
-      'https://images.unsplash.com/photo-1605640486094-5f5e8f00fe4e'
-    ],
-    attractions: [
-      'Mayadevi Temple',
-      'World Peace Pagoda',
-      'Lumbini Monastic Zone',
-      'Ashoka Pillar',
-      'Myanmar Golden Temple'
+      'Generic Attraction 1',
+      'Generic Attraction 2',
+      'Generic Attraction 3',
+      'Generic Attraction 4',
+      'Generic Attraction 5'
     ],
     featured: false
   }

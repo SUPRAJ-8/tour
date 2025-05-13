@@ -7,17 +7,6 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/toor';
 const countries = [
   // Asia
   { 
-    name: 'Nepal',
-    continent: 'Asia',
-    flag: 'https://flagcdn.com/np.svg',
-    capital: 'Kathmandu',
-    description: 'A beautiful Himalayan country known for Mount Everest, ancient temples, and rich cultural heritage.',
-    language: 'Nepali',
-    currency: 'NPR',
-    timeZone: 'UTC+5:45',
-    bestTimeToVisit: 'October to December'
-  },
-  { 
     name: 'India',
     continent: 'Asia',
     flag: 'https://flagcdn.com/in.svg',

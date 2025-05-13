@@ -45,12 +45,13 @@ const PopularTours = () => {
           tours = response.data.data;
         }
         
-        // Filter for popular tours
+        // Filter for active and popular tours
         const popular = tours.filter(tour => 
-          tour.popularTour === true || 
+          (tour.popularTour === true || 
           tour.popularTour === 'true' || 
           tour.popularTour === 1 || 
-          String(tour.popularTour).toLowerCase() === 'true'
+          String(tour.popularTour).toLowerCase() === 'true') &&
+          (tour.status === 'active' || tour.status === undefined) // include undefined for backward compatibility
         );
         
         console.log('Popular tours found:', popular.length);

@@ -135,7 +135,7 @@ export const fetchAllTours = async () => {
         // This is a simplified mapping and might need to be expanded
         const asianCountries = [
           'Thailand', 'Japan', 'China', 'India', 'Vietnam', 'Indonesia', 
-          'Malaysia', 'Singapore', 'Philippines', 'South Korea', 'Nepal', 
+          'Malaysia', 'Singapore', 'Philippines', 'South Korea', 
           'Bhutan', 'Sri Lanka', 'Maldives', 'Cambodia', 'Laos', 'Myanmar'
         ];
         

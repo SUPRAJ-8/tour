@@ -11,6 +11,12 @@ exports.getTours = async (req, res) => {
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach(el => delete queryObj[el]);
 
+    // Only show active tours for non-admin users
+    const isAdmin = req.user && req.user.role === 'admin';
+    if (!isAdmin) {
+      queryObj.status = 'active';
+    }
+
     // Advanced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);

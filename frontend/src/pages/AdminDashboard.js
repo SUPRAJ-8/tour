@@ -242,7 +242,7 @@ const AdminDashboard = () => {
         { _id: 'c2', name: 'Indonesia', continent: 'Asia' },
         { _id: 'c3', name: 'Vietnam', continent: 'Asia' },
         { _id: 'c4', name: 'Japan', continent: 'Asia' },
-        { _id: 'c5', name: 'Nepal', continent: 'Asia' }
+
       ];
     } catch (error) {
       console.error('Error fetching countries:', error);
@@ -266,7 +266,7 @@ const AdminDashboard = () => {
         { _id: 'd4', name: 'Bali', country: 'Indonesia' },
         { _id: 'd5', name: 'Hanoi', country: 'Vietnam' },
         { _id: 'd6', name: 'Tokyo', country: 'Japan' },
-        { _id: 'd7', name: 'Kathmandu', country: 'Nepal' }
+
       ];
     } catch (error) {
       console.error('Error fetching destinations:', error);

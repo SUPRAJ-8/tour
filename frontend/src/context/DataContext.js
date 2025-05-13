@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { getSampleTours, processSampleTours } from "../services/tourService";
+import { useAuth } from './AuthContext';
 
 // API base URL - change this to your actual backend URL when deploying
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -16,6 +17,23 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+  const { token, user } = useAuth();
+  const [config, setConfig] = useState(null);
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+  // Update config when token changes
+  useEffect(() => {
+    if (token) {
+      setConfig({
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    } else {
+      setConfig(null);
+    }
+  }, [token]);
   // Shared state for the entire application
   const [tours, setTours] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -94,6 +112,10 @@ export const DataProvider = ({ children }) => {
 
   // Functions to update data that will be shared across the application
   const refreshData = async () => {
+    if (!config) {
+      console.error('No authentication config available');
+      return false;
+    }
     try {
       console.log('Refreshing data from API...');
       
@@ -152,6 +174,18 @@ export const DataProvider = ({ children }) => {
 
   // Tour CRUD operations
   const addTour = async (tourData) => {
+    if (!config || !token || !user) {
+      console.error('No authentication config, token, or user available');
+      throw new Error('Authentication required');
+    }
+    
+    // Ensure we have all required fields
+    const requiredFields = ['title', 'description', 'destination', 'duration', 'price', 'maxGroupSize', 'difficulty', 'coverImage'];
+    for (const field of requiredFields) {
+      if (!tourData[field]) {
+        throw new Error(`Missing required field: ${field}`);
+      }
+    }
     try {
       // Format array fields to remove empty entries
       if (tourData.images) {
@@ -201,7 +235,19 @@ export const DataProvider = ({ children }) => {
         return mockTour;
       } else {
         // Normal API call for non-GitHub Pages environment
-        const res = await axios.post("/api/tours", tourData);
+        // Add required fields
+        const tourDataWithUser = {
+          ...tourData,
+          createdBy: user._id,
+          currency: 'NPR',
+          startDates: tourData.startDates || [],
+          itinerary: tourData.itinerary || [],
+          ratingsAverage: 4.5,
+          ratingsQuantity: 0,
+          status: tourData.status || 'active'
+        };
+        
+        const res = await axios.post(`${apiUrl}/api/tours`, tourDataWithUser, config);
         
         // Update the local state with the new tour
         setTours(prevTours => Array.isArray(prevTours) ? [...prevTours, res.data] : [res.data]);
@@ -237,6 +283,10 @@ export const DataProvider = ({ children }) => {
   };
 
   const updateTour = async (id, tourData) => {
+    if (!config) {
+      console.error('No authentication config available');
+      throw new Error('Authentication required');
+    }
     try {
       // Format array fields to remove empty entries
       if (tourData.images) {
@@ -302,26 +352,21 @@ export const DataProvider = ({ children }) => {
         return updatedTour;
       } else {
         // Normal API call for non-GitHub Pages environment
-        // Use PUT instead of PATCH and ensure the API endpoint is correct
-        console.log('Updating tour with data:', tourData);
-        console.log('Popular Tour value in updateTour:', tourData.popularTour, typeof tourData.popularTour);
-        
-        // Make sure popularTour and other boolean fields are explicitly included in the request
         const dataToSend = {
           ...tourData,
-          // Force these fields to be explicit booleans
+          // Force boolean fields
           popularTour: Boolean(tourData.popularTour),
           hottestTour: Boolean(tourData.hottestTour),
           featured: Boolean(tourData.featured)
         };
         
-        console.log('Sending data to API with explicit boolean values:', {
-          popularTour: dataToSend.popularTour,
-          hottestTour: dataToSend.hottestTour,
-          featured: dataToSend.featured
-        });
+        const res = await axios.put(`${apiUrl}/api/tours/${id}`, dataToSend, config);
         
-        const res = await axios.put(`/api/tours/${id}`, dataToSend);
+        if (!res.data || !res.data.data) {
+          throw new Error('Invalid response from server');
+        }
+
+        console.log('Tour updated successfully:', res.data);
         
         // Update the local state with the updated tour
         setTours(prevTours => {
@@ -377,9 +422,13 @@ export const DataProvider = ({ children }) => {
   };
 
   const deleteTour = async (id) => {
+    if (!config) {
+      console.error('No authentication config available');
+      throw new Error('Authentication required');
+    }
     try {
       // Delete the tour from the API
-      await axios.delete(`/api/tours/${id}`);
+      await axios.delete(`${apiUrl}/api/tours/${id}`, config);
 
       // Remove the tour from the local state
       // Ensure tours is always an array before updating
@@ -418,7 +467,7 @@ export const DataProvider = ({ children }) => {
         );
       }
 
-      const res = await axios.post("/api/countries", countryData);
+      const res = await axios.post(`${apiUrl}/api/countries`, countryData, config);
       setCountries([...countries, res.data]);
       return res.data;
     } catch (err) {
@@ -447,7 +496,7 @@ export const DataProvider = ({ children }) => {
       }
 
       console.log("Updating country with data:", countryData);
-      const res = await axios.patch(`/api/countries/${id}`, countryData);
+      const res = await axios.patch(`${apiUrl}/api/countries/${id}`, countryData, config);
       console.log("Update response:", res.data);
 
       // Update the countries array with the updated country

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import './TourManagement.css';
 
 const TourManagement = () => {
   const { addTour, updateTour, deleteTour, refreshData, countries } = useData();
+  const { token } = useAuth();
   const [tours, setTours] = useState([]);  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -47,17 +49,25 @@ const TourManagement = () => {
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
-  useEffect(() => {
-    fetchTours();
-  }, []);
+  // Add state for status filter
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  const fetchTours = async (page = 1) => {
+  const fetchTours = useCallback(async (page = pagination.page) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`/api/tours?page=${page}&limit=${pagination.limit}`);
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/tours?page=${page}&limit=${pagination.limit}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const toursData = response.data.data || [];
-      setTours(Array.isArray(toursData) ? toursData : []);
+      
+      // Filter tours based on status if needed
+      const filteredTours = statusFilter === 'all' 
+        ? toursData
+        : toursData.filter(tour => tour.status === statusFilter);
+      
+      setTours(Array.isArray(filteredTours) ? filteredTours : []);
       
       if (response.data.pagination) {
         setPagination(response.data.pagination);
@@ -69,20 +79,32 @@ const TourManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, statusFilter, token]);
+
+  useEffect(() => {
+    fetchTours();
+  }, [fetchTours]);
 
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
       // Call the refreshData function from context to refresh all data
-      // This will now fetch fresh data from the API
       const refreshSuccess = await refreshData();
       
       if (refreshSuccess) {
         // Then fetch the tours again to update the local state
-        const response = await axios.get(`/api/tours?page=${pagination.page}&limit=${pagination.limit}`);
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const response = await axios.get(`${apiUrl}/api/tours?page=${pagination.page}&limit=${pagination.limit}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         const toursData = response.data.data || [];
-        setTours(Array.isArray(toursData) ? toursData : []);
+        
+        // Apply status filter if not showing all
+        const filteredTours = statusFilter === 'all' 
+          ? toursData
+          : toursData.filter(tour => tour.status === statusFilter);
+        
+        setTours(Array.isArray(filteredTours) ? filteredTours : []);
         
         if (response.data.pagination) {
           setPagination(response.data.pagination);
@@ -229,6 +251,15 @@ const TourManagement = () => {
     const { name, value, type, checked } = e.target;
     const newValue = type === 'checkbox' ? checked : value;
     
+    // Special handling for status field
+    if (name === 'status') {
+      setFormData(prev => ({
+        ...prev,
+        status: value
+      }));
+      return;
+    }
+    
     // Handle regular input changes
     if (type !== 'checkbox' || !['popularTour', 'hottestTour', 'featured'].includes(name)) {
       setFormData(prev => ({
@@ -286,6 +317,16 @@ const TourManagement = () => {
   const handleArrayInputChange = (index, field, value, subfield = null) => {
     const updatedArray = [...formData[field]];
     
+    // Handle bulk input for highlights, includes, and excludes
+    if ((field === 'highlights' || field === 'includes' || field === 'excludes') && value.includes('\n')) {
+      const items = value.split('\n').filter(item => item.trim() !== '');
+      setFormData({
+        ...formData,
+        [field]: items
+      });
+      return;
+    }
+
     if (subfield) {
       updatedArray[index] = {
         ...updatedArray[index],
@@ -388,7 +429,7 @@ const TourManagement = () => {
         const continentMap = {
           // Asia
           'Thailand': 'Asia',
-          'Nepal': 'Asia',
+
           'India': 'Asia',
           'China': 'Asia',
           'Japan': 'Asia',
@@ -485,7 +526,12 @@ const TourManagement = () => {
       
       try {
         // Get all destinations
-        const destinationsResponse = await axios.get('/api/destinations');
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+        const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, config);
         const allDestinations = Array.isArray(destinationsResponse.data) 
           ? destinationsResponse.data 
           : (destinationsResponse.data.data || []);
@@ -518,7 +564,7 @@ const TourManagement = () => {
             };
             
             // Try to create a destination directly
-            const createDestResponse = await axios.post('/api/destinations', newDestinationData, {
+            const createDestResponse = await axios.post(`${apiUrl}/api/destinations`, newDestinationData, {
               headers: {
                 'Content-Type': 'application/json',
                 // Add authorization headers if needed
@@ -581,13 +627,11 @@ const TourManagement = () => {
         return;
       }
       
-      // Now create the tour with the destination ID
+      // Now create/update the tour with the destination ID
       const tourData = {
         title: formData.title,
         description: formData.description || 'No description provided',
         destination: destinationId,
-        // Store the original country selection even if we had to use a different destination
-        originalCountry: formData.country,
         duration: parseInt(formData.days) || 1,
         price: parseFloat(formData.price) || 0,
         discountPrice: parseFloat(formData.discountPrice) || 0,
@@ -595,18 +639,22 @@ const TourManagement = () => {
         difficulty: formData.difficulty || 'easy',
         coverImage: formData.coverImage,
         images: formData.heroImages.filter(img => img.trim() !== ''),
-        included: formData.includes.filter(item => item.trim() !== ''),
-        excluded: formData.excludes.filter(item => item.trim() !== ''),
+        includes: formData.includes.filter(item => item.trim() !== ''),
+        excludes: formData.excludes.filter(item => item.trim() !== ''),
         highlights: formData.highlights.filter(item => item.trim() !== ''),
         visaRequirements: formData.visaRequirements || '',
         bestTimeToVisit: formData.bestTimeToVisit || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        // Ensure boolean values are explicitly set as booleans
         featured: Boolean(formData.featured),
         hottestTour: Boolean(formData.hottestTour),
         popularTour: Boolean(formData.popularTour),
         status: formData.status || 'active',
-        createdBy: '64f9c39c1d67b5d1f9fcb1a3'
+        // Add required fields
+        currency: 'NPR',
+        startDates: [],
+        itinerary: [],
+        ratingsAverage: 4.5,
+        ratingsQuantity: 0
       };
       
       // Log the boolean values for debugging
@@ -634,7 +682,8 @@ const TourManagement = () => {
       }
       
       setShowModal(false);
-      // No need to call fetchTours() here as the context will handle the data refresh
+      // Refresh the tours list to show updated data
+      await fetchTours(pagination.page);
     } catch (error) {
       console.error('Error saving tour:', error);
       
@@ -709,14 +758,31 @@ const TourManagement = () => {
       </div>
 
       <div className="search-filter-container">
-        <div className="search-bar">
-          <FaSearch className="search-icon" />
-          <input
-            type="text"
-            placeholder="Search tours by title or destination..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
+        <div className="search-filters">
+          <div className="search-bar">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search tours..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="status-filter">
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                fetchTours(1); // Refresh with new filter
+              }}
+              className="status-select"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -743,12 +809,12 @@ const TourManagement = () => {
                     {groupedTours[country].map((tour) => (
                       <tr key={tour._id}>
                         <td>{tour.title}</td>
-                        <td>{tour.duration} days</td>
+                        <td>{tour.destination?.country || 'N/A'}</td>
                         <td>${tour.price}</td>
-                        <td>{tour.destination?.name || 'N/A'}</td>
+                        <td>{tour.duration} days</td>
                         <td>
-                          <span className={`status ${tour.status?.toLowerCase() || 'pending'}`}>
-                            {tour.status || 'Pending'}
+                          <span className={`status-badge ${tour.status || 'active'}`}>
+                            {tour.status || 'active'}
                           </span>
                         </td>
                         <td>
@@ -941,93 +1007,53 @@ const TourManagement = () => {
                 </div>
                 
                 <div className="form-group">
-                  <label>Highlights</label>
-                  {formData.highlights.map((item, index) => (
-                    <div key={`highlight-${index}`} className="array-input-group">
-                      <span className="input-icon">★</span>
-                      <input
-                        type="text"
-                        value={item}
-                        onChange={(e) => handleArrayInputChange(index, 'highlights', e.target.value)}
-                        placeholder="Enter key highlight (e.g., Safari in Maasai Mara)"
-                      />
-                      <button 
-                        type="button" 
-                        className="btn-remove"
-                        onClick={() => handleRemoveArrayItem('highlights', index)}
-                        disabled={formData.highlights.length <= 1}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    className="btn-add"
-                    onClick={() => handleAddArrayItem('highlights', '')}
-                  >
-                    + Add Highlight
-                  </button>
+                  <label>Highlights (Enter each highlight on a new line)</label>
+                  <textarea
+                    value={formData.highlights.join('\n')}
+                    onChange={(e) => handleArrayInputChange(0, 'highlights', e.target.value)}
+                    placeholder="Enter highlights, one per line
+Example:
+Scenic mountain views
+Local cultural experiences
+Adventure activities"
+                    rows="6"
+                    className="highlights-textarea"
+                  />
+                  <small className="input-help">Each line will be treated as a separate highlight</small>
                 </div>
                 
                 <div className="form-group">
-                  <label>Includes</label>
-                  {formData.includes.map((item, index) => (
-                    <div key={`include-${index}`} className="array-input-group">
-                      <span className="input-icon">✓</span>
-                      <input
-                        type="text"
-                        value={item}
-                        onChange={(e) => handleArrayInputChange(index, 'includes', e.target.value)}
-                        placeholder="Enter what's included (e.g., 8 nights' accommodation)"
-                      />
-                      <button 
-                        type="button" 
-                        className="btn-remove"
-                        onClick={() => handleRemoveArrayItem('includes', index)}
-                        disabled={formData.includes.length <= 1}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    className="btn-add"
-                    onClick={() => handleAddArrayItem('includes', '')}
-                  >
-                    + Add Include Item
-                  </button>
+                  <label>Includes (Enter each item on a new line)</label>
+                  <textarea
+                    value={formData.includes.join('\n')}
+                    onChange={(e) => handleArrayInputChange(0, 'includes', e.target.value)}
+                    placeholder="Enter included items, one per line
+Example:
+8 nights' accommodation
+All meals and beverages
+Guided tours
+Transportation"
+                    rows="6"
+                    className="includes-textarea"
+                  />
+                  <small className="input-help">Each line will be treated as a separate included item</small>
                 </div>
                 
                 <div className="form-group">
-                  <label>Excludes</label>
-                  {formData.excludes.map((item, index) => (
-                    <div key={`exclude-${index}`} className="array-input-group">
-                      <span className="input-icon">✗</span>
-                      <input
-                        type="text"
-                        value={item}
-                        onChange={(e) => handleArrayInputChange(index, 'excludes', e.target.value)}
-                        placeholder="Enter what's excluded (e.g., International flights)"
-                      />
-                      <button 
-                        type="button" 
-                        className="btn-remove"
-                        onClick={() => handleRemoveArrayItem('excludes', index)}
-                        disabled={formData.excludes.length <= 1}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    className="btn-add"
-                    onClick={() => handleAddArrayItem('excludes', '')}
-                  >
-                    + Add Exclude Item
-                  </button>
+                  <label>Excludes (Enter each item on a new line)</label>
+                  <textarea
+                    value={formData.excludes.join('\n')}
+                    onChange={(e) => handleArrayInputChange(0, 'excludes', e.target.value)}
+                    placeholder="Enter excluded items, one per line
+Example:
+International flights
+Travel insurance
+Personal expenses
+Visa fees"
+                    rows="6"
+                    className="excludes-textarea"
+                  />
+                  <small className="input-help">Each line will be treated as a separate excluded item</small>
                 </div>
                 
                 <div className="form-group">
@@ -1129,10 +1155,10 @@ const TourManagement = () => {
                       name="status"
                       value={formData.status}
                       onChange={handleInputChange}
+                      className={`status-select ${formData.status}`}
                     >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="pending">Pending</option>
+                      <option value="active">active</option>
+                      <option value="inactive">inactive</option>
                     </select>
                   </div>
                 </div>

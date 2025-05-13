@@ -86,6 +86,11 @@ const TourSchema = new mongoose.Schema({
     default: Date.now(),
     select: false
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+  },
   createdBy: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',

@@ -85,10 +85,15 @@ const BookingManagement = () => {
   };
   
   const filteredBookings = bookings.filter(booking => {
+    // Handle cases where tour might be deleted
+    const tourTitle = booking.tour?.title || 'Deleted Tour';
+    const userName = booking.user?.name || 'Unknown User';
+    const userEmail = booking.user?.email || 'unknown@email.com';
+
     const matchesSearch = 
-      booking.tour.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      tourTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      userEmail.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = filterStatus === '' || booking.status === filterStatus;
     const matchesPayment = filterPayment === '' || booking.paymentStatus === filterPayment;
@@ -182,11 +187,11 @@ const BookingManagement = () => {
                 <h4>Customer Information</h4>
                 <div className="info-item">
                   <span className="info-label">Name:</span>
-                  <span className="info-value">{selectedBooking.user.name}</span>
+                  <span className="info-value">{selectedBooking.user?.name || 'Unknown User'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Email:</span>
-                  <span className="info-value">{selectedBooking.user.email}</span>
+                  <span className="info-value">{selectedBooking.user?.email || 'unknown@email.com'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Phone:</span>
@@ -202,19 +207,30 @@ const BookingManagement = () => {
             <div className="booking-tour-info">
               <h4>Tour Information</h4>
               <div className="tour-card">
-                <div className="tour-image">
-                  <img src={selectedBooking.tour.imageCover} alt={selectedBooking.tour.title} />
-                </div>
-                <div className="tour-details">
-                  <h5>{selectedBooking.tour.title}</h5>
-                  <p className="tour-destination">
-                    {selectedBooking.tour.destination}, {selectedBooking.tour.country.name}
-                  </p>
-                  <div className="tour-meta">
-                    <span>Duration: {selectedBooking.tour.duration} days</span>
-                    <span>Price: ${selectedBooking.tour.price} per person</span>
+                {selectedBooking.tour ? (
+                  <>
+                    <div className="tour-image">
+                      <img src={selectedBooking.tour.imageCover || 'https://via.placeholder.com/300x200?text=Tour+Image'} 
+                           alt={selectedBooking.tour.title || 'Tour Image'} />
+                    </div>
+                    <div className="tour-details">
+                      <h5>{selectedBooking.tour.title}</h5>
+                      <p className="tour-destination">
+                        {selectedBooking.tour.destination || 'Unknown Destination'}, 
+                        {selectedBooking.tour.country?.name || 'Unknown Country'}
+                      </p>
+                      <div className="tour-meta">
+                        <span>Duration: {selectedBooking.tour.duration || 'N/A'} days</span>
+                        <span>Price: ${selectedBooking.tour.price || 0} per person</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="tour-details">
+                    <h5>Tour Deleted</h5>
+                    <p className="tour-destination">This tour is no longer available</p>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -282,8 +298,8 @@ const BookingManagement = () => {
                   {filteredBookings.map(booking => (
                     <tr key={booking._id}>
                       <td>{booking._id.substring(0, 8)}...</td>
-                      <td>{booking.tour.title}</td>
-                      <td>{booking.user.name}</td>
+                      <td>{booking.tour?.title || 'Deleted Tour'}</td>
+                      <td>{booking.user?.name || 'Unknown User'}</td>
                       <td>{formatDate(booking.startDate)}</td>
                       <td>{booking.numberOfPeople}</td>
                       <td>${booking.totalAmount}</td>

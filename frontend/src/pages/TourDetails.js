@@ -469,7 +469,7 @@ const TourDetails = () => {
               <div className="booking-contact">
                 <p>Need help? Contact us:</p>
                 <a href="tel:+9779876543210" className="contact-phone">+977 9876543210</a>
-                <a href="mailto:info@toursnepal.com" className="contact-email">info@toursnepal.com</a>
+                <a href="mailto:info@tours.com" className="contact-email">info@tours.com</a>
               </div>
             </div>
           </div>

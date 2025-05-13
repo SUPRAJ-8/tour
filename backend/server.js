@@ -34,6 +34,23 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Welcome to the Tour API',
+    version: '1.0.0',
+    endpoints: {
+      auth: '/api/auth',
+      tours: '/api/tours',
+      destinations: '/api/destinations',
+      bookings: '/api/bookings',
+      countries: '/api/countries',
+      admin: '/api/admin',
+      health: '/health'
+    }
+  });
+});
+
 // Health check route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Server is running' });
