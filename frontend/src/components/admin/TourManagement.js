@@ -1,20 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import './TourManagement.css';
 
 const TourManagement = () => {
+  const navigate = useNavigate();
   const { addTour, updateTour, deleteTour, refreshData, countries } = useData();
-  const { token } = useAuth();
-  const [tours, setTours] = useState([]);  
+  const { user, logout, token } = useAuth();
+
+  // State definitions
+  const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -24,6 +29,8 @@ const TourManagement = () => {
   const [tourToDelete, setTourToDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentTour, setCurrentTour] = useState(null);
+  const [countrySearchTerm, setCountrySearchTerm] = useState('');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     country: '',
@@ -46,75 +53,108 @@ const TourManagement = () => {
     hottestTour: false,
     popularTour: false
   });
-  const [countrySearchTerm, setCountrySearchTerm] = useState('');
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-
-  // Add state for status filter
-  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchTours = useCallback(async (page = pagination.page) => {
     try {
       setLoading(true);
       setError(null);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      const response = await axios.get(`${apiUrl}/api/tours?page=${page}&limit=${pagination.limit}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      
+      console.log('Making API request to:', `${apiUrl}/api/tours`);
+      console.log('Using token:', token ? 'Token exists' : 'No token');
+      
+      const response = await axios.get(`${apiUrl}/api/tours`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
-      const toursData = response.data.data || [];
       
-      // Filter tours based on status if needed
-      const filteredTours = statusFilter === 'all' 
-        ? toursData
-        : toursData.filter(tour => tour.status === statusFilter);
+      console.log('API Response status:', response.status);
+      console.log('API Response data:', response.data);
       
-      setTours(Array.isArray(filteredTours) ? filteredTours : []);
-      
-      if (response.data.pagination) {
-        setPagination(response.data.pagination);
+      if (response.data && Array.isArray(response.data.data)) {
+        const tours = response.data.data;
+        console.log('Found tours:', tours.length);
+        if (tours.length > 0) {
+          console.log('Sample tour:', tours[0]);
+        }
+        
+        setTours(tours);
+        
+        if (response.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            ...response.data.pagination
+          }));
+        }
+        
+        console.log('Tours state updated, total tours:', tours.length);
+      } else {
+        console.warn('Invalid API response format:', response.data);
+        setTours([]);
+        toast.error('Invalid response format from server');
       }
-    } catch (error) {
-      console.error('Error fetching tours:', error);
-      setError('Failed to fetch tours. Please try again later.');
-      setTours([]); 
+    } catch (err) {
+      console.error('Error fetching tours:', err);
+      console.error('Error response:', err.response);
+      
+      let errorMessage = 'Failed to fetch tours. ';
+      
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error status:', err.response.status);
+        console.error('Error data:', err.response.data);
+        
+        if (err.response.status === 401) {
+          errorMessage += 'Please log in again.';
+          // Force logout on authentication error
+          logout();
+        } else {
+          errorMessage += err.response.data?.message || 'Please try again later.';
+        }
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('No response received:', err.request);
+        errorMessage += 'No response from server. Please check your connection.';
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up request:', err.message);
+        errorMessage += 'An unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
+      setTours([]);
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, statusFilter, token]);
+  }, [pagination.page, pagination.limit, token]);
 
   useEffect(() => {
-    fetchTours();
-  }, [fetchTours]);
+    const initializeTours = async () => {
+      if (token) {
+        console.log('Token is present, fetching tours...');
+        try {
+          await fetchTours();
+        } catch (error) {
+          console.error('Error in initial tour fetch:', error);
+          setError('Failed to load tours. Please refresh the page.');
+        }
+      } else {
+        console.log('No token found');
+        setError('Please log in to view tours');
+      }
+    };
+
+    initializeTours();
+  }, [token]); // Only depend on token, not fetchTours
 
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      // Call the refreshData function from context to refresh all data
-      const refreshSuccess = await refreshData();
-      
-      if (refreshSuccess) {
-        // Then fetch the tours again to update the local state
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        const response = await axios.get(`${apiUrl}/api/tours?page=${pagination.page}&limit=${pagination.limit}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const toursData = response.data.data || [];
-        
-        // Apply status filter if not showing all
-        const filteredTours = statusFilter === 'all' 
-          ? toursData
-          : toursData.filter(tour => tour.status === statusFilter);
-        
-        setTours(Array.isArray(filteredTours) ? filteredTours : []);
-        
-        if (response.data.pagination) {
-          setPagination(response.data.pagination);
-        }
-        
-        toast.success('Tour data refreshed successfully!');
-        console.log('Tour management refreshed with latest data');
-      } else {
-        toast.warning('Data may not be fully refreshed. Please check the console for details.');
-      }
+      await fetchTours();
+      toast.success('Tour data refreshed successfully!');
     } catch (error) {
       console.error('Error refreshing tours:', error);
       toast.error('Failed to refresh tours. Please try again.');
@@ -127,10 +167,53 @@ const TourManagement = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredTours = tours.filter(tour => 
-    (tour.title && tour.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (tour.destination?.name && tour.destination.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  console.log('Current status filter:', statusFilter);
+  console.log('All tours before filtering:', tours);
+
+  const filteredTours = useMemo(() => {
+    console.log('Filtering tours:', tours);
+    if (!Array.isArray(tours)) return [];
+    
+    let filtered = tours;
+    
+    console.log('Current status filter:', statusFilter);
+    console.log('Tours before filtering:', tours);
+
+    // Apply status filter
+    filtered = tours.filter(tour => {
+      if (!tour) return false;
+      
+      console.log('Checking tour:', tour.title, 'Status:', tour.status);
+      
+      // For 'all' filter, show all tours
+      if (statusFilter === 'all') return true;
+      
+      // For inactive filter, show both inactive and undefined status
+      if (statusFilter === 'inactive') {
+        return tour.status === 'inactive';
+      }
+      
+      // For active filter, only show active status
+      return tour.status === 'active';
+    });
+
+    // Apply search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(tour => {
+        if (!tour) return false;
+        
+        const titleMatch = tour.title?.toLowerCase().includes(searchLower);
+        const countryMatch = tour.destination?.country?.toLowerCase().includes(searchLower);
+        const descriptionMatch = tour.description?.toLowerCase().includes(searchLower);
+        
+        return titleMatch || countryMatch || descriptionMatch;
+      });
+    }
+
+    console.log('Filtered tours:', filtered);
+    return filtered;
+  }, [tours, statusFilter, searchTerm]);
 
   const filteredCountries = Array.isArray(countries) 
     ? countries.filter(country => 
@@ -157,20 +240,141 @@ const TourManagement = () => {
     setShowDeleteConfirmation(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    
     try {
-      await deleteTour(id);
-      toast.success('Tour deleted successfully!');
-      // No need to call fetchTours() here as the context will handle the data refresh
+      // Handle destination ID
+      let destinationId;
+      
+      if (currentTour && currentTour.destination) {
+        // If editing an existing tour, use its current destination
+        destinationId = currentTour.destination._id;
+        console.log('Using existing destination:', destinationId);
+      } else if (formData.country) {
+        // If creating a new tour or changing destination
+        console.log('Looking up destination for country:', formData.country);
+        
+        // Get all destinations
+        const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const destinations = destinationsResponse.data.data || [];
+        console.log('Found destinations:', destinations.length);
+        
+        const matchingDestination = destinations.find(
+          dest => dest.country?.toLowerCase() === formData.country.toLowerCase()
+        );
+        
+        if (matchingDestination) {
+          destinationId = matchingDestination._id;
+          console.log('Found matching destination:', matchingDestination.name);
+        } else {
+          console.log('Creating new destination for:', formData.country);
+          // Create a new destination
+          const newDestination = await axios.post(`${apiUrl}/api/destinations`, {
+            name: formData.country,
+            country: formData.country,
+            description: `Tours in ${formData.country}`,
+            continent: 'Asia', // Default to Asia
+            coverImage: formData.coverImage || 'https://example.com/default.jpg'
+          }, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          destinationId = newDestination.data.data._id;
+          console.log('Created new destination:', destinationId);
+        }
+      } else {
+        console.log('No country specified and no existing destination');
+      }
+
+      if (!destinationId) {
+        throw new Error('No valid destination found or created');
+      }
+
+      const tourData = {
+        title: formData.title,
+        description: formData.description || '',
+        destination: destinationId,
+        duration: parseInt(formData.days) || 1,
+        price: parseFloat(formData.price) || 0,
+        discountPrice: parseFloat(formData.discountPrice) || 0,
+        maxGroupSize: 10,
+        difficulty: formData.difficulty || 'easy',
+        images: formData.heroImages.filter(img => img.trim() !== ''),
+        coverImage: formData.coverImage,
+        includes: formData.includes.filter(item => item.trim() !== ''),
+        excludes: formData.excludes.filter(item => item.trim() !== ''),
+        status: formData.status === 'inactive' ? 'inactive' : 'active', // Ensure status is included
+        featured: Boolean(formData.featured),
+        hottestTour: Boolean(formData.hottestTour),
+        popularTour: Boolean(formData.popularTour),
+        status: formData.status || 'active'
+      };
+
+      console.log('Submitting tour data:', tourData);
+
+      let response;
+      if (currentTour) {
+        // Update existing tour
+        console.log('Current tour data:', currentTour);
+        console.log('Tour ID for update:', currentTour._id);
+        console.log('Update URL:', `${apiUrl}/api/tours/${currentTour._id}`);
+        console.log('Update data:', tourData);
+        
+        try {
+          response = await axios.put(`${apiUrl}/api/tours/${currentTour._id}`, tourData, {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          console.log('Update response:', response.data);
+          toast.success('Tour updated successfully!');
+        } catch (updateError) {
+          console.error('Update error:', updateError);
+          console.error('Update error response:', updateError.response);
+          throw updateError;
+        }
+      } else {
+        // Create new tour
+        console.log('Creating new tour with data:', tourData);
+        response = await axios.post(`${apiUrl}/api/tours`, tourData, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Create response:', response.data);
+        toast.success('Tour created successfully!');
+      }
+
+      setShowModal(false);
+      fetchTours(); // Refresh the tours list
+      toast.success('Tour saved successfully!');
     } catch (error) {
-      console.error('Error deleting tour:', error);
-      toast.error('Failed to delete tour. Please try again.');
-      setError('Failed to delete tour. Please try again.');
+      console.error('Error saving tour:', error);
+      console.error('Error response:', error.response?.data);
+      
+      let errorMessage = 'Failed to save tour. ';
+      if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage += error.response.data.error;
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Please try again.';
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
-  const handleAddNewClick = () => {
-    setCurrentTour(null);
+  const handleAddNewClick = useCallback(() => {
+    console.log('Adding new tour');
     setFormData({
       title: '',
       country: '',
@@ -190,54 +394,48 @@ const TourManagement = () => {
       difficulty: 'easy',
       status: 'active',
       featured: false,
-      hottestTour: false
+      hottestTour: false,
+      popularTour: false
     });
-    
+    setCurrentTour(null);
     setCountrySearchTerm('');
-    
     setShowModal(true);
-  };
+  }, []);
 
   const handleEditClick = (tour) => {
+    console.log('Editing tour:', tour);
+    console.log('Tour status before edit:', tour.status);
+    
     setCurrentTour(tour);
-    setFormData({
+    const newFormData = {
       title: tour.title || '',
       country: tour.destination?.country || '',
       description: tour.description || '',
       coverImage: tour.coverImage || '',
-      heroImages: tour.images && tour.images.length > 0 
-        ? [...tour.images, ...Array(5 - tour.images.length).fill('')] 
-        : ['', '', '', '', ''],
+      heroImages: tour.images?.length ? [...tour.images] : ['', '', '', '', ''],
       days: tour.duration || 1,
-      nights: (tour.duration > 0) ? tour.duration - 1 : 0,
-      highlights: tour.highlights && tour.highlights.length > 0 
-        ? [...tour.highlights] 
-        : [''],
-      includes: tour.includes && tour.includes.length > 0 
-        ? [...tour.includes] 
-        : [''],
-      excludes: tour.excludes && tour.excludes.length > 0 
-        ? [...tour.excludes] 
-        : [''],
+      nights: (tour.duration || 1) - 1,
+      highlights: tour.highlights?.length ? [...tour.highlights] : [''],
+      includes: tour.includes?.length ? [...tour.includes] : [''],
+      excludes: tour.excludes?.length ? [...tour.excludes] : [''],
       visaRequirements: tour.visaRequirements || '',
       bestTimeToVisit: tour.bestTimeToVisit || '',
-      travelTips: tour.travelTips && tour.travelTips.length > 0 
-        ? [...tour.travelTips] 
-        : [''],
+      travelTips: tour.travelTips?.length ? [...tour.travelTips] : [''],
       price: tour.price || 0,
       discountPrice: tour.discountPrice || 0,
       difficulty: tour.difficulty || 'easy',
-      status: tour.status || 'active',
-      featured: tour.featured || false,
-      hottestTour: tour.hottestTour || false,
-      popularTour: tour.popularTour || false
-    });
+      status: tour.status === 'inactive' ? 'inactive' : 'active',
+      featured: Boolean(tour.featured),
+      hottestTour: Boolean(tour.hottestTour),
+      popularTour: Boolean(tour.popularTour)
+    };
+    console.log('Setting form data with status:', newFormData.status);
+    setFormData(newFormData);
+    setShowModal(true);
     
     if (tour.destination && tour.destination.country) {
       setCountrySearchTerm(tour.destination.country);
     }
-    
-    setShowModal(true);
   };
 
   // Track previous badge state to prevent duplicate notifications
@@ -249,13 +447,13 @@ const TourManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
     
     // Special handling for status field
     if (name === 'status') {
+      console.log('Status changed to:', value);
       setFormData(prev => ({
         ...prev,
-        status: value
+        status: value === 'inactive' ? 'inactive' : 'active'
       }));
       return;
     }
@@ -264,7 +462,7 @@ const TourManagement = () => {
     if (type !== 'checkbox' || !['popularTour', 'hottestTour', 'featured'].includes(name)) {
       setFormData(prev => ({
         ...prev,
-        [name]: newValue
+        [name]: type === 'checkbox' ? checked : value
       }));
       return;
     }
@@ -404,319 +602,45 @@ const TourManagement = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!formData.title) {
-      toast.error('Please enter a tour package name');
-      return;
-    }
-    
-    if (!formData.country) {
-      toast.error('Please select a country');
-      return;
-    }
-    
-    if (!formData.coverImage) {
-      toast.error('Please enter a main cover image URL');
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!tourToDelete) return;
     
     try {
-      // Helper function to determine continent based on country
-      const getContinent = (country) => {
-        // Map of countries to continents (simplified version)
-        const continentMap = {
-          // Asia
-          'Thailand': 'Asia',
-
-          'India': 'Asia',
-          'China': 'Asia',
-          'Japan': 'Asia',
-          'Vietnam': 'Asia',
-          'Cambodia': 'Asia',
-          'Malaysia': 'Asia',
-          'Singapore': 'Asia',
-          'Indonesia': 'Asia',
-          'Philippines': 'Asia',
-          'South Korea': 'Asia',
-          'Sri Lanka': 'Asia',
-          'Maldives': 'Asia',
-          'Bhutan': 'Asia',
-          'Myanmar': 'Asia',
-          'Laos': 'Asia',
-          'Bangladesh': 'Asia',
-          'Pakistan': 'Asia',
-          'Mongolia': 'Asia',
-          
-          // Europe
-          'France': 'Europe',
-          'Italy': 'Europe',
-          'Spain': 'Europe',
-          'United Kingdom': 'Europe',
-          'Germany': 'Europe',
-          'Greece': 'Europe',
-          'Portugal': 'Europe',
-          'Switzerland': 'Europe',
-          'Netherlands': 'Europe',
-          'Belgium': 'Europe',
-          'Austria': 'Europe',
-          'Sweden': 'Europe',
-          'Norway': 'Europe',
-          'Denmark': 'Europe',
-          'Finland': 'Europe',
-          'Ireland': 'Europe',
-          'Poland': 'Europe',
-          'Czech Republic': 'Europe',
-          'Hungary': 'Europe',
-          'Croatia': 'Europe',
-          
-          // North America
-          'United States': 'North America',
-          'Canada': 'North America',
-          'Mexico': 'North America',
-          'Costa Rica': 'North America',
-          'Panama': 'North America',
-          'Jamaica': 'North America',
-          'Cuba': 'North America',
-          'Bahamas': 'North America',
-          'Dominican Republic': 'North America',
-          'Puerto Rico': 'North America',
-          
-          // South America
-          'Brazil': 'South America',
-          'Argentina': 'South America',
-          'Peru': 'South America',
-          'Colombia': 'South America',
-          'Chile': 'South America',
-          'Ecuador': 'South America',
-          'Bolivia': 'South America',
-          'Venezuela': 'South America',
-          'Uruguay': 'South America',
-          'Paraguay': 'South America',
-          
-          // Africa
-          'South Africa': 'Africa',
-          'Egypt': 'Africa',
-          'Morocco': 'Africa',
-          'Kenya': 'Africa',
-          'Tanzania': 'Africa',
-          'Nigeria': 'Africa',
-          'Ghana': 'Africa',
-          'Ethiopia': 'Africa',
-          'Uganda': 'Africa',
-          'Zimbabwe': 'Africa',
-          
-          // Oceania
-          'Australia': 'Oceania',
-          'New Zealand': 'Oceania',
-          'Fiji': 'Oceania',
-          'Papua New Guinea': 'Oceania',
-          'Solomon Islands': 'Oceania',
-          'Vanuatu': 'Oceania',
-          'Samoa': 'Oceania',
-          'Tonga': 'Oceania'
-        };
-        
-        return continentMap[country] || 'Asia'; // Default to Asia if not found
-      };
-      
-      // Find destination ID for the selected country
-      let destinationId;
-      
-      try {
-        // Get all destinations
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        const token = localStorage.getItem('token');
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-        };
-        const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, config);
-        const allDestinations = Array.isArray(destinationsResponse.data) 
-          ? destinationsResponse.data 
-          : (destinationsResponse.data.data || []);
-        
-        // Find a destination that matches the country
-        const matchingDestination = allDestinations.find(
-          dest => dest.country && dest.country.toLowerCase() === formData.country.toLowerCase()
-        );
-        
-        if (matchingDestination) {
-          destinationId = matchingDestination._id;
-          console.log('Found matching destination:', matchingDestination.name);
-        } else {
-          // Create a new destination for this country
-          try {
-            // We need to create a new destination for this country
-            toast.info(`Creating new destination for ${formData.country}...`);
-            
-            // Determine the continent for this country
-            const continent = getContinent(formData.country);
-            
-            const newDestinationData = {
-              name: `${formData.country}`,
-              description: `Explore the beautiful country of ${formData.country}`,
-              country: formData.country,
-              continent: continent,
-              coverImage: formData.coverImage,
-              featured: false,
-              hottestTour: false
-            };
-            
-            // Try to create a destination directly
-            const createDestResponse = await axios.post(`${apiUrl}/api/destinations`, newDestinationData, {
-              headers: {
-                'Content-Type': 'application/json',
-                // Add authorization headers if needed
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-            });
-            
-            if (createDestResponse.data && createDestResponse.data._id) {
-              destinationId = createDestResponse.data._id;
-              console.log('Created new destination:', createDestResponse.data.name);
-            } else {
-              // If we can't create, try to find a destination that most closely matches the country
-              // First try to find a partial match
-              const partialMatch = allDestinations.find(
-                dest => dest.country && dest.country.toLowerCase().includes(formData.country.toLowerCase())
-              );
-              
-              if (partialMatch) {
-                destinationId = partialMatch._id;
-                console.log('Using partially matching destination:', partialMatch.name);
-                toast.warning(`Using closest matching destination (${partialMatch.name}) for this tour.`);
-              } else if (allDestinations.length > 0) {
-                // If no partial match, create a temporary object that preserves the country
-                destinationId = allDestinations[0]._id;
-                console.log('Using default destination:', allDestinations[0].name);
-                toast.warning(`Using default destination (${allDestinations[0].name}) for this tour, but preserving ${formData.country} in the tour data.`);
-              } else {
-                throw new Error('No destinations available');
-              }
-            }
-          } catch (createError) {
-            console.error('Error creating destination:', createError);
-            
-            // Fallback to using first destination but try to find a partial match first
-            const partialMatch = allDestinations.find(
-              dest => dest.country && dest.country.toLowerCase().includes(formData.country.toLowerCase())
-            );
-            
-            if (partialMatch) {
-              destinationId = partialMatch._id;
-              console.log('Using partially matching destination after error:', partialMatch.name);
-              toast.warning(`Using closest matching destination (${partialMatch.name}) for this tour.`);
-            } else if (allDestinations.length > 0) {
-              destinationId = allDestinations[0]._id;
-              console.log('Using default destination after create error:', allDestinations[0].name);
-              toast.warning(`Using default destination (${allDestinations[0].name}) for this tour, but preserving ${formData.country} in the tour data.`);
-            } else {
-              throw new Error('No destinations available');
-            }
-          }
-        }
-      } catch (destError) {
-        console.error('Error finding destination:', destError);
-        toast.error('Error finding destination. Please try again.');
-        return;
-      }
-      
-      if (!destinationId) {
-        toast.error('No valid destination found. Please contact administrator.');
-        return;
-      }
-      
-      // Now create/update the tour with the destination ID
-      const tourData = {
-        title: formData.title,
-        description: formData.description || 'No description provided',
-        destination: destinationId,
-        duration: parseInt(formData.days) || 1,
-        price: parseFloat(formData.price) || 0,
-        discountPrice: parseFloat(formData.discountPrice) || 0,
-        maxGroupSize: 10,
-        difficulty: formData.difficulty || 'easy',
-        coverImage: formData.coverImage,
-        images: formData.heroImages.filter(img => img.trim() !== ''),
-        includes: formData.includes.filter(item => item.trim() !== ''),
-        excludes: formData.excludes.filter(item => item.trim() !== ''),
-        highlights: formData.highlights.filter(item => item.trim() !== ''),
-        visaRequirements: formData.visaRequirements || '',
-        bestTimeToVisit: formData.bestTimeToVisit || '',
-        travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        featured: Boolean(formData.featured),
-        hottestTour: Boolean(formData.hottestTour),
-        popularTour: Boolean(formData.popularTour),
-        status: formData.status || 'active',
-        // Add required fields
-        currency: 'NPR',
-        startDates: [],
-        itinerary: [],
-        ratingsAverage: 4.5,
-        ratingsQuantity: 0
-      };
-      
-      // Log the boolean values for debugging
-      console.log('Boolean values being sent:', {
-        featured: tourData.featured,
-        hottestTour: tourData.hottestTour,
-        popularTour: tourData.popularTour,
-        featuredType: typeof tourData.featured,
-        hottestTourType: typeof tourData.hottestTour,
-        popularTourType: typeof tourData.popularTour
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      await axios.delete(`${apiUrl}/api/tours/${tourToDelete._id}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       
-      console.log('Submitting tour data:', tourData);
-      console.log('Popular Tour value being sent:', tourData.popularTour, typeof tourData.popularTour);
-      
-      let result;
-      if (currentTour) {
-        // Use the context's updateTour method
-        result = await updateTour(currentTour._id, tourData);
-        toast.success(`${tourData.title} has been updated successfully!`);
-      } else {
-        // Use the context's addTour method
-        result = await addTour(tourData);
-        toast.success(`${tourData.title} has been added successfully!`);
-      }
-      
-      setShowModal(false);
-      // Refresh the tours list to show updated data
-      await fetchTours(pagination.page);
+      toast.success('Tour deleted successfully!');
+      setShowDeleteConfirmation(false);
+      setTourToDelete(null);
+      fetchTours(); // Refresh the tours list
     } catch (error) {
-      console.error('Error saving tour:', error);
-      
-      // Extract a meaningful error message
-      let errorMessage = 'An unknown error occurred';
-      
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (error.response) {
-        if (error.response.data && typeof error.response.data === 'object') {
-          if (error.response.data.message) {
-            errorMessage = error.response.data.message;
-          } else if (error.response.data.error) {
-            errorMessage = error.response.data.error;
-          } else {
-            // Convert object to string for display
-            errorMessage = JSON.stringify(error.response.data);
-          }
-        } else if (typeof error.response.data === 'string') {
-          errorMessage = error.response.data;
-        }
-      }
-      
-      toast.error(`Failed to save tour: ${errorMessage}`);
+      console.error('Error deleting tour:', error);
+      toast.error('Failed to delete tour. Please try again.');
     }
   };
 
   // Group tours by country
   const groupToursByCountry = () => {
+    console.log('Current Tours State:', tours);
+    console.log('Filtered Tours:', filteredTours);
+    
     const groupedTours = {};
     
+    if (!Array.isArray(filteredTours)) {
+      console.error('filteredTours is not an array:', filteredTours);
+      return {};
+    }
+    
     filteredTours.forEach(tour => {
+      if (!tour) {
+        console.warn('Found null/undefined tour in filteredTours');
+        return;
+      }
+      
       const country = tour.destination?.country || 'Other';
+      console.log('Processing tour:', tour.title, 'Country:', country);
       
       if (!groupedTours[country]) {
         groupedTours[country] = [];
@@ -725,6 +649,7 @@ const TourManagement = () => {
       groupedTours[country].push(tour);
     });
     
+    console.log('Grouped Tours:', groupedTours);
     return groupedTours;
   };
   
@@ -759,30 +684,30 @@ const TourManagement = () => {
 
       <div className="search-filter-container">
         <div className="search-filters">
-          <div className="search-bar">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search tours..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
+          <div className="filters-container">
+            <div className="search-box">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search tours..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              />
+            </div>
+            <div className="status-filter">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="status-select"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
           </div>
-          <div className="status-filter">
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                fetchTours(1); // Refresh with new filter
-              }}
-              className="status-select"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div>
+
         </div>
       </div>
 
@@ -809,30 +734,47 @@ const TourManagement = () => {
                     {groupedTours[country].map((tour) => (
                       <tr key={tour._id}>
                         <td>{tour.title}</td>
-                        <td>{tour.destination?.country || 'N/A'}</td>
-                        <td>${tour.price}</td>
                         <td>{tour.duration} days</td>
+                        <td>${tour.price.toLocaleString()}</td>
+                        <td>{tour.destination?.country || 'N/A'}</td>
                         <td>
-                          <span className={`status-badge ${tour.status || 'active'}`}>
-                            {tour.status || 'active'}
+                          <span className={`status-badge ${tour.status === 'inactive' ? 'inactive' : 'active'}`}>
+                            {tour.status === 'inactive' ? 'Inactive' : 'Active'}
                           </span>
                         </td>
                         <td>
-                          <div className="action-buttons">
-                            <button className="btn-icon" title="View">
+                          <div className="tour-actions">
+                            <button
+                              className="btn-view"
+                              onClick={() => {
+                                console.log('Tour data:', tour);
+                                // Log all possible ID formats
+                                console.log('Tour IDs:', {
+                                  _id: tour._id,
+                                  id: tour.id,
+                                  tourId: tour.tourId,
+                                  objectId: tour.objectId
+                                });
+                                // Use the first available ID format
+                                const tourId = tour._id || tour.id || tour.tourId || tour.objectId;
+                                console.log('Using tour ID for navigation:', tourId);
+                                navigate(`/tours/${tourId}`);
+                              }}
+                              title="View tour details"
+                            >
                               <FaEye />
                             </button>
-                            <button 
-                              className="btn-icon" 
-                              title="Edit"
+                            <button
+                              className="btn-edit"
                               onClick={() => handleEditClick(tour)}
+                              title="Edit tour"
                             >
                               <FaEdit />
                             </button>
-                            <button 
-                              className="btn-icon delete" 
-                              title="Delete"
+                            <button
+                              className="btn-delete"
                               onClick={() => handleDeleteClick(tour)}
+                              title="Delete tour"
                             >
                               <FaTrash />
                             </button>
@@ -1207,22 +1149,21 @@ Visa fees"
         </div>
       )}
 
-      <ConfirmationModal
-        isOpen={showDeleteConfirmation}
-        onClose={() => setShowDeleteConfirmation(false)}
-        onConfirm={() => {
-          if (tourToDelete) {
-            handleDelete(tourToDelete._id);
+      {showDeleteConfirmation && (
+        <ConfirmationModal
+          isOpen={showDeleteConfirmation}
+          onClose={() => {
             setShowDeleteConfirmation(false);
             setTourToDelete(null);
-          }
-        }}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete the tour "${tourToDelete?.title}"? This action cannot be undone.`}
-        confirmText="Yes, Delete"
-        cancelText="Cancel"
-        type="danger"
-      />
+          }}
+          onConfirm={handleConfirmDelete}
+          title="Delete Tour"
+          message={`Are you sure you want to delete ${tourToDelete?.title}? This action cannot be undone.`}
+          confirmText="Yes, Delete"
+          cancelText="Cancel"
+          type="danger"
+        />
+      )}
     </div>
   );
 };

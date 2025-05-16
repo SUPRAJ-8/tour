@@ -29,6 +29,7 @@ const Home = () => {
   const [hottestTours, setHottestTours] = useState([]);
   const [popularDestinations, setPopularDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
 
   // Function to check if a tour is popular
@@ -150,12 +151,21 @@ const Home = () => {
           console.log('API response:', response.data);
           
           // Handle different API response formats
-          if (response.data && Array.isArray(response.data)) {
+          if (response.data && response.data.success && Array.isArray(response.data.data)) {
+            toursToUse = response.data.data;
+            console.log('Found tours in success.data format:', toursToUse.length);
+          } else if (response.data && Array.isArray(response.data)) {
             toursToUse = response.data;
+            console.log('Found tours in array format:', toursToUse.length);
           } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
             toursToUse = response.data.data.tours;
+            console.log('Found tours in data.data.tours format:', toursToUse.length);
           } else if (response.data && Array.isArray(response.data.tours)) {
             toursToUse = response.data.tours;
+            console.log('Found tours in data.tours format:', toursToUse.length);
+          } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+            toursToUse = response.data.data;
+            console.log('Found tours in data.data format:', toursToUse.length);
           }
           
           console.log('Tours from API:', toursToUse.length);
@@ -169,12 +179,11 @@ const Home = () => {
           toursToUse = tours;
         }
         
-        // If still no data, use sample data
         if (toursToUse.length === 0) {
-          console.log('No data from API or context, using sample data');
-          const sampleTours = getSampleTours();
-          console.log('Sample tours:', sampleTours.length);
-          toursToUse = sampleTours;
+          console.log('No tour data available');
+          setError('No tours available. Please try again later.');
+          setLoading(false); // Make sure to set loading to false even if no tours are found
+          return;
         }
         
         // Log tours with popularTour property
@@ -201,9 +210,8 @@ const Home = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error loading tour data:', error);
-        // Fallback to sample data in case of error
-        const sampleTours = getSampleTours();
-        setAllTours(sampleTours);
+        setError('Failed to load tours. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
@@ -306,11 +314,18 @@ const Home = () => {
     }
   }, [tours, countries, dataLoading, getPopularTours, getCountriesByContinent, lastRefresh]);
   
-  if (loading || dataLoading) {
+  if (loading) {
     return (
       <div className="loading-container">
-        <div className="loader"></div>
-        <p>Loading amazing destinations...</p>
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-message">{error}</div>
       </div>
     );
   }

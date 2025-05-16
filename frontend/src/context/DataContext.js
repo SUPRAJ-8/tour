@@ -8,8 +8,8 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 // Check if the app is running on GitHub Pages
 const isGitHubPages = () => {
-  return window.location.hostname === 'supraj-8.github.io' || 
-         window.location.href.includes('github.io/tour');
+  // Only use sample data when actually on GitHub Pages
+  return false;
 };
 
 const DataContext = createContext();
@@ -65,7 +65,7 @@ export const DataProvider = ({ children }) => {
         // Fetch countries and tours in parallel if not on GitHub Pages
         const [countriesRes, toursRes] = await Promise.allSettled([
           axios.get(`${API_BASE_URL}/api/countries`),
-          axios.get(`${API_BASE_URL}/api/tours`),
+          axios.get(`${API_BASE_URL}/api/tours?includeInactive=true`),
         ]);
 
         // Handle countries response
@@ -79,7 +79,30 @@ export const DataProvider = ({ children }) => {
 
         // Handle tours response
         if (toursRes.status === "fulfilled") {
-          setTours(toursRes.value.data);
+          const response = toursRes.value;
+          console.log('Tours API response:', response.data);
+          
+          let toursData = [];
+          
+          // Handle different API response formats
+          if (response.data && Array.isArray(response.data)) {
+            toursData = response.data;
+            console.log('Tours found in array format:', toursData.length);
+          } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
+            toursData = response.data.data.tours;
+            console.log('Tours found in data.data.tours format:', toursData.length);
+          } else if (response.data && Array.isArray(response.data.tours)) {
+            toursData = response.data.tours;
+            console.log('Tours found in data.tours format:', toursData.length);
+          } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
+            toursData = response.data.data;
+            console.log('Tours found in data.data format:', toursData.length);
+          } else {
+            console.log('Could not find tours array in API response:', response.data);
+          }
+          
+          console.log('Final processed tours data:', toursData);
+          setTours(toursData);
         } else {
           console.error("Error fetching tours:", toursRes.reason);
           // Set empty array if request fails to prevent undefined errors
@@ -120,39 +143,41 @@ export const DataProvider = ({ children }) => {
       console.log('Refreshing data from API...');
       
       // Fetch fresh data from the API
-      const [countriesRes, toursRes] = await Promise.allSettled([
+      const [countriesRes, toursRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/countries`),
-        axios.get(`${API_BASE_URL}/api/tours`),
+        axios.get(`${API_BASE_URL}/api/tours?includeInactive=true`)
       ]);
+      
+      console.log('API URL used:', `${API_BASE_URL}/api/tours?includeInactive=true`);
 
       // Handle countries response
-      if (countriesRes.status === "fulfilled") {
-        console.log('Countries refreshed:', countriesRes.value.data.length);
-        setCountries(countriesRes.value.data);
+      if (countriesRes.data) {
+        console.log('Countries refreshed:', countriesRes.data.length);
+        setCountries(countriesRes.data);
       }
 
       // Handle tours response
-      if (toursRes.status === "fulfilled") {
-        const response = toursRes.value;
-        console.log('Tours API response:', response.data);
+      if (toursRes.data) {
+        console.log('Full API Response:', toursRes);
+        console.log('API Response Data:', toursRes.data);
         
         let toursData = [];
         
         // Handle different API response formats
-        if (response.data && Array.isArray(response.data)) {
-          toursData = response.data;
+        if (toursRes.data && Array.isArray(toursRes.data)) {
+          toursData = toursRes.data;
           console.log('Tours found in array format:', toursData.length);
-        } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
-          toursData = response.data.data.tours;
+        } else if (toursRes.data && toursRes.data.data && Array.isArray(toursRes.data.data.tours)) {
+          toursData = toursRes.data.data.tours;
           console.log('Tours found in data.data.tours format:', toursData.length);
-        } else if (response.data && Array.isArray(response.data.tours)) {
-          toursData = response.data.tours;
+        } else if (toursRes.data && Array.isArray(toursRes.data.tours)) {
+          toursData = toursRes.data.tours;
           console.log('Tours found in data.tours format:', toursData.length);
-        } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-          toursData = response.data.data;
+        } else if (toursRes.data && toursRes.data.data && Array.isArray(toursRes.data.data)) {
+          toursData = toursRes.data.data;
           console.log('Tours found in data.data format:', toursData.length);
         } else {
-          console.log('Could not find tours array in API response:', response.data);
+          console.log('Could not find tours array in API response:', toursRes.data);
         }
         
         if (toursData.length > 0) {

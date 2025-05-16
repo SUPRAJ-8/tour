@@ -12,7 +12,8 @@ export const fetchAllTours = async () => {
     try {
       console.log('Fetching from primary API endpoint...');
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost:5000
-      const response = await axios.get(`${apiUrl}/api/tours/all`);
+      // For public routes, only get active tours
+      const response = await axios.get(`${apiUrl}/api/tours`);
       console.log('Tour API Response:', response);
       
       // Handle different possible response structures

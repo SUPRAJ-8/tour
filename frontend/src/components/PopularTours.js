@@ -56,27 +56,8 @@ const PopularTours = () => {
         
         console.log('Popular tours found:', popular.length);
         
-        // If no popular tours found, use the first tours that are multiples of 3
-        if (popular.length === 0) {
-          // Make sure we have a number of tours divisible by 3 for clean pagination
-          const numTours = Math.min(Math.floor(tours.length / 3) * 3, 12);
-          setPopularTours(tours.slice(0, numTours));
-        } else {
-          // For popular tours, ensure we have a number divisible by 3
-          const numPopular = Math.ceil(popular.length / 3) * 3;
-          
-          // If we don't have enough popular tours, pad with non-popular ones
-          if (popular.length < numPopular && popular.length % 3 !== 0) {
-            const neededExtras = 3 - (popular.length % 3);
-            const nonPopularTours = tours.filter(t => 
-              !popular.some(p => (p._id || p.id) === (t._id || t.id))
-            ).slice(0, neededExtras);
-            
-            setPopularTours([...popular, ...nonPopularTours]);
-          } else {
-            setPopularTours(popular);
-          }
-        }
+        // Only show tours marked as popular
+        setPopularTours(popular);
         
         setLoading(false);
       } catch (error) {

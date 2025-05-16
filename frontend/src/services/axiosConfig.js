@@ -3,8 +3,8 @@ import { getSampleTours, processSampleTours } from './tourService';
 
 // Check if the app is running on GitHub Pages
 const isGitHubPages = () => {
-  return window.location.hostname === 'supraj-8.github.io' || 
-         window.location.href.includes('github.io/tour');
+  // Only use sample data when actually on GitHub Pages
+  return false;
 };
 
 // Configure axios interceptors

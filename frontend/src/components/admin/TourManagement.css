@@ -31,18 +31,28 @@
 }
 
 .status-filter {
-  min-width: 120px;
+  min-width: 150px;
+  position: relative;
+  margin-right: 10px;
 }
 
 .status-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border: 2px solid #ddd;
   border-radius: 4px;
   background-color: white;
   width: 100%;
   font-size: 14px;
   color: #333;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 32px;
+  transition: all 0.2s ease;
 }
 
 .status-select:focus {
@@ -51,24 +61,37 @@
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
+.status-select:hover {
+  border-color: #4a90e2;
+}
+
+.search-filters label {
   font-weight: 500;
-  text-transform: capitalize;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status-badge.active {
   background-color: #e6f4ea;
   color: #1e7e34;
-  border: 1px solid #a8e6bc;
+  border: 1px solid #1e7e34;
 }
 
 .status-badge.inactive {
   background-color: #feeced;
   color: #dc3545;
-  border: 1px solid #f8d7da;
+  border: 1px solid #dc3545;
 }
 
 .search-bar {
@@ -187,6 +210,51 @@
 
 .admin-table tr:hover {
   background-color: #f5f5f5;
+}
+
+.ac.tour-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-view, .btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-view {
+  color: var(--info-color);
+}
+
+.btn-view:hover {
+  background-color: var(--info-light);
+  color: var(--info-dark);
+}
+
+.btn-edit {
+  color: var(--primary-color);
+}
+
+.btn-edit:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.btn-delete {
+  color: var(--danger-color);
+}
+
+.btn-delete:hover {
+  background-color: var(--danger-light);
+  color: var(--danger-dark);
 }
 
 .action-buttons {

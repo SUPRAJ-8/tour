@@ -11,11 +11,22 @@ exports.getTours = async (req, res) => {
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach(el => delete queryObj[el]);
 
-    // Only show active tours for non-admin users
+    // Handle tour status filtering
     const isAdmin = req.user && req.user.role === 'admin';
-    if (!isAdmin) {
+    const includeInactive = req.query.includeInactive === 'true';
+    
+    // Only show inactive tours if:
+    // 1. User is admin, OR
+    // 2. includeInactive parameter is true
+    if (!isAdmin && !includeInactive) {
       queryObj.status = 'active';
     }
+    
+    console.log('Query parameters:', {
+      isAdmin,
+      includeInactive,
+      queryObj
+    });
 
     // Advanced filtering
     let queryStr = JSON.stringify(queryObj);

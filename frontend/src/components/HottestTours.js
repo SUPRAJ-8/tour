@@ -29,6 +29,7 @@ const PrevArrow = (props) => {
 const HottestTours = () => {
   const [hottestTours, setHottestTours] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHottestTours = async () => {
@@ -92,17 +93,7 @@ const HottestTours = () => {
       } catch (error) {
         console.error('Error fetching hottest tours:', error);
         
-        // Fallback to sample data in case of error
-        try {
-          const tourService = await import('../services/tourService');
-          const sampleTours = tourService.getSampleTours();
-          
-          // Use tours marked as hottestTour or the first 5
-          const hottestSampleTours = sampleTours.filter(tour => tour.hottestTour === true);
-          setHottestTours(hottestSampleTours.length > 0 ? hottestSampleTours : sampleTours.slice(0, 5));
-        } catch (sampleError) {
-          console.error('Error loading sample tours:', sampleError);
-        }
+        setError('Failed to fetch hottest tours. Please try again later.');
         
         setLoading(false);
       }
@@ -115,7 +106,21 @@ const HottestTours = () => {
     return (
       <section className="section hottest-tours-section">
         <div className="container">
+          <h2 className="section-title">Hottest Tours</h2>
+          <p className="section-subtitle">Discover Our Most Popular Tour Packages</p>
           <div className="loading">Loading hottest tours...</div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="section hottest-tours-section">
+        <div className="container">
+          <h2 className="section-title">Hottest Tours</h2>
+          <p className="section-subtitle">Discover Our Most Popular Tour Packages</p>
+          <div className="error-message">{error}</div>
         </div>
       </section>
     );
