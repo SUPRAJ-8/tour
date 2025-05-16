@@ -337,31 +337,112 @@ const TourDetails = () => {
       </div>
 
       <div className="container">
-        {/* Breadcrumbs */}
+        {/* Breadcrumbs
         <div className="breadcrumbs">
           <Link to="/">Home</Link> <span className="separator">›</span> 
           <Link to="/tours">Tours</Link> <span className="separator">›</span> 
           <span>{tour.title}</span>
-        </div>
+        </div> */}
 
         {/* Tour Header */}
         <div className="tour-header">
-          <div className="tour-title">
-            <h1>{tour.title}</h1>
-            {tour.status && tour.status !== 'active' && (
-              <span className="tour-status inactive">Inactive</span>
-            )}
+          {/* Breadcrumb */}
+          <div className="breadcrumb">
+            <Link to="/">Home</Link> <span>›</span>
+            <Link to="/tours">Tours</Link> <span>›</span>
+            <Link to="/tours/thailand">Thailand</Link> <span>›</span>
+            <span>{tour.title}</span>
           </div>
-          <div className="tour-rating">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span key={star} className={star <= (tour.ratingsAverage || 4.5) ? 'star-filled' : 'star-empty'}>
-                <FaStar />
-              </span>
-            ))}
-            <span className="rating-text">
-              {tour.ratingsAverage || 4.5} ({tour.ratingsQuantity || 0} reviews)
-            </span>
+
+          <div className="tour-title-section">
+            <div className="title-section">
+              <h1>{tour.title}</h1>
+            </div>
+
+            
           </div>
+
+          <div className="duration-badge">
+            <FaClock />
+            <span>{tour.duration || 5} Days {tour.nights || 4} Nights</span>
+          </div>
+          
+          {/* Tour Meta Section */}
+          <div className="tour-meta-grid">
+            <div className="meta-item">
+              <div className="meta-icon">
+                <img src="/icons/globe.svg" alt="Country" />
+              </div>
+              <div className="meta-content">
+                <span className="meta-label">Country</span>
+                <span className="meta-value">{tour.country || 'Thailand'}</span>
+              </div>
+            </div>
+
+            <div className="meta-item">
+              <div className="meta-icon">
+                <img src="/icons/weather.svg" alt="Best Season" />
+              </div>
+              <div className="meta-content">
+                <span className="meta-label">Best Season</span>
+                <span className="meta-value">Jan-Jun, Sept-Nov</span>
+              </div>
+            </div>
+
+            <div className="meta-item">
+              <div className="meta-icon">
+                <img src="/icons/calendar.svg" alt="Duration" />
+              </div>
+              <div className="meta-content">
+                <span className="meta-label">Duration</span>
+                <span className="meta-value">{tour.duration || '4N/5D'}</span>
+              </div>
+            </div>
+
+            <div className="meta-item">
+              <div className="meta-icon">
+                <img src="/icons/group.svg" alt="Group Size" />
+              </div>
+              <div className="meta-content">
+                <span className="meta-label">Group Size</span>
+                <span className="meta-value">{tour.groupSize || '15-30 travelers'}</span>
+              </div>
+            </div>
+
+            <div className="meta-item">
+              <div className="meta-icon">
+                <FaUsers />
+              </div>
+              <div className="meta-content">
+                <span className="meta-label">Group Size</span>
+                <span className="meta-value">{tour.maxGroupSize ? `${tour.maxGroupSize} travelers` : '15-30 travelers'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Discount Section */}
+          <div className="discount-section">
+            <div className="discount-amount">20% OFF</div>
+            <div className="discount-details">
+              <span>on all packages</span>
+              <div className="service-features">
+                <div className="feature">
+                  <FaCheck /> Best Service Guaranteed
+                </div>
+                <div className="feature">
+                  <FaCheck /> Best Price
+                </div>
+                <div className="feature">
+                  <FaCheck /> Customize according to your need
+                </div>
+              </div>
+            </div>
+            <button className="book-tour-btn">
+              Book This Tour <span>→</span>
+            </button>
+          </div>
+          
+
         </div>
 
         <div className="container tour-content-container">
@@ -369,47 +450,8 @@ const TourDetails = () => {
             <div className="tour-main">
               {/* Tour Info */}
               <div className="tour-info-card">
-                <div className="tour-meta">
-                  <div className="meta-item">
-                    <FaCalendarAlt />
-                    <span>{tour.duration || tour.days || 0} days {(tour.duration ? tour.duration - 1 : tour.nights) || 0} nights</span>
-                  </div>
-                  <div className="meta-item">
-                    <FaMapMarkerAlt />
-                    <span>{tour.country || (tour.destination && (tour.destination.name || tour.destination)) || 'Various Locations'}</span>
-                  </div>
-                  <div className="meta-item">
-                    <FaUsers />
-                    <span>Max {tour.maxGroupSize || 15} people</span>
-                  </div>
-                  <div className="meta-item">
-                    <FaMoneyBillWave />
-                    <span>
-                      {tour.discountPrice && tour.discountPrice < tour.price ? (
-                        <>
-                          <span className="original-price">${tour.price}</span>
-                          <span className="discount-price">${tour.discountPrice}</span>
-                        </>
-                      ) : (
-                        <span>${tour.price || 0}</span>
-                      )}
-                    </span>
-                  </div>
-                  {tour.bestTimeToVisit && (
-                    <div className="meta-item">
-                      <FaClock />
-                      <span>Best Time: {tour.bestTimeToVisit}</span>
-                    </div>
-                  )}
-                  {tour.visaRequirements && (
-                    <div className="meta-item">
-                      <FaPassport />
-                      <span>Visa: {tour.visaRequirements || 'Contact for details'}</span>
-                    </div>
-                  )}
-                  <div className="meta-item status-badge">
-                    <span className={`status ${tour.status || 'active'}`}>{tour.status || 'active'}</span>
-                  </div>
+                <div className="meta-item status-badge">
+                  <span className={`status ${tour.status || 'active'}`}>{tour.status || 'active'}</span>
                 </div>
               </div>
 
@@ -548,68 +590,7 @@ const TourDetails = () => {
                 )}
               </div>
 
-              {/* Tour Reviews */}
-              <div className="tour-reviews">
-                <h2>Reviews</h2>
-                <div className="reviews-summary">
-                  <div className="average-rating">
-                    <span className="rating-number">{tour.ratingsAverage || 4.8}</span>
-                    <div className="rating-stars">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={star <= (tour.ratingsAverage || 4.8) ? 'star-filled' : 'star-empty'}>
-                          <FaStar />
-                        </span>
-                      ))}
-                    </div>
-                    <span className="rating-count">Based on {tour.ratingsQuantity || 0} reviews</span>
-                  </div>
-                  
-                  <div className="rating-breakdown">
-                    {[5, 4, 3, 2, 1].map((rating) => (
-                      <div className="rating-bar" key={rating}>
-                        <span className="rating-label">{rating} stars</span>
-                        <div className="progress-bar">
-                          <div 
-                            className="progress" 
-                            style={{ width: `${Math.random() * 100}%` }}
-                          ></div>
-                        </div>
-                        <span className="rating-percent">{Math.floor(Math.random() * 100)}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="reviews-list">
-                  {tour.reviews && tour.reviews.length > 0 ? (
-                    tour.reviews.map((review, index) => (
-                      <div className="review-card" key={index}>
-                        <div className="review-header">
-                          <div className="reviewer-info">
-                            <div className="reviewer-avatar" style={{ backgroundImage: `url(${review.user?.photo || 'https://via.placeholder.com/50?text=User'})` }}></div>
-                            <div className="reviewer-name-date">
-                              <h4>{review.user?.name || 'Anonymous User'}</h4>
-                              <span className="review-date">{new Date(review.createdAt).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <div className="review-rating">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <span key={star} className={star <= review.rating ? 'star-filled' : 'star-empty'}>
-                                <FaStar />
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="review-content">
-                          <p>{review.review}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="no-reviews">No reviews yet. Be the first to review this tour!</p>
-                  )}
-                </div>
-              </div>
+
             </div>
 
             <div className="tour-sidebar">

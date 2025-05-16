@@ -7,6 +7,8 @@
 
 :root {
   --primary-color: #2a9d8f;
+  --primary-rgb: 42, 157, 143;
+  --primary-light-color: #3db5a6;
   --secondary-color: #e9c46a;
   --accent-color: #f4a261;
   --danger-color: #e76f51;
