@@ -108,6 +108,7 @@ function App() {
         <Route path="/countries/europe/:countryId" element={<MainLayout><CountryDetail category="europe" /></MainLayout>} />
         <Route path="/countries/asia/:countryId/tours/:tourId" element={<MainLayout><TourDetail /></MainLayout>} />
         <Route path="/countries/europe/:countryId/tours/:tourId" element={<MainLayout><TourDetail /></MainLayout>} />
+        <Route path="/countries/:regionKey/:countryName/tour/:id" element={<MainLayout><TourDetails /></MainLayout>} />
         <Route path="/about" element={<MainLayout><About /></MainLayout>} />
         <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
         <Route path="/login" element={<MainLayout><Login /></MainLayout>} />

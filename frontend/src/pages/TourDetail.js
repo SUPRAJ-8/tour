@@ -223,18 +223,23 @@ const TourDetail = () => {
             tour.heroImages.slice(0, 5).map((image, index) => (
               <div 
                 key={index} 
-                className={`gallery-item item-${index + 1}`}
-                style={{ backgroundImage: `url(${image})` }}
+                className="gallery-item"
+                style={{ 
+                  backgroundImage: `url(${image})`,
+                  height: '365px'
+                }}
+                onClick={() => setShowAllImages(true)}
               >
-                {index === 4 && (
-                  <button className="view-all-btn" onClick={() => setShowAllImages(true)}>
-                    <FaExpand /> View All Images
-                  </button>
+                {index === 4 && tour.heroImages.length > 5 && (
+                  <div className="gallery-overlay">
+                    <FaExpand />
+                    <span>View All Images ({tour.heroImages.length})</span>
+                  </div>
                 )}
               </div>
             ))
           ) : (
-            <div className="no-images">No images available</div>
+            <div className="gallery-item" style={{ height: '365px' }}>No images available</div>
           )}
         </div>
       </div>
@@ -244,74 +249,98 @@ const TourDetail = () => {
           <div className="tour-main-content">
             {/* Breadcrumb */}
             <div className="breadcrumb">
-              <Link to="/">Home</Link> / 
-              <Link to="/tours">Tours</Link> / 
-              <Link to={`/countries/${tour.category}/${countryId}`}>{country.name}</Link> / 
+              <Link to="/">Home</Link> <span className="breadcrumb-arrow">›</span> 
+              <Link to="/tours">Tours</Link> <span className="breadcrumb-arrow">›</span> 
+              <Link to={`/countries/${tour.category}/${countryId}`}>{country.name}</Link> <span className="breadcrumb-arrow">›</span> 
               <span>{tour.title}</span>
             </div>
 
             {/* Tour Header */}
             <div className="tour-header">
               <h1 className="tour-title">{tour.title}</h1>
+              <div className="tour-duration-badge">
+                <FaCalendarAlt /> {tour.duration || '5 Days 4 Nights'}
+              </div>
               <div className="tour-rating">
                 {[...Array(5)].map((_, i) => (
                   <FaStar key={i} className={i < 4.5 ? 'star-filled' : 'star-empty'} />
                 ))}
-                <span className="rating-text">4.5 (24 reviews)</span>
+                <span className="rating-text">(24)</span>
               </div>
             </div>
 
-            {/* Tour Actions */}
-            <div className="tour-actions">
-              <button className="action-btn">
-                <FaHeart /> Add to Wishlist
-              </button>
-              <button className="action-btn">
-                <FaShare /> Share
-              </button>
-              <button className="action-btn">
-                <FaDownload /> Download PDF
-              </button>
-            </div>
-
-            {/* Tour Info Cards */}
-            <div className="tour-info-cards">
-              <div className="info-card">
-                <div className="info-icon">
+            <hr className="tour-divider" />
+            
+            {/* Tour Info Cards - Horizontal Layout */}
+            <div className="tour-info-horizontal">
+              <div className="info-item">
+                <div className="info-icon globe-icon">
                   <FaMapMarkerAlt />
                 </div>
                 <div className="info-content">
-                  <h4>Destination</h4>
+                  <h4>Country</h4>
                   <p>{country.name}</p>
                 </div>
               </div>
-              <div className="info-card">
-                <div className="info-icon">
+              
+              <div className="info-item">
+                <div className="info-icon calendar-icon">
                   <FaCalendarAlt />
                 </div>
                 <div className="info-content">
-                  <h4>Duration</h4>
-                  <p>{tour.duration}</p>
+                  <h4>Best Season</h4>
+                  <p>Jan-Jun, Sept-Nov</p>
                 </div>
               </div>
-              <div className="info-card">
-                <div className="info-icon">
+              
+              <div className="info-item">
+                <div className="info-icon duration-icon">
+                  <FaClock />
+                </div>
+                <div className="info-content">
+                  <h4>Duration</h4>
+                  <p>4N/5D</p>
+                </div>
+              </div>
+              
+              <div className="info-item">
+                <div className="info-icon group-icon">
                   <FaUsers />
                 </div>
                 <div className="info-content">
                   <h4>Group Size</h4>
-                  <p>Max 15 people</p>
+                  <p>15-30 travelers</p>
                 </div>
               </div>
-              <div className="info-card">
-                <div className="info-icon">
-                  <FaClock />
+            </div>
+            
+            <hr className="tour-divider" />
+            
+            {/* Discount Banner */}
+            <div className="discount-banner">
+              <div className="discount-text">
+                <h3>20% OFF</h3>
+                <p>on all packages</p>
+              </div>
+              <div className="service-features">
+                <div className="feature">
+                  <span className="feature-icon">✓</span>
+                  <span>Best Service Guaranteed</span>
                 </div>
-                <div className="info-content">
-                  <h4>Tour Type</h4>
-                  <p>Group Tour</p>
+                <div className="feature">
+                  <span className="feature-icon">✓</span>
+                  <span>Best Price</span>
+                </div>
+                <div className="feature">
+                  <span className="feature-icon">✓</span>
+                  <span>Customize according to your need</span>
                 </div>
               </div>
+            </div>
+            
+            {/* Book Tour Button */}
+            <div className="book-tour-container">
+              <button className="book-tour-button">Book This Tour <span className="arrow">→</span></button>
             </div>
 
             {/* Tour Overview */}

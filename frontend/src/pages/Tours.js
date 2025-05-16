@@ -102,8 +102,11 @@ const Tours = () => {
           console.log('Regular API Response:', data);
           
           // Handle different possible response structures
-          let toursData;
-          if (data.data && data.data.tours) {
+          let toursData = [];
+          if (data.data && Array.isArray(data.data)) {
+            toursData = data.data;
+            console.log('Found tours in data.data array:', toursData.length);
+          } else if (data.data && data.data.tours) {
             toursData = data.data.tours;
             console.log('Found tours in data.data.tours:', toursData.length);
           } else if (Array.isArray(data)) {
@@ -113,8 +116,15 @@ const Tours = () => {
             toursData = data.tours;
             console.log('Found tours in data.tours:', toursData.length);
           } else {
-            toursData = [];
-            console.error('Unexpected API response structure:', data);
+            console.log('Could not find tours in response, checking for success format');
+            if (data.success && data.data) {
+              if (Array.isArray(data.data)) {
+                toursData = data.data;
+                console.log('Found tours in success.data format:', toursData.length);
+              }
+            } else {
+              console.error('Unexpected API response structure:', data);
+            }
           }
           
           console.log('Setting tours from regular API:', toursData);
@@ -608,8 +618,8 @@ const Tours = () => {
                         });
                       }
                       
-                      // Generate the tour URL based on region and country
-                      const tourUrl = `/countries/${tour.regionKey}/${countryName.toLowerCase().replace(/\s+/g, '-')}/tour/${tourId}`;
+                      // Use the simpler /tours/:id pattern that is known to work
+                      const tourUrl = `/tours/${tourId}`;
                       
                       return (
                         <Link to={tourUrl} key={tourId} className="tour-card">
