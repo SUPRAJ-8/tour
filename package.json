@@ -1,13 +1,9 @@
 {
-  "name": "tour",
+  "name": "tour-app",
   "version": "1.0.0",
-  "description": "Tour management application",
+  "private": true,
   "scripts": {
-    "start": "cd frontend && npm start",
-    "server": "cd backend && npm start",
-    "dev": "concurrently \"npm run server\" \"npm run start\""
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.0"
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm install && npm start"
   }
 }

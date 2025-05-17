@@ -2,7 +2,6 @@
   "name": "travel-tour-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://SUPRAJ-8.github.io/tour",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -14,7 +13,6 @@
     "axios": "^1.4.0",
     "formik": "^2.2.9",
     "framer-motion": "^12.10.1",
-    "gh-pages": "^6.3.0",
     "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-datepicker": "^4.11.0",
@@ -32,9 +30,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "cross-env CI=false npm run build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -53,9 +49,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:5000",
-  "devDependencies": {
-    "cross-env": "^7.0.3"
   }
 }
