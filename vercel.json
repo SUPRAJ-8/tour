@@ -2,16 +2,15 @@
   "version": 2,
   "builds": [
     {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "buildCommand": "cd frontend && npm install && npm run build"
+        "distDir": "frontend/build"
       }
-    },
-    {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -20,20 +19,24 @@
       "dest": "backend/server.js"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "frontend/build/static/$1"
+      "src": "^/static/(.*)",
+      "dest": "/static/$1"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "frontend/build/favicon.ico"
+      "src": "^/favicon.ico",
+      "dest": "/favicon.ico"
     },
     {
-      "src": "/manifest.json",
-      "dest": "frontend/build/manifest.json"
+      "src": "^/manifest.json",
+      "dest": "/manifest.json"
     },
     {
-      "src": "/(.*)",
-      "dest": "frontend/build/index.html"
+      "src": "^/asset-manifest.json",
+      "dest": "/asset-manifest.json"
+    },
+    {
+      "src": ".*",
+      "dest": "/index.html"
     }
   ]
 } 
