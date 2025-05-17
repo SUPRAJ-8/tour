@@ -1,5 +1,9 @@
 import axios from 'axios';
 import { getSampleTours, processSampleTours } from './tourService';
+import config from '../config';
+
+// Set base URL for all API requests
+axios.defaults.baseURL = config.apiUrl;
 
 // Check if the app is running on GitHub Pages
 const isGitHubPages = () => {
