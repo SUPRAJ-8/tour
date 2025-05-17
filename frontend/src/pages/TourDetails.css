@@ -257,27 +257,29 @@
 
 /* Tour Meta Grid */
 .tour-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  align-items: center;
   gap: 2rem;
-  margin: 2rem 0;
+  border-radius: 4px;
+  width: 864px;
+  height: 58.2px;
+  margin-left: 0;
 }
 
 .meta-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
+  padding: 0.5rem;
+  height: 100%;
 }
 
 .meta-icon {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #E6F4FF;
-  border-radius: 50%;
-  padding: 8px;
 }
 
 .meta-icon img {
@@ -293,14 +295,13 @@
 
 .meta-label {
   font-size: 0.875rem;
-  color: #6B7280;
-  margin-bottom: 0.25rem;
+  color: #666;
 }
 
 .meta-value {
-  font-weight: 600;
-  color: #111827;
-  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9375rem;
 }
 
 /* Discount Section */
@@ -388,20 +389,14 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background-color: white;
+
   border-radius: 6px;
-  transition: all 0.2s ease;
   flex: 1 1 auto;
   min-width: 150px;
   max-width: 250px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.meta-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-color: var(--primary-light-color);
-}
+
 
 .meta-item svg {
   color: var(--primary-color);
@@ -1070,5 +1065,30 @@
   
   .booking-price h3 {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .tour-meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .tour-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .meta-item {
+    padding: 1rem;
+  }
+  
+  .meta-icon {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .meta-value {
+    font-size: 1rem;
   }
 }

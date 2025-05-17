@@ -375,7 +375,7 @@ const TourDetails = () => {
               </div>
               <div className="meta-content">
                 <span className="meta-label">Country</span>
-                <span className="meta-value">{tour.country || 'Thailand'}</span>
+                <span className="meta-value">Thailand</span>
               </div>
             </div>
 
@@ -395,7 +395,7 @@ const TourDetails = () => {
               </div>
               <div className="meta-content">
                 <span className="meta-label">Duration</span>
-                <span className="meta-value">{tour.duration || '4N/5D'}</span>
+                <span className="meta-value">4N/5D</span>
               </div>
             </div>
 
@@ -405,17 +405,7 @@ const TourDetails = () => {
               </div>
               <div className="meta-content">
                 <span className="meta-label">Group Size</span>
-                <span className="meta-value">{tour.groupSize || '15-30 travelers'}</span>
-              </div>
-            </div>
-
-            <div className="meta-item">
-              <div className="meta-icon">
-                <FaUsers />
-              </div>
-              <div className="meta-content">
-                <span className="meta-label">Group Size</span>
-                <span className="meta-value">{tour.maxGroupSize ? `${tour.maxGroupSize} travelers` : '15-30 travelers'}</span>
+                <span className="meta-value">15-30 travelers</span>
               </div>
             </div>
           </div>
