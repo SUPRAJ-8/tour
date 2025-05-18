@@ -13,7 +13,6 @@ import {
   FaUser,
   FaEnvelope,
   FaPhone,
-  FaGlobe,
   FaComments,
   FaMapMarkerAlt,
   FaClock,
@@ -45,7 +44,8 @@ const BookingForm = () => {
     startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     numberOfPeople: 1,
     paymentMethod: 'credit_card',
-    specialRequests: ''
+    specialRequests: '',
+    agreeToTerms: false
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,32 +56,45 @@ const BookingForm = () => {
   useEffect(() => {
     const fetchTour = async () => {
       try {
+        // Ensure tourId is a valid MongoDB ObjectId format
+        if (!tourId || !/^[0-9a-fA-F]{24}$/.test(tourId)) {
+          setError('Invalid tour ID. Please check the URL and try again.');
+          setLoading(false);
+          return;
+        }
+
         // First try to find the tour in the context
         if (tours && tours.length > 0) {
           const foundTour = tours.find(t => t._id === tourId);
           if (foundTour) {
             setTour(foundTour);
-            generateAvailableDates(foundTour);
             setLoading(false);
             return;
           }
         }
-        
+
         // If not found in context, fetch from API
         const res = await axios.get(`/api/tours/${tourId}`);
         const tourData = res.data.data;
+        
+        if (!tourData) {
+          setError('Tour not found. Please check the URL and try again.');
+          setLoading(false);
+          return;
+        }
+
         setTour(tourData);
-        generateAvailableDates(tourData);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching tour:', err);
-        setError('Failed to load tour details');
+        setError(err.response?.data?.message || 'Failed to load tour details. Please try again later.');
         setLoading(false);
       }
     };
 
     fetchTour();
   }, [tourId, tours]);
+
   
   // Generate available dates for the tour (next 3 months)
   const generateAvailableDates = (tourData) => {
@@ -247,6 +260,7 @@ const BookingForm = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log('Submitting booking');
     e.preventDefault();
     
     if (validateForm()) {
@@ -391,6 +405,8 @@ const BookingForm = () => {
             onChange={handleChange}
             className="form-control"
             placeholder="Enter your Email Address"
+            required
+            pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
           />
           {formErrors.email && <div className="error-message">{formErrors.email}</div>}
         </div>
@@ -407,6 +423,9 @@ const BookingForm = () => {
             onChange={handleChange}
             className="form-control"
             placeholder="Enter your Phone Number"
+            pattern="^[0-9]+$"
+            inputMode="numeric"
+            required
           />
           {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
         </div>
@@ -416,17 +435,16 @@ const BookingForm = () => {
             <FaUsers className="input-icon" />
             Total No. of Travellers
           </label>
-          <select
+          <input
+            type="number"
             name="numberOfPeople"
+            min="1"
+            step="1"
             value={bookingData.numberOfPeople}
-            onChange={handleChange}
-            className="form-select"
-          >
-            <option value="">Enter the no. of Travellers</option>
-            {[...Array(10)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>{i + 1}</option>
-            ))}
-          </select>
+            onChange={e => setBookingData({ ...bookingData, numberOfPeople: parseInt(e.target.value) || '' })}
+            className="form-control"
+            placeholder="Enter the no. of Travellers"
+          />
           {formErrors.numberOfPeople && <div className="error-message">{formErrors.numberOfPeople}</div>}
         </div>
 
@@ -449,24 +467,6 @@ const BookingForm = () => {
 
         <div className="form-group">
           <label className="form-label">
-            <FaGlobe className="input-icon" />
-            Nationality
-          </label>
-          <select
-            name="nationality"
-            value={bookingData.nationality}
-            onChange={handleChange}
-            className="form-select"
-          >
-            <option value="nepal">Nepal</option>
-            <option value="india">India</option>
-            <option value="other">Other</option>
-          </select>
-          {formErrors.nationality && <div className="error-message">{formErrors.nationality}</div>}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
             <FaComments className="input-icon" />
             Message
           </label>
@@ -477,6 +477,32 @@ const BookingForm = () => {
             className="form-textarea"
             placeholder="Any messeries/queries/inquiries you would like to convey to us."
           />
+        </div>
+
+        <div className="form-group full-width" style={{ marginTop: '10px', marginBottom: '10px' }}>
+          <label className="checkbox-label" style={{ fontWeight: 400 }}>
+            <input
+              type="checkbox"
+              checked={bookingData.agreeToTerms || false}
+              onChange={e => setBookingData({ ...bookingData, agreeToTerms: e.target.checked })}
+              style={{ accentColor: '#2196F3' }}
+            />
+            <span>
+              By submitting, you agree to our and{' '}
+              <Link to="/terms" style={{ color: '#2196F3', fontWeight: 500 }}>Terms & Conditions</Link>{' '}and{' '}
+              <Link to="/privacy" style={{ color: '#2196F3', fontWeight: 500 }}>Privacy Policy</Link>.
+            </span>
+          </label>
+        </div>
+        <div className="form-actions full-width" style={{ marginTop: 0 }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting || !bookingData.agreeToTerms}
+            style={{ minWidth: 180 }}
+          >
+            {isSubmitting ? 'Processing...' : 'Submit Booking'}
+          </button>
         </div>
       </div>
     );

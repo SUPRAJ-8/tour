@@ -9,9 +9,13 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaExclamationCircle,
-  FaMoneyBillWave
+  FaMoneyBillWave,
+  FaEdit,
+  FaTrash,
+  FaSync
 } from 'react-icons/fa';
 import './AdminComponents.css';
+import BookingFormFields from './BookingFormFields';
 
 const BookingManagement = () => {
   const [bookings, setBookings] = useState([]);
@@ -21,6 +25,19 @@ const BookingManagement = () => {
   const [filterPayment, setFilterPayment] = useState('');
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingModalMode, setBookingModalMode] = useState('add'); // 'add' or 'edit'
+  const [bookingFormData, setBookingFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    numberOfPeople: 1,
+    startDate: new Date(),
+    specialRequests: ''
+  });
+  const [bookingFormErrors, setBookingFormErrors] = useState({});
+  const [bookingFormAvailableDates, setBookingFormAvailableDates] = useState([]);
+  const [bookingFormTourTitle, setBookingFormTourTitle] = useState('');
   
   useEffect(() => {
     fetchBookings();
@@ -84,6 +101,100 @@ const BookingManagement = () => {
     setSelectedBooking(null);
   };
   
+  const openAddBookingModal = () => {
+    setBookingModalMode('add');
+    setBookingFormData({
+      name: '',
+      email: '',
+      phone: '',
+      numberOfPeople: 1,
+      startDate: new Date(),
+      specialRequests: ''
+    });
+    setBookingFormErrors({});
+    setBookingFormAvailableDates([]); // You can fetch available dates if needed
+    setBookingFormTourTitle('');
+    setShowBookingModal(true);
+  };
+  
+  const openEditBookingModal = (booking) => {
+    setBookingModalMode('edit');
+    setBookingFormData({
+      name: booking.user?.name || booking.name || '',
+      email: booking.user?.email || booking.email || '',
+      phone: booking.phone || '',
+      numberOfPeople: booking.numberOfPeople || 1,
+      startDate: booking.startDate ? new Date(booking.startDate) : new Date(),
+      specialRequests: booking.specialRequests || ''
+    });
+    setBookingFormErrors({});
+    setBookingFormAvailableDates([]); // You can fetch available dates if needed
+    setBookingFormTourTitle(booking.tour?.title || '');
+    setShowBookingModal(true);
+  };
+  
+  const closeBookingModal = () => {
+    setShowBookingModal(false);
+  };
+  
+  const handleBookingFormChange = (e) => {
+    setBookingFormData({
+      ...bookingFormData,
+      [e.target.name]: e.target.value
+    });
+    if (bookingFormErrors[e.target.name]) {
+      setBookingFormErrors({ ...bookingFormErrors, [e.target.name]: '' });
+    }
+  };
+  
+  const handleBookingFormDateChange = (date) => {
+    setBookingFormData({
+      ...bookingFormData,
+      startDate: date
+    });
+    if (bookingFormErrors.startDate) {
+      setBookingFormErrors({ ...bookingFormErrors, startDate: '' });
+    }
+  };
+  
+  const validateBookingForm = () => {
+    const errors = {};
+    if (!bookingFormData.name.trim()) errors.name = 'Name is required';
+    if (!bookingFormData.email.trim()) errors.email = 'Email is required';
+    if (!bookingFormData.phone.trim()) errors.phone = 'Phone number is required';
+    if (!bookingFormData.startDate) errors.startDate = 'Start date is required';
+    if (!bookingFormData.numberOfPeople || bookingFormData.numberOfPeople < 1) errors.numberOfPeople = 'Number of people must be at least 1';
+    setBookingFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
+  const handleBookingFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateBookingForm()) return;
+    try {
+      if (bookingModalMode === 'add') {
+        await axios.post('/api/admin/bookings', bookingFormData);
+        toast.success('Booking added successfully!');
+      } else {
+        await axios.put(`/api/admin/bookings/${selectedBooking._id}`, bookingFormData);
+        toast.success('Booking updated successfully!');
+      }
+      closeBookingModal();
+      fetchBookings();
+    } catch (error) {
+      toast.error('Failed to save booking.');
+    }
+  };
+  
+  const handleDeleteBooking = (bookingId) => {
+    if (window.confirm('Are you sure you want to delete this booking?')) {
+      toast.info('Delete booking feature coming soon!');
+    }
+  };
+  
+  const handleAddBooking = openAddBookingModal;
+  const handleEditBooking = openEditBookingModal;
+  
   const filteredBookings = bookings.filter(booking => {
     // Handle cases where tour might be deleted
     const tourTitle = booking.tour?.title || 'Deleted Tour';
@@ -115,8 +226,16 @@ const BookingManagement = () => {
   
   return (
     <div className="admin-tab-content">
-      <div className="admin-content-header">
+      <div className="admin-content-header" style={{ display: 'flex', alignItems: 'center' }}>
         <h2>Booking Management</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
+          <button className="btn btn-secondary" title="Refresh Bookings" onClick={fetchBookings}>
+            <FaSync />
+          </button>
+          <button className="btn btn-primary" onClick={handleAddBooking}>
+            Add New Booking
+          </button>
+        </div>
       </div>
       
       {showDetails ? (
@@ -149,10 +268,6 @@ const BookingManagement = () => {
                   <span className="info-value">{selectedBooking.numberOfPeople}</span>
                 </div>
                 <div className="info-item">
-                  <span className="info-label">Total Amount:</span>
-                  <span className="info-value">${selectedBooking.totalAmount}</span>
-                </div>
-                <div className="info-item">
                   <span className="info-label">Status:</span>
                   <div className="status-selector">
                     <select 
@@ -167,31 +282,17 @@ const BookingManagement = () => {
                     </select>
                   </div>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">Payment Status:</span>
-                  <div className="status-selector">
-                    <select 
-                      value={selectedBooking.paymentStatus}
-                      onChange={(e) => handlePaymentStatusChange(selectedBooking._id, e.target.value)}
-                      className={`status-${selectedBooking.paymentStatus}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="paid">Paid</option>
-                      <option value="refunded">Refunded</option>
-                    </select>
-                  </div>
-                </div>
               </div>
               
               <div className="booking-info-section">
                 <h4>Customer Information</h4>
                 <div className="info-item">
                   <span className="info-label">Name:</span>
-                  <span className="info-value">{selectedBooking.user?.name || 'Unknown User'}</span>
+                  <span className="info-value">{selectedBooking.user?.name || selectedBooking.guestInfo?.name || 'Unknown User'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Email:</span>
-                  <span className="info-value">{selectedBooking.user?.email || 'unknown@email.com'}</span>
+                  <span className="info-value">{selectedBooking.user?.email || selectedBooking.guestInfo?.email || 'unknown@email.com'}</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Phone:</span>
@@ -201,36 +302,6 @@ const BookingManagement = () => {
                   <span className="info-label">Special Requests:</span>
                   <span className="info-value">{selectedBooking.specialRequests || 'None'}</span>
                 </div>
-              </div>
-            </div>
-            
-            <div className="booking-tour-info">
-              <h4>Tour Information</h4>
-              <div className="tour-card">
-                {selectedBooking.tour ? (
-                  <>
-                    <div className="tour-image">
-                      <img src={selectedBooking.tour.imageCover || 'https://via.placeholder.com/300x200?text=Tour+Image'} 
-                           alt={selectedBooking.tour.title || 'Tour Image'} />
-                    </div>
-                    <div className="tour-details">
-                      <h5>{selectedBooking.tour.title}</h5>
-                      <p className="tour-destination">
-                        {selectedBooking.tour.destination || 'Unknown Destination'}, 
-                        {selectedBooking.tour.country?.name || 'Unknown Country'}
-                      </p>
-                      <div className="tour-meta">
-                        <span>Duration: {selectedBooking.tour.duration || 'N/A'} days</span>
-                        <span>Price: ${selectedBooking.tour.price || 0} per person</span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="tour-details">
-                    <h5>Tour Deleted</h5>
-                    <p className="tour-destination">This tour is no longer available</p>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -262,19 +333,6 @@ const BookingManagement = () => {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
-              
-              <div className="filter-box">
-                <FaMoneyBillWave />
-                <select
-                  value={filterPayment}
-                  onChange={(e) => setFilterPayment(e.target.value)}
-                >
-                  <option value="">All Payments</option>
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                  <option value="refunded">Refunded</option>
-                </select>
-              </div>
             </div>
           </div>
           
@@ -288,9 +346,7 @@ const BookingManagement = () => {
                     <th>Customer</th>
                     <th>Date</th>
                     <th>People</th>
-                    <th>Amount</th>
                     <th>Status</th>
-                    <th>Payment</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -299,10 +355,9 @@ const BookingManagement = () => {
                     <tr key={booking._id}>
                       <td>{booking._id.substring(0, 8)}...</td>
                       <td>{booking.tour?.title || 'Deleted Tour'}</td>
-                      <td>{booking.user?.name || 'Unknown User'}</td>
+                      <td>{booking.user?.name || booking.guestInfo?.name || 'Unknown User'}</td>
                       <td>{formatDate(booking.startDate)}</td>
                       <td>{booking.numberOfPeople}</td>
-                      <td>${booking.totalAmount}</td>
                       <td>
                         <span className={`status-badge ${booking.status}`}>
                           {booking.status === 'pending' && <FaExclamationCircle />}
@@ -313,11 +368,6 @@ const BookingManagement = () => {
                         </span>
                       </td>
                       <td>
-                        <span className={`status-badge ${booking.paymentStatus}`}>
-                          {booking.paymentStatus}
-                        </span>
-                      </td>
-                      <td>
                         <div className="action-buttons">
                           <button 
                             className="btn-action btn-view" 
@@ -325,6 +375,20 @@ const BookingManagement = () => {
                             onClick={() => viewBookingDetails(booking)}
                           >
                             <FaEye />
+                          </button>
+                          <button
+                            className="btn-action btn-edit"
+                            title="Edit Booking"
+                            onClick={() => handleEditBooking(booking)}
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            className="btn-action btn-delete"
+                            title="Delete Booking"
+                            onClick={() => handleDeleteBooking(booking._id)}
+                          >
+                            <FaTrash />
                           </button>
                         </div>
                       </td>
@@ -339,6 +403,23 @@ const BookingManagement = () => {
             </div>
           )}
         </>
+      )}
+      {showBookingModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <BookingFormFields
+              bookingData={bookingFormData}
+              formErrors={bookingFormErrors}
+              availableDates={bookingFormAvailableDates}
+              onChange={handleBookingFormChange}
+              onDateChange={handleBookingFormDateChange}
+              onSubmit={handleBookingFormSubmit}
+              onClose={closeBookingModal}
+              mode={bookingModalMode}
+              tourTitle={bookingFormTourTitle}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

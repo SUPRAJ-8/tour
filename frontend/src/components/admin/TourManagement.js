@@ -60,6 +60,12 @@ const TourManagement = () => {
       setError(null);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       
+      if (!token) {
+        setError('Please log in to view tours');
+        setLoading(false);
+        return;
+      }
+      
       console.log('Making API request to:', `${apiUrl}/api/tours`);
       console.log('Using token:', token ? 'Token exists' : 'No token');
       
@@ -129,26 +135,27 @@ const TourManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, token]);
+  }, [pagination.page, pagination.limit, token, logout]);
 
   useEffect(() => {
     const initializeTours = async () => {
-      if (token) {
-        console.log('Token is present, fetching tours...');
-        try {
-          await fetchTours();
-        } catch (error) {
-          console.error('Error in initial tour fetch:', error);
-          setError('Failed to load tours. Please refresh the page.');
-        }
-      } else {
-        console.log('No token found');
+      if (!token) {
         setError('Please log in to view tours');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        await fetchTours();
+      } catch (error) {
+        console.error('Error in initial tour fetch:', error);
+        setError('Failed to load tours. Please refresh the page.');
+        setLoading(false);
       }
     };
 
     initializeTours();
-  }, [token]); // Only depend on token, not fetchTours
+  }, [token, fetchTours]);
 
   const handleRefresh = async () => {
     try {
@@ -716,76 +723,69 @@ const TourManagement = () => {
       ) : (
         <>
           <div className="table-responsive">
-            {Object.keys(groupedTours).map(country => (
-              <div key={country} className="country-tour-group">
-              
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Title</th>
-                      <th>Duration</th>
-                      <th>Price</th>
-                      <th>Destination</th>
-                      <th>Status</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groupedTours[country].map((tour) => (
-                      <tr key={tour._id}>
-                        <td>{tour.title}</td>
-                        <td>{tour.duration} days</td>
-                        <td>${tour.price.toLocaleString()}</td>
-                        <td>{tour.destination?.country || 'N/A'}</td>
-                        <td>
-                          <span className={`status-badge ${tour.status === 'inactive' ? 'inactive' : 'active'}`}>
-                            {tour.status === 'inactive' ? 'Inactive' : 'Active'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="tour-actions">
-                            <button
-                              className="btn-view"
-                              onClick={() => {
-                                console.log('Tour data:', tour);
-                                // Log all possible ID formats
-                                console.log('Tour IDs:', {
-                                  _id: tour._id,
-                                  id: tour.id,
-                                  tourId: tour.tourId,
-                                  objectId: tour.objectId
-                                });
-                                // Use the first available ID format
-                                const tourId = tour._id || tour.id || tour.tourId || tour.objectId;
-                                console.log('Using tour ID for navigation:', tourId);
-                                navigate(`/tours/${tourId}`);
-                              }}
-                              title="View tour details"
-                            >
-                              <FaEye />
-                            </button>
-                            <button
-                              className="btn-edit"
-                              onClick={() => handleEditClick(tour)}
-                              title="Edit tour"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              className="btn-delete"
-                              onClick={() => handleDeleteClick(tour)}
-                              title="Delete tour"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))}
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Duration</th>
+                  <th>Country</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTours.map((tour) => (
+                  <tr key={tour._id}>
+                    <td>{tour.title}</td>
+                    <td>{tour.duration} days</td>
+                    <td>{tour.destination?.country || 'N/A'}</td>
+                    <td>
+                      <span className={`status-badge ${tour.status === 'inactive' ? 'inactive' : 'active'}`}>
+                        {tour.status === 'inactive' ? 'Inactive' : 'Active'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="tour-actions">
+                        <button
+                          className="btn-view"
+                          onClick={() => {
+                            console.log('Tour data:', tour);
+                            // Log all possible ID formats
+                            console.log('Tour IDs:', {
+                              _id: tour._id,
+                              id: tour.id,
+                              tourId: tour.tourId,
+                              objectId: tour.objectId
+                            });
+                            // Use the first available ID format
+                            const tourId = tour._id || tour.id || tour.tourId || tour.objectId;
+                            console.log('Using tour ID for navigation:', tourId);
+                            navigate(`/tours/${tourId}`);
+                          }}
+                          title="View tour details"
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="btn-edit"
+                          onClick={() => handleEditClick(tour)}
+                          title="Edit tour"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDeleteClick(tour)}
+                          title="Delete tour"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
           {pagination.totalPages > 1 && (
             <div className="pagination">

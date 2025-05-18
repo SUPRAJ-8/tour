@@ -23,13 +23,51 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
     message: '',
     agreeToTerms: false
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    toast.success('Booking request sent successfully!');
-    onClose();
+    if (!formData.agreeToTerms) return;
+    
+    // Validate required fields
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.travelers || !formData.startDate) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      // Do NOT send Authorization header for guest bookings
+      const response = await axios.post(`${apiUrl}/api/bookings/guest`, {
+        tour: tour._id,
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        startDate: formData.startDate,
+        numberOfPeople: parseInt(formData.travelers) || 1,
+        specialRequests: formData.message,
+        nationality: formData.nationality
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+          // No Authorization header here
+        }
+      });
+
+      if (response.data.success) {
+        toast.success('Booking successful! Check your email for confirmation.');
+        onClose();
+      } else {
+        throw new Error(response.data.message || 'Failed to create booking');
+      }
+    } catch (err) {
+      console.error('Booking error:', err);
+      toast.error(err.response?.data?.message || 'Failed to create booking. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -56,7 +94,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
               <div className="confusion-section modal-confusion">
                 <h3>Have confusion?</h3>
                 <p>Feel free to call us with any questions or uncertainties.</p>
-                <a href="https://wa.me/9802392709" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/9700664343" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
                   <FaWhatsapp /> 9802392709
                 </a>
               </div>
@@ -71,7 +109,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 </button>
               </div>
 
-              <div className="booking-form-grid">
+              <form onSubmit={handleSubmit} className="booking-form-grid">
                 <div className="form-group">
                   <div className="form-label">
                     <FaUser className="label-icon" />
@@ -82,6 +120,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                     placeholder="Enter your Full Name"
                     value={formData.fullName}
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    required
                   />
                 </div>
 
@@ -95,6 +134,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                     placeholder="Enter your Email Address"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    required
                   />
                 </div>
 
@@ -108,6 +148,8 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                     placeholder="Enter your Phone Number"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    required
+                    pattern="[0-9]{10}"
                   />
                 </div>
 
@@ -122,6 +164,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                     placeholder="Enter the no. of Travellers"
                     value={formData.travelers}
                     onChange={(e) => setFormData({...formData, travelers: e.target.value})}
+                    required
                   />
                 </div>
 
@@ -144,7 +187,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                       placeholderText="Select the Start Date of Tour"
                       className="date-picker-input"
                       dateFormat="dd/MM/yyyy"
-                      readOnly
+                      required
                     />
                   </div>
                 </div>
@@ -157,6 +200,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                   <select
                     value={formData.nationality}
                     onChange={(e) => setFormData({...formData, nationality: e.target.value})}
+                    required
                   >
                     <option value="Nepal">Nepal</option>
                     <option value="India">India</option>
@@ -183,6 +227,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                       type="checkbox"
                       checked={formData.agreeToTerms}
                       onChange={(e) => setFormData({...formData, agreeToTerms: e.target.checked})}
+                      required
                     />
                     By submitting, you agree to our and <Link to="/terms">Terms & Conditions</Link> and <Link to="/privacy">Privacy Policy</Link>.
                   </label>
@@ -190,12 +235,12 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
 
                 <button 
                   className="confirm-booking-btn"
-                  onClick={handleSubmit}
-                  disabled={!formData.agreeToTerms}
+                  type="submit"
+                  disabled={!formData.agreeToTerms || isSubmitting}
                 >
-                  Confirm Booking
+                  {isSubmitting ? 'Processing...' : 'Confirm Booking'}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>
@@ -630,7 +675,7 @@ const TourDetails = () => {
                 <div className="confusion-section">
                   <h3>Have confusion?</h3>
                   <p>Feel free to call us with any questions or uncertainties.</p>
-                  <a href="https://wa.me/9802392709" className="whatsapp-link">
+                  <a href="https://wa.me/9700664343" className="whatsapp-link">
                     <FaWhatsapp /> 9802392709
                   </a>
                 </div>

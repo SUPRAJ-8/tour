@@ -1408,8 +1408,8 @@
 }
 
 .booking-modal-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -1440,7 +1440,6 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0rem 1.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .form-group {
@@ -1717,8 +1716,6 @@
 }
 
 .booking-modal-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
