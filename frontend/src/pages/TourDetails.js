@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, FaMoneyBillWave, 
   FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand, FaMapMarkedAlt, FaCheckCircle, FaTag, FaCog, FaArrowRight, FaEnvelope, FaPhone, FaUser, FaFlag, FaWhatsapp } from 'react-icons/fa';
@@ -10,12 +12,13 @@ import './TourDetails.css';
 
 // Booking Form Modal Component
 const BookingFormModal = ({ isOpen, onClose, tour }) => {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     travelers: '',
-    startDate: '',
+    startDate: null,
     nationality: 'Nepal',
     message: '',
     agreeToTerms: false
@@ -70,10 +73,10 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
 
               <div className="booking-form-grid">
                 <div className="form-group">
-                  <label>
-                    <FaUser className="input-icon" />
+                  <div className="form-label">
+                    <FaUser className="label-icon" />
                     Full Name
-                  </label>
+                  </div>
                   <input
                     type="text"
                     placeholder="Enter your Full Name"
@@ -83,10 +86,10 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    <FaEnvelope className="input-icon" />
+                  <div className="form-label">
+                    <FaEnvelope className="label-icon" />
                     Email Address
-                  </label>
+                  </div>
                   <input
                     type="email"
                     placeholder="Enter your Email Address"
@@ -96,10 +99,10 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    <FaPhone className="input-icon" />
+                  <div className="form-label">
+                    <FaPhone className="label-icon" />
                     Phone Number
-                  </label>
+                  </div>
                   <input
                     type="tel"
                     placeholder="Enter your Phone Number"
@@ -109,40 +112,48 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    <FaUsers className="input-icon" />
+                  <div className="form-label">
+                    <FaUsers className="label-icon" />
                     Total No. of Travellers
-                  </label>
-                  <select
+                  </div>
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Enter the no. of Travellers"
                     value={formData.travelers}
                     onChange={(e) => setFormData({...formData, travelers: e.target.value})}
-                  >
-                    <option value="">Enter the no. of Travellers</option>
-                    {[...Array(10)].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>{i + 1}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label>
-                    <FaCalendarAlt className="input-icon" />
-                    Tour Start Date
-                  </label>
-                  <input
-                    type="date"
-                    placeholder="Select the Start Date of Tour"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                    min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>
-                    <FaFlag className="input-icon" />
+                  <div className="form-label">
+                    <FaCalendarAlt className="label-icon" />
+                    Tour Start Date
+                  </div>
+                  <div className="date-input-container">
+                    <DatePicker
+                      selected={formData.startDate}
+                      onChange={(date) => {
+                        setFormData({...formData, startDate: date});
+                        setIsCalendarOpen(false);
+                      }}
+                      onClickOutside={() => setIsCalendarOpen(false)}
+                      onInputClick={() => setIsCalendarOpen(true)}
+                      open={isCalendarOpen}
+                      minDate={new Date()}
+                      placeholderText="Select the Start Date of Tour"
+                      className="date-picker-input"
+                      dateFormat="dd/MM/yyyy"
+                      readOnly
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <div className="form-label">
+                    <FaFlag className="label-icon" />
                     Nationality
-                  </label>
+                  </div>
                   <select
                     value={formData.nationality}
                     onChange={(e) => setFormData({...formData, nationality: e.target.value})}
@@ -154,10 +165,10 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 </div>
 
                 <div className="form-group message-group">
-                  <label>
-                    <FaInfoCircle className="input-icon" />
+                  <div className="form-label">
+                    <FaInfoCircle className="label-icon" />
                     Message
-                  </label>
+                  </div>
                   <textarea
                     placeholder="Any messeries/queries/inquiries you would like to convey to us."
                     value={formData.message}

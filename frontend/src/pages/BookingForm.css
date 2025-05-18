@@ -136,21 +136,104 @@
 }
 
 .booking-form {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Group */
+.form-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Labels */
+.form-label {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Input Icons */
+.input-icon {
+  color: #00BFA5;
+  font-size: 1.1rem;
+}
+
+/* Input Fields */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  outline: none;
+}
+
+/* Select Dropdown */
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  appearance: none;
+  background-color: white;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-5-5h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+}
+
+/* Date Picker */
+.react-datepicker-wrapper {
+  width: 100%;
 }
 
 .date-picker-container {
-  position: relative;
+  width: 100%;
 }
 
-.date-picker-icon {
-  position: absolute;
-  top: 50%;
-  right: 1rem;
-  transform: translateY(-50%);
-  color: var(--gray-color);
-  pointer-events: none;
+/* Message Textarea */
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  background-color: #fff;
+}
+
+/* Error Messages */
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Form Title */
+.form-title {
+  color: #333;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .form-text, .form-hint {
@@ -164,15 +247,6 @@
 
 .form-hint svg {
   color: var(--primary-color);
-}
-
-.error-message {
-  color: var(--danger-color);
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .payment-methods {
@@ -230,24 +304,34 @@
 .booking-summary {
   position: sticky;
   top: 2rem;
-  height: fit-content;
 }
 
 .summary-card {
-  background-color: var(--white-color);
+  background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: var(--shadow);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.summary-card h3 {
-  font-size: 1.5rem;
+.summary-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-primary);
   margin-bottom: 1.5rem;
-  color: var(--dark-color);
+  font-size: 1.25rem;
+}
+
+.summary-icon {
+  color: var(--color-secondary);
 }
 
 .tour-info {
   display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tour-image {
@@ -257,14 +341,9 @@
   object-fit: cover;
 }
 
-.tour-details {
-  flex: 1;
-}
-
 .tour-details h4 {
-  font-size: 1.25rem;
   margin-bottom: 0.5rem;
-  color: var(--dark-color);
+  color: var(--color-text-dark);
 }
 
 .tour-meta {
@@ -277,47 +356,99 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--gray-color);
-  font-size: 0.875rem;
+  color: var(--color-text-dark);
+  font-size: 0.9rem;
+}
+
+.meta-icon {
+  color: var(--color-secondary);
+  font-size: 1rem;
+}
+
+.tour-highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.highlight-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-dark);
+}
+
+.highlight-icon {
+  color: var(--color-secondary);
+  font-size: 1.1rem;
 }
 
 .price-breakdown {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--gray-light-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .price-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.75rem;
-  color: var(--gray-color);
+  color: var(--color-text-dark);
+}
+
+.price-item span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-icon {
+  color: var(--color-secondary);
+  font-size: 1rem;
 }
 
 .price-item.total {
   font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--dark-color);
+  font-size: 1.1rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px dashed var(--gray-light-color);
+  border-top: 1px dashed var(--color-border);
 }
 
 .booking-notes h4 {
-  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
-  color: var(--dark-color);
+  color: var(--color-text-dark);
+}
+
+.note-icon {
+  color: var(--color-secondary);
 }
 
 .booking-notes ul {
-  list-style: disc;
-  padding-left: 1.5rem;
-  color: var(--gray-color);
-  font-size: 0.875rem;
+  list-style: none;
+  padding: 0;
 }
 
 .booking-notes li {
-  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-dark);
+  font-size: 0.9rem;
+}
+
+.note-list-icon {
+  color: var(--color-secondary);
+  font-size: 1rem;
+  min-width: 16px;
 }
 
 .success-container {
@@ -420,6 +551,24 @@
   color: var(--gray-color);
 }
 
+/* Close Button */
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0.5rem;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
 @media (max-width: 992px) {
   .booking-content {
     grid-template-columns: 1fr;
@@ -444,5 +593,28 @@
   
   .form-actions .btn {
     width: 100%;
+  }
+  
+  .booking-form {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .input-icon {
+    font-size: 1rem;
+  }
+
+  .booking-summary {
+    position: static;
+    margin-top: 2rem;
+  }
+
+  .tour-info {
+    flex-direction: column;
+  }
+
+  .tour-image {
+    width: 100%;
+    height: 200px;
   }
 }

@@ -3,7 +3,28 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FaCalendarAlt, FaUsers, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaInfoCircle } from 'react-icons/fa';
+import { 
+  FaCalendarAlt, 
+  FaUsers, 
+  FaCreditCard, 
+  FaMoneyBillWave, 
+  FaArrowLeft, 
+  FaInfoCircle,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaGlobe,
+  FaComments,
+  FaMapMarkerAlt,
+  FaClock,
+  FaPlane,
+  FaPassport,
+  FaLanguage,
+  FaRegClock,
+  FaHotel,
+  FaUtensils,
+  FaCarSide
+} from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
@@ -336,6 +357,228 @@ const BookingForm = () => {
 
   const totalPrice = tour.price * bookingData.numberOfPeople;
 
+  const renderPersonalInfo = () => {
+    return (
+      <div className="form-section">
+        <h2 className="form-title">Book for 4N/5D Bangkok-Pattaya Tour Package</h2>
+        <button className="modal-close">×</button>
+        
+        <div className="form-group">
+          <label className="form-label">
+            <FaUser className="input-icon" />
+            Full Name
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={bookingData.name}
+            onChange={handleChange}
+            className="form-control"
+            placeholder="Enter your Full Name"
+          />
+          {formErrors.name && <div className="error-message">{formErrors.name}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaEnvelope className="input-icon" />
+            Email Address
+          </label>
+          <input
+            type="email"
+            name="email"
+            value={bookingData.email}
+            onChange={handleChange}
+            className="form-control"
+            placeholder="Enter your Email Address"
+          />
+          {formErrors.email && <div className="error-message">{formErrors.email}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaPhone className="input-icon" />
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            name="phone"
+            value={bookingData.phone}
+            onChange={handleChange}
+            className="form-control"
+            placeholder="Enter your Phone Number"
+          />
+          {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaUsers className="input-icon" />
+            Total No. of Travellers
+          </label>
+          <select
+            name="numberOfPeople"
+            value={bookingData.numberOfPeople}
+            onChange={handleChange}
+            className="form-select"
+          >
+            <option value="">Enter the no. of Travellers</option>
+            {[...Array(10)].map((_, i) => (
+              <option key={i + 1} value={i + 1}>{i + 1}</option>
+            ))}
+          </select>
+          {formErrors.numberOfPeople && <div className="error-message">{formErrors.numberOfPeople}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaCalendarAlt className="input-icon" />
+            Tour Start Date
+          </label>
+          <DatePicker
+            selected={bookingData.startDate}
+            onChange={handleDateChange}
+            minDate={new Date()}
+            className="form-control"
+            placeholderText="mm/dd/yyyy"
+            dateFormat="MM/dd/yyyy"
+            includeDates={availableDates}
+          />
+          {formErrors.startDate && <div className="error-message">{formErrors.startDate}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaGlobe className="input-icon" />
+            Nationality
+          </label>
+          <select
+            name="nationality"
+            value={bookingData.nationality}
+            onChange={handleChange}
+            className="form-select"
+          >
+            <option value="nepal">Nepal</option>
+            <option value="india">India</option>
+            <option value="other">Other</option>
+          </select>
+          {formErrors.nationality && <div className="error-message">{formErrors.nationality}</div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">
+            <FaComments className="input-icon" />
+            Message
+          </label>
+          <textarea
+            name="specialRequests"
+            value={bookingData.specialRequests}
+            onChange={handleChange}
+            className="form-textarea"
+            placeholder="Any messeries/queries/inquiries you would like to convey to us."
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderBookingSummary = () => {
+    return (
+      <div className="booking-summary">
+        <div className="summary-card">
+          <h3 className="summary-title">
+            <FaInfoCircle className="summary-icon" /> Booking Summary
+          </h3>
+          
+          <div className="tour-info">
+            <img src={tour.coverImage} alt={tour.title} className="tour-image" />
+            <div className="tour-details">
+              <h4>{tour.title}</h4>
+              <div className="tour-meta">
+                <div className="meta-item">
+                  <FaRegClock className="meta-icon" />
+                  <span>{tour.duration} days</span>
+                </div>
+                <div className="meta-item">
+                  <FaUsers className="meta-icon" />
+                  <span>Max {tour.maxGroupSize || 15} people</span>
+                </div>
+                <div className="meta-item">
+                  <FaMapMarkerAlt className="meta-icon" />
+                  <span>{tour.location}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="tour-highlights">
+            <div className="highlight-item">
+              <FaHotel className="highlight-icon" />
+              <span>Hotel Accommodation</span>
+            </div>
+            <div className="highlight-item">
+              <FaUtensils className="highlight-icon" />
+              <span>Meals Included</span>
+            </div>
+            <div className="highlight-item">
+              <FaCarSide className="highlight-icon" />
+              <span>Transportation</span>
+            </div>
+          </div>
+          
+          <div className="price-breakdown">
+            <div className="price-item">
+              <span>
+                <FaUser className="price-icon" /> Tour Price (per person)
+              </span>
+              <span>NPR {tour.price.toLocaleString()}</span>
+            </div>
+            <div className="price-item">
+              <span>
+                <FaUsers className="price-icon" /> Number of People
+              </span>
+              <span>{bookingData.numberOfPeople}</span>
+            </div>
+            <div className="price-item total">
+              <span>
+                <FaMoneyBillWave className="price-icon" /> Total Amount
+              </span>
+              <span>NPR {(tour.price * bookingData.numberOfPeople).toLocaleString()}</span>
+            </div>
+          </div>
+          
+          <div className="booking-notes">
+            <h4>
+              <FaInfoCircle className="note-icon" /> Important Notes:
+            </h4>
+            <ul>
+              <li>
+                <FaCreditCard className="note-list-icon" />
+                <span>20% deposit required to confirm booking</span>
+              </li>
+              <li>
+                <FaCalendarAlt className="note-list-icon" />
+                <span>Full payment due 30 days before tour</span>
+              </li>
+              <li>
+                <FaClock className="note-list-icon" />
+                <span>Free cancellation up to 14 days before tour</span>
+              </li>
+              <li>
+                <FaPassport className="note-list-icon" />
+                <span>Valid passport required for travel</span>
+              </li>
+              <li>
+                <FaLanguage className="note-list-icon" />
+                <span>English-speaking guide provided</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <section className="booking-page">
       <div className="container">
@@ -354,7 +597,7 @@ const BookingForm = () => {
             <div className="step-label">Personal Details</div>
           </div>
           <div className="progress-line"></div>
-          <div className={`progress-step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
+          <div className={`progress-step ${step >= 2 ? 'active' : ''}`}>
             <div className="step-number">2</div>
             <div className="step-label">Tour Options</div>
           </div>
@@ -368,283 +611,8 @@ const BookingForm = () => {
         <div className="booking-content">
           <div className="booking-form-container">
             <form onSubmit={handleSubmit} className="booking-form">
-              {/* Step 1: Personal Details */}
-              {step === 1 && (
-                <div className="form-step">
-                  <h3>Personal Details</h3>
-                  <div className="form-group">
-                    <label htmlFor="name" className="form-label">Full Name</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className={`form-control ${formErrors.name ? 'is-invalid' : ''}`}
-                      value={bookingData.name}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
-                    />
-                    {formErrors.name && (
-                      <div className="error-message">{formErrors.name}</div>
-                    )}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="email" className="form-label">Email Address</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className={`form-control ${formErrors.email ? 'is-invalid' : ''}`}
-                      value={bookingData.email}
-                      onChange={handleChange}
-                      placeholder="Enter your email address"
-                    />
-                    {formErrors.email && (
-                      <div className="error-message">{formErrors.email}</div>
-                    )}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="phone" className="form-label">Phone Number</label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`}
-                      value={bookingData.phone}
-                      onChange={handleChange}
-                      placeholder="Enter your phone number"
-                    />
-                    {formErrors.phone && (
-                      <div className="error-message">{formErrors.phone}</div>
-                    )}
-                  </div>
-                  
-                  <div className="form-actions">
-                    <Link to={`/tours/${tourId}`} className="btn btn-outline">
-                      Cancel
-                    </Link>
-                    <button 
-                      type="button" 
-                      className="btn btn-primary"
-                      onClick={nextStep}
-                    >
-                      Next: Tour Options
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Step 2: Tour Options */}
-              {step === 2 && (
-                <div className="form-step">
-                  <h3>Tour Options</h3>
-                  
-                  <div className="form-group">
-                    <label htmlFor="startDate" className="form-label">Tour Start Date</label>
-                    <div className="date-picker-container">
-                      <DatePicker
-                        selected={bookingData.startDate}
-                        onChange={handleDateChange}
-                        minDate={new Date()}
-                        className={`form-control ${formErrors.startDate ? 'is-invalid' : ''}`}
-                        dateFormat="MMMM d, yyyy"
-                        includeDates={availableDates.length > 0 ? availableDates : null}
-                      />
-                      <FaCalendarAlt className="date-picker-icon" />
-                    </div>
-                    {formErrors.startDate && (
-                      <div className="error-message">{formErrors.startDate}</div>
-                    )}
-                    {availableDates.length > 0 && (
-                      <div className="form-hint">
-                        <FaInfoCircle /> Only highlighted dates are available for booking
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="numberOfPeople" className="form-label">Number of People</label>
-                    <input
-                      type="number"
-                      id="numberOfPeople"
-                      name="numberOfPeople"
-                      className={`form-control ${formErrors.numberOfPeople ? 'is-invalid' : ''}`}
-                      value={bookingData.numberOfPeople}
-                      onChange={handleChange}
-                      min="1"
-                      max={tour.maxGroupSize || 15}
-                    />
-                    {formErrors.numberOfPeople && (
-                      <div className="error-message">{formErrors.numberOfPeople}</div>
-                    )}
-                    <div className="form-hint">
-                      <FaInfoCircle /> Maximum group size: {tour.maxGroupSize || 15} people
-                    </div>
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="specialRequests" className="form-label">Special Requests (Optional)</label>
-                    <textarea
-                      id="specialRequests"
-                      name="specialRequests"
-                      className="form-control"
-                      value={bookingData.specialRequests}
-                      onChange={handleChange}
-                      rows="4"
-                      placeholder="Any special requirements or requests..."
-                    ></textarea>
-                  </div>
-                  
-                  <div className="form-actions">
-                    <button 
-                      type="button" 
-                      className="btn btn-outline"
-                      onClick={prevStep}
-                    >
-                      Back
-                    </button>
-                    <button 
-                      type="button" 
-                      className="btn btn-primary"
-                      onClick={nextStep}
-                    >
-                      Next: Payment
-                    </button>
-                  </div>
-                </div>
-              )}
-              
-              {/* Step 3: Payment */}
-              {step === 3 && (
-                <div className="form-step">
-                  <h3>Payment Details</h3>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Payment Method</label>
-                    <div className="payment-methods">
-                      <div className="payment-method">
-                        <input
-                          type="radio"
-                          id="credit_card"
-                          name="paymentMethod"
-                          value="credit_card"
-                          checked={bookingData.paymentMethod === 'credit_card'}
-                          onChange={handleChange}
-                        />
-                        <label htmlFor="credit_card">
-                          <FaCreditCard />
-                          <span>Credit Card</span>
-                        </label>
-                      </div>
-                      
-                      <div className="payment-method">
-                        <input
-                          type="radio"
-                          id="paypal"
-                          name="paymentMethod"
-                          value="paypal"
-                          checked={bookingData.paymentMethod === 'paypal'}
-                          onChange={handleChange}
-                        />
-                        <label htmlFor="paypal">
-                          <FaMoneyBillWave />
-                          <span>PayPal</span>
-                        </label>
-                      </div>
-                      
-                      <div className="payment-method">
-                        <input
-                          type="radio"
-                          id="bank_transfer"
-                          name="paymentMethod"
-                          value="bank_transfer"
-                          checked={bookingData.paymentMethod === 'bank_transfer'}
-                          onChange={handleChange}
-                        />
-                        <label htmlFor="bank_transfer">
-                          <FaMoneyBillWave />
-                          <span>Bank Transfer</span>
-                        </label>
-                      </div>
-                    </div>
-                    {formErrors.paymentMethod && (
-                      <div className="error-message">{formErrors.paymentMethod}</div>
-                    )}
-                  </div>
-                  
-                  <div className="payment-note">
-                    <FaInfoCircle />
-                    <p>A 20% deposit (NPR {(totalPrice * 0.2).toLocaleString()}) is required to confirm your booking. The remaining balance will be due 30 days before your tour date.</p>
-                  </div>
-                  
-                  <div className="form-actions">
-                    <button 
-                      type="button" 
-                      className="btn btn-outline"
-                      onClick={prevStep}
-                    >
-                      Back
-                    </button>
-                    <button 
-                      type="submit" 
-                      className="btn btn-primary"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? 'Processing...' : 'Confirm Booking'}
-                    </button>
-                  </div>
-                </div>
-              )}
+              {renderPersonalInfo()}
             </form>
-          </div>
-          
-          <div className="booking-summary">
-            <div className="summary-card">
-              <h3>Booking Summary</h3>
-              
-              <div className="tour-info">
-                <img src={tour.coverImage} alt={tour.title} className="tour-image" />
-                <div className="tour-details">
-                  <h4>{tour.title}</h4>
-                  <div className="tour-meta">
-                    <div className="meta-item">
-                      <FaCalendarAlt />
-                      <span>{tour.duration} days</span>
-                    </div>
-                    <div className="meta-item">
-                      <FaUsers />
-                      <span>Max {tour.maxGroupSize || 15} people</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="price-breakdown">
-                <div className="price-item">
-                  <span>Tour Price</span>
-                  <span>NPR {tour.price.toLocaleString()} per person</span>
-                </div>
-                <div className="price-item">
-                  <span>Number of People</span>
-                  <span>{bookingData.numberOfPeople}</span>
-                </div>
-                <div className="price-item total">
-                  <span>Total</span>
-                  <span>NPR {totalPrice.toLocaleString()}</span>
-                </div>
-              </div>
-              
-              <div className="booking-notes">
-                <h4>Important Notes:</h4>
-                <ul>
-                  <li>A 20% deposit is required to confirm your booking.</li>
-                  <li>Full payment is due 30 days before the tour start date.</li>
-                  <li>Free cancellation up to 14 days before the tour.</li>
-                  <li>Read our <Link to="/terms-of-service">Terms of Service</Link> for more details.</li>
-                </ul>
-              </div>
-            </div>
           </div>
         </div>
       </div>

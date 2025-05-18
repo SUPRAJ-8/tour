@@ -1,0 +1,122 @@
+:root {
+  /* Color Variables */
+  --color-primary: #007BFF;
+  --color-secondary: #00BFA5;
+  --color-accent: #FFCA28;
+  --color-background: #F0F8FF;
+  --color-text-dark: #1A237E;
+  --color-text-light: #F8F9FA;
+  --color-border: #D3D3D3;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-primary);
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--color-secondary);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-secondary);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-text-dark);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-accent:hover {
+  opacity: 0.9;
+}
+
+/* Cards and Sections */
+.card {
+  background-color: white;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Elements */
+input, select, textarea {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Navigation */
+.nav-link {
+  color: var(--color-text-dark);
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--color-primary);
+}
+
+/* Icons */
+.icon {
+  color: var(--color-secondary);
+}
+
+.icon-accent {
+  color: var(--color-accent);
+}
+
+/* Borders */
+.border {
+  border-color: var(--color-border);
+}
+
+/* Active States */
+.active {
+  color: var(--color-primary);
+}
+
+/* Hover Effects */
+.hover-effect:hover {
+  color: var(--color-accent);
+  transition: color 0.3s ease;
+} 

@@ -5,5 +5,8 @@
   "scripts": {
     "build": "cd frontend && npm install && npm run build",
     "start": "cd backend && npm install && npm start"
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
   }
 }
