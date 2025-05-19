@@ -22,8 +22,7 @@ const TourSchema = new mongoose.Schema({
     required: [true, 'Tour must have a duration']
   },
   price: {
-    type: Number,
-    required: [true, 'Tour must have a price']
+    type: Number
   },
   currency: {
     type: String,
@@ -34,12 +33,10 @@ const TourSchema = new mongoose.Schema({
     type: Number
   },
   maxGroupSize: {
-    type: Number,
-    required: [true, 'Tour must have a group size']
+    type: Number
   },
   difficulty: {
     type: String,
-    required: [true, 'Tour must have a difficulty'],
     enum: {
       values: ['easy', 'medium', 'difficult'],
       message: 'Difficulty is either: easy, medium, or difficult'
@@ -67,9 +64,18 @@ const TourSchema = new mongoose.Schema({
     description: String,
     activities: [String]
   }],
-  includes: [String],
-  excludes: [String],
-  highlights: [String],
+  includes: {
+    type: [String],
+    default: []
+  },
+  excludes: {
+    type: [String],
+    default: []
+  },
+  highlights: {
+    type: [String],
+    default: []
+  },
   featured: {
     type: Boolean,
     default: false
@@ -110,7 +116,6 @@ TourSchema.virtual('reviews', {
 });
 
 // Index for faster queries
-TourSchema.index({ price: 1, ratingsAverage: -1 });
 TourSchema.index({ destination: 1 });
 
 module.exports = mongoose.model('Tour', TourSchema);

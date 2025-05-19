@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Tour = require('../models/Tour');
 const { validationResult } = require('express-validator');
 
@@ -6,6 +7,17 @@ const { validationResult } = require('express-validator');
 // @access  Public
 exports.getTours = async (req, res) => {
   try {
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('MongoDB not connected. Current state:', mongoose.connection.readyState);
+      return res.status(500).json({
+        success: false,
+        message: 'Database connection error'
+      });
+    }
+
+    console.log('MongoDB connected, building query...');
+
     // Build query
     const queryObj = { ...req.query };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
@@ -31,21 +43,26 @@ exports.getTours = async (req, res) => {
     // Advanced filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    const parsedQuery = JSON.parse(queryStr);
+    console.log('Parsed MongoDB query:', parsedQuery);
     
-    let query = Tour.find(JSON.parse(queryStr)).populate('destination');
+    let query = Tour.find(parsedQuery);
 
     // Sorting
     if (req.query.sort) {
       const sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
+      console.log('Sorting by:', sortBy);
     } else {
       query = query.sort('-createdAt');
+      console.log('Default sort by -createdAt');
     }
 
     // Field limiting
     if (req.query.fields) {
       const fields = req.query.fields.split(',').join(' ');
       query = query.select(fields);
+      console.log('Selected fields:', fields);
     } else {
       query = query.select('-__v');
     }
@@ -54,12 +71,21 @@ exports.getTours = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
     const skip = (page - 1) * limit;
-
     query = query.skip(skip).limit(limit);
+    console.log('Pagination:', { page, limit, skip });
+
+    // Add population
+    console.log('Adding destination population...');
+    query = query.populate('destination');
 
     // Execute query
+    console.log('Executing main query...');
     const tours = await query;
-    const total = await Tour.countDocuments(JSON.parse(queryStr));
+    console.log(`Found ${tours.length} tours`);
+
+    console.log('Counting total documents...');
+    const total = await Tour.countDocuments(parsedQuery);
+    console.log('Total documents:', total);
 
     res.status(200).json({
       success: true,
@@ -73,8 +99,16 @@ exports.getTours = async (req, res) => {
       data: tours
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error in getTours:', err);
+    console.error('Error stack:', err.stack);
+    res.status(500).json({ 
+      success: false,
+      message: err.message || 'Failed to fetch tours',
+      error: process.env.NODE_ENV === 'development' ? {
+        message: err.message,
+        stack: err.stack
+      } : undefined
+    });
   }
 };
 
@@ -83,24 +117,78 @@ exports.getTours = async (req, res) => {
 // @access  Public
 exports.getTour = async (req, res) => {
   try {
-    const tour = await Tour.findById(req.params.id)
-      .populate('destination')
-      .populate('reviews');
+    console.log('Attempting to fetch tour with ID:', req.params.id);
+    
+    // First check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      console.log('Invalid tour ID format:', req.params.id);
+      return res.status(404).json({ 
+        success: false,
+        message: 'Invalid tour ID format' 
+      });
+    }
+
+    // Check MongoDB connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error('MongoDB not connected. Current state:', mongoose.connection.readyState);
+      return res.status(500).json({
+        success: false,
+        message: 'Database connection error'
+      });
+    }
+
+    console.log('MongoDB connected, attempting to find tour...');
+    
+    // Try to find the tour and populate in a single query
+    let tour = await Tour.findById(req.params.id)
+      .populate({
+        path: 'destination',
+        select: 'name country description coverImage'
+      })
+      .lean();
+      
+    if (tour) {
+      // Try to populate reviews separately to handle missing Review model gracefully
+      try {
+        const populatedTour = await Tour.populate(tour, {
+          path: 'reviews',
+          select: 'rating review user createdAt'
+        });
+        tour = populatedTour;
+      } catch (populateErr) {
+        console.warn('Could not populate reviews:', populateErr.message);
+        // Continue without reviews
+        tour.reviews = [];
+      }
+    }
 
     if (!tour) {
-      return res.status(404).json({ message: 'Tour not found' });
+      console.log('Tour not found in database');
+      return res.status(404).json({ 
+        success: false,
+        message: 'Tour not found' 
+      });
     }
+
+    console.log('Tour found:', tour._id);
+    console.log('Destination:', tour.destination ? 'populated' : 'missing');
+    console.log('Reviews:', tour.reviews ? tour.reviews.length : 'none');
 
     res.status(200).json({
       success: true,
       data: tour
     });
   } catch (err) {
-    console.error(err);
-    if (err.kind === 'ObjectId') {
-      return res.status(404).json({ message: 'Tour not found' });
-    }
-    res.status(500).json({ message: 'Server error' });
+    console.error('Tour fetch error:', err);
+    console.error('Error stack:', err.stack);
+    res.status(500).json({ 
+      success: false,
+      message: err.message || 'Failed to fetch tour details',
+      error: process.env.NODE_ENV === 'development' ? {
+        message: err.message,
+        stack: err.stack
+      } : undefined
+    });
   }
 };
 

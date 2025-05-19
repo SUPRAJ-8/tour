@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
 import './TourDetails.css';
+import { getSampleTours } from '../services/tourService';
 
 // Booking Form Modal Component
 const BookingFormModal = ({ isOpen, onClose, tour }) => {
@@ -262,196 +263,36 @@ const TourDetails = () => {
   const { tours } = useData();
 
   useEffect(() => {
-    // Helper function to process API responses
-    const processApiResponse = (res) => {
-      console.log('Processing API response:', res.data);
+    const fetchTourData = async () => {
+      if (!id) return;
       
-      // Handle different possible response structures
-      if (res.data && res.data.data) {
-        console.log('Found tour in data.data format');
-        setTour(res.data.data);
-      } else if (res.data && res.data.success && res.data.data) {
-        console.log('Found tour in success.data format');
-        setTour(res.data.data);
-      } else if (res.data && !res.data.success) {
-        console.log('API returned error:', res.data.message || 'Unknown error');
-        throw new Error(res.data.message || 'Failed to load tour');
-      } else if (res.data && (Object.keys(res.data).includes('title') || Object.keys(res.data).includes('name'))) {
-        // Direct tour object in response
-        console.log('Found direct tour object in response');
-        setTour(res.data);
-      } else {
-        console.log('Invalid API response format:', res.data);
-        throw new Error('Invalid response format');
-      }
-    };
-    
-    // Function to find a tour by ID in an array of tours
-    const findTourById = (toursArray, tourId) => {
-      if (!toursArray || !Array.isArray(toursArray) || toursArray.length === 0) return null;
+      setLoading(true);
+      setError(null);
       
-      return toursArray.find(t => {
-        if (!t) return false;
-        
-        // Check all possible ID formats
-        const possibleId = t._id || t.id || t.tourId || t.objectId;
-        return possibleId === tourId || 
-               t._id === tourId || 
-               t.id === tourId || 
-               t.tourId === tourId || 
-               t.objectId === tourId;
-      });
-    };
-    
-    // Function to fetch all tours and find the specific one
-    const fetchAllToursAndFindOne = async () => {
       try {
-        console.log('Fetching all tours as fallback...');
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        
-        // Try different endpoints to get all tours
-        const allToursEndpoints = [
-          `${apiUrl}/api/tours`,
-          `${apiUrl}/tours`,
-          `${apiUrl}/api/tours/all`
-        ];
-        
-        for (const endpoint of allToursEndpoints) {
-          try {
-            console.log(`Trying to fetch all tours from: ${endpoint}`);
-            const res = await axios.get(endpoint, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            console.log('All tours response:', res.data);
-            
-            // Extract tours array from different possible response formats
-            let allTours = [];
-            if (res.data && res.data.data && Array.isArray(res.data.data)) {
-              allTours = res.data.data;
-            } else if (res.data && Array.isArray(res.data)) {
-              allTours = res.data;
-            } else if (res.data && res.data.tours && Array.isArray(res.data.tours)) {
-              allTours = res.data.tours;
-            } else if (res.data && res.data.data && res.data.data.tours && Array.isArray(res.data.data.tours)) {
-              allTours = res.data.data.tours;
-            }
-            
-            console.log(`Found ${allTours.length} tours, searching for ID: ${id}`);
-            
-            // Find the specific tour by ID
-            const foundTour = findTourById(allTours, id);
-            
-            if (foundTour) {
-              console.log('Found tour in all tours response:', foundTour);
-              setTour(foundTour);
-              return true;
-            }
-          } catch (error) {
-            console.log(`Failed to fetch all tours from ${endpoint}:`, error.message);
-          }
-        }
-        
-        return false;
-      } catch (error) {
-        console.error('Error in fetchAllToursAndFindOne:', error);
-        return false;
-      }
-    };
-    
-    const fetchTour = async () => {
-      try {
-        setLoading(true);
-        setError(null);
         console.log('Fetching tour with ID:', id);
-
-        // First try to find the tour in the context
-        if (tours && tours.length > 0) {
-          console.log('Tours in context:', tours.length);
-          const foundTour = findTourById(tours, id);
-          
-          if (foundTour) {
-            console.log('Found tour in context:', foundTour);
-            setTour(foundTour);
-            setLoading(false);
-            return;
-          } else {
-            console.log('Tour not found in context, trying API');
-          }
-        } else {
-          console.log('No tours in context');
-        }
-        
-        // If not found in context, fetch from API
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        console.log('Fetching from API:', `${apiUrl}/api/tours/${id}`);
+        const response = await axios.get(`${apiUrl}/api/tours/${id}`);
         
-        // Try all possible endpoints for direct tour fetch
-        const endpoints = [
-          `${apiUrl}/api/tours/${id}`,
-          `${apiUrl}/tours/${id}`,
-          `${apiUrl}/api/tour/${id}`,
-          `${apiUrl}/tour/${id}`
-        ];
+        console.log('Tour API response:', response.data);
         
-        let success = false;
-        
-        for (const endpoint of endpoints) {
-          try {
-            console.log(`Trying endpoint: ${endpoint}`);
-            const res = await axios.get(endpoint, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            // Process this response
-            processApiResponse(res);
-            success = true;
-            break;
-          } catch (error) {
-            console.log(`Endpoint ${endpoint} failed:`, error.message);
-          }
-        }
-        
-        // If direct endpoints failed, try fetching all tours and finding the specific one
-        if (!success) {
-          console.log('All direct endpoints failed, trying to fetch all tours...');
-          success = await fetchAllToursAndFindOne();
-          
-          if (!success) {
-            throw new Error('Could not find tour with ID: ' + id);
-          }
-        }
-
-      } catch (err) {
-        console.error('All API endpoints failed:', err);
-        console.log('Error details:', err.response || err.request || err.message);
-        let errorMessage = 'Failed to load tour details. ';
-        
-        if (err.response) {
-          if (err.response.status === 404) {
-            errorMessage = 'Tour not found. The tour may have been removed or the ID is incorrect.';
-          } else {
-            errorMessage += err.response.data?.message || 'Please try again later.';
-          }
-        } else if (err.request) {
-          errorMessage += 'No response from server. Please check your connection or try again later.';
+        if (response.data.success) {
+          setTour(response.data.data);
         } else {
-          errorMessage += err.message || 'An unexpected error occurred.';
+          setError(response.data.message || 'Tour not found');
         }
-        
+      } catch (err) {
+        console.error('Error fetching tour:', err);
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch tour details';
+        console.error('Error message:', errorMessage);
         setError(errorMessage);
-        toast.error('Error loading tour details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTour();
-  }, [id, tours]);
+    fetchTourData();
+  }, [id]);
   
   // Function to navigate through images
   const nextImage = () => {
@@ -888,3 +729,5 @@ const TourDetails = () => {
 };
 
 export default TourDetails;
+
+

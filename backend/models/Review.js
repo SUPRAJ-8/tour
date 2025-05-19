@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Tour = require('./Tour');
 
 const ReviewSchema = new mongoose.Schema({
   review: {
@@ -61,12 +60,12 @@ ReviewSchema.statics.calcAverageRatings = async function(tourId) {
   ]);
   
   if (stats.length > 0) {
-    await Tour.findByIdAndUpdate(tourId, {
+    await mongoose.model('Tour').findByIdAndUpdate(tourId, {
       ratingsQuantity: stats[0].nRating,
       ratingsAverage: stats[0].avgRating
     });
   } else {
-    await Tour.findByIdAndUpdate(tourId, {
+    await mongoose.model('Tour').findByIdAndUpdate(tourId, {
       ratingsQuantity: 0,
       ratingsAverage: 4.5
     });

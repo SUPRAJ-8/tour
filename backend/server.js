@@ -4,6 +4,12 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 
+// Load models
+require('./models/Tour');
+require('./models/Destination');
+require('./models/Review');
+require('./models/User');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const tourRoutes = require('./routes/tours');

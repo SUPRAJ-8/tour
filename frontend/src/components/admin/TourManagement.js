@@ -248,21 +248,19 @@ const TourManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    
     try {
-      // Handle destination ID
-      let destinationId;
-      
+      setLoading(true);
+      setError(null);
+
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      let destinationId = null;
+
       if (currentTour && currentTour.destination) {
-        // If editing an existing tour, use its current destination
         destinationId = currentTour.destination._id;
         console.log('Using existing destination:', destinationId);
       } else if (formData.country) {
-        // If creating a new tour or changing destination
         console.log('Looking up destination for country:', formData.country);
         
-        // Get all destinations
         const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -279,12 +277,11 @@ const TourManagement = () => {
           console.log('Found matching destination:', matchingDestination.name);
         } else {
           console.log('Creating new destination for:', formData.country);
-          // Create a new destination
           const newDestination = await axios.post(`${apiUrl}/api/destinations`, {
             name: formData.country,
             country: formData.country,
             description: `Tours in ${formData.country}`,
-            continent: 'Asia', // Default to Asia
+            continent: 'Asia',
             coverImage: formData.coverImage || 'https://example.com/default.jpg'
           }, {
             headers: { Authorization: `Bearer ${token}` }
@@ -292,8 +289,6 @@ const TourManagement = () => {
           destinationId = newDestination.data.data._id;
           console.log('Created new destination:', destinationId);
         }
-      } else {
-        console.log('No country specified and no existing destination');
       }
 
       if (!destinationId) {
@@ -314,40 +309,25 @@ const TourManagement = () => {
         featured: Boolean(formData.featured),
         hottestTour: Boolean(formData.hottestTour),
         popularTour: Boolean(formData.popularTour),
-        status: formData.status || 'active',
-        itinerary: formData.itinerary,
-        bestTimeToVisit: formData.bestTimeToVisit,
-        visaRequirements: formData.visaRequirements,
-        travelTips: formData.travelTips.filter(item => item.trim() !== ''),
-        groupSize: formData.groupSize
+        price: formData.price ? parseFloat(formData.price) : undefined,
+        maxGroupSize: formData.maxGroupSize ? parseInt(formData.maxGroupSize) : undefined,
+        difficulty: formData.difficulty || undefined
       };
-
-      console.log('Submitting tour data:', tourData);
 
       let response;
       if (currentTour) {
-        // Update existing tour
-        console.log('Current tour data:', currentTour);
-        console.log('Tour ID for update:', currentTour._id);
-        console.log('Update URL:', `${apiUrl}/api/tours/${currentTour._id}`);
+        console.log('Updating tour:', currentTour._id);
         console.log('Update data:', tourData);
         
-        try {
-          response = await axios.put(`${apiUrl}/api/tours/${currentTour._id}`, tourData, {
-            headers: { 
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          console.log('Update response:', response.data);
-          toast.success('Tour updated successfully!');
-        } catch (updateError) {
-          console.error('Update error:', updateError);
-          console.error('Update error response:', updateError.response);
-          throw updateError;
-        }
+        response = await axios.put(`${apiUrl}/api/tours/${currentTour._id}`, tourData, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('Update response:', response.data);
+        toast.success('Tour updated successfully!');
       } else {
-        // Create new tour
         console.log('Creating new tour with data:', tourData);
         response = await axios.post(`${apiUrl}/api/tours`, tourData, {
           headers: { 
@@ -360,24 +340,24 @@ const TourManagement = () => {
       }
 
       setShowModal(false);
-      fetchTours(); // Refresh the tours list
-      toast.success('Tour saved successfully!');
-    } catch (error) {
-      console.error('Error saving tour:', error);
-      console.error('Error response:', error.response?.data);
+      fetchTours();
+    } catch (err) {
+      console.error('Error saving tour:', err);
+      console.error('Error response:', err.response);
       
       let errorMessage = 'Failed to save tour. ';
-      if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else if (error.response?.data?.error) {
-        errorMessage += error.response.data.error;
-      } else if (error.message) {
-        errorMessage += error.message;
+      if (err.response) {
+        errorMessage += err.response.data?.message || 'Please try again later.';
+      } else if (err.request) {
+        errorMessage += 'No response from server. Please check your connection.';
       } else {
-        errorMessage += 'Please try again.';
+        errorMessage += 'An unexpected error occurred.';
       }
       
+      setError(errorMessage);
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
