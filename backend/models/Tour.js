@@ -69,6 +69,7 @@ const TourSchema = new mongoose.Schema({
   }],
   includes: [String],
   excludes: [String],
+  highlights: [String],
   featured: {
     type: Boolean,
     default: false

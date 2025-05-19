@@ -45,13 +45,12 @@ const TourManagement = () => {
     visaRequirements: '',
     bestTimeToVisit: '',
     travelTips: [''],
-    price: 0,
-    discountPrice: 0,
-    difficulty: 'easy',
+    groupSize: '10-15',
     status: 'active',
     featured: false,
     hottestTour: false,
-    popularTour: false
+    popularTour: false,
+    itinerary: [{ day: 1, description: '', activities: [''] }]
   });
 
   const fetchTours = useCallback(async (page = pagination.page) => {
@@ -306,19 +305,21 @@ const TourManagement = () => {
         description: formData.description || '',
         destination: destinationId,
         duration: parseInt(formData.days) || 1,
-        price: parseFloat(formData.price) || 0,
-        discountPrice: parseFloat(formData.discountPrice) || 0,
-        maxGroupSize: 10,
-        difficulty: formData.difficulty || 'easy',
-        images: formData.heroImages.filter(img => img.trim() !== ''),
-        coverImage: formData.coverImage,
+        highlights: formData.highlights.filter(item => item.trim() !== ''),
         includes: formData.includes.filter(item => item.trim() !== ''),
         excludes: formData.excludes.filter(item => item.trim() !== ''),
-        status: formData.status === 'inactive' ? 'inactive' : 'active', // Ensure status is included
+        coverImage: formData.coverImage,
+        images: formData.heroImages.filter(img => img.trim() !== ''),
+        status: formData.status === 'inactive' ? 'inactive' : 'active',
         featured: Boolean(formData.featured),
         hottestTour: Boolean(formData.hottestTour),
         popularTour: Boolean(formData.popularTour),
-        status: formData.status || 'active'
+        status: formData.status || 'active',
+        itinerary: formData.itinerary,
+        bestTimeToVisit: formData.bestTimeToVisit,
+        visaRequirements: formData.visaRequirements,
+        travelTips: formData.travelTips.filter(item => item.trim() !== ''),
+        groupSize: formData.groupSize
       };
 
       console.log('Submitting tour data:', tourData);
@@ -396,13 +397,12 @@ const TourManagement = () => {
       visaRequirements: '',
       bestTimeToVisit: '',
       travelTips: [''],
-      price: 0,
-      discountPrice: 0,
-      difficulty: 'easy',
+      groupSize: '10-15',
       status: 'active',
       featured: false,
       hottestTour: false,
-      popularTour: false
+      popularTour: false,
+      itinerary: [{ day: 1, description: '', activities: [''] }]
     });
     setCurrentTour(null);
     setCountrySearchTerm('');
@@ -428,13 +428,12 @@ const TourManagement = () => {
       visaRequirements: tour.visaRequirements || '',
       bestTimeToVisit: tour.bestTimeToVisit || '',
       travelTips: tour.travelTips?.length ? [...tour.travelTips] : [''],
-      price: tour.price || 0,
-      discountPrice: tour.discountPrice || 0,
-      difficulty: tour.difficulty || 'easy',
+      groupSize: tour.groupSize || '10-15',
       status: tour.status === 'inactive' ? 'inactive' : 'active',
       featured: Boolean(tour.featured),
       hottestTour: Boolean(tour.hottestTour),
-      popularTour: Boolean(tour.popularTour)
+      popularTour: Boolean(tour.popularTour),
+      itinerary: tour.itinerary || [{ day: 1, description: '', activities: [''] }]
     };
     console.log('Setting form data with status:', newFormData.status);
     setFormData(newFormData);
@@ -816,110 +815,183 @@ const TourManagement = () => {
             </div>
             <div className="modal-body">
               <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>Tour Package Name</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter tour package name"
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Country*</label>
-                  <div className="custom-dropdown">
+                <div className="form-row">
+                  <div className="form-group half-width">
+                    <label>Tour Package Name</label>
                     <input
                       type="text"
-                      placeholder="Search and select a country..."
-                      value={countrySearchTerm}
-                      onChange={handleCountrySearch}
-                      onFocus={() => setShowCountryDropdown(true)}
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
                       required
+                      placeholder="Enter tour package name"
                     />
-                    {showCountryDropdown && (
-                      <div className="dropdown-options">
-                        {filteredCountries.length > 0 ? (
-                          filteredCountries.map(country => (
-                            <div 
-                              key={country._id} 
-                              className="dropdown-item"
-                              onClick={() => handleCountrySelect(country.name)}
-                            >
-                              {country.name}
-                            </div>
-                          ))
-                        ) : (
-                          <div className="dropdown-item no-results">No countries found</div>
-                        )}
-                      </div>
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Country*</label>
+                    <div className="custom-dropdown">
+                      <input
+                        type="text"
+                        placeholder="Search and select a country..."
+                        value={countrySearchTerm}
+                        onChange={handleCountrySearch}
+                        onFocus={() => setShowCountryDropdown(true)}
+                        required
+                      />
+                      {showCountryDropdown && (
+                        <div className="dropdown-options">
+                          {filteredCountries.length > 0 ? (
+                            filteredCountries.map(country => (
+                              <div 
+                                key={country._id} 
+                                className="dropdown-item"
+                                onClick={() => handleCountrySelect(country.name)}
+                              >
+                                {country.name}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="dropdown-item no-results">No countries found</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group half-width">
+                    <label>Description (Optional)</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows="4"
+                      placeholder="Enter tour description"
+                    ></textarea>
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Main Cover Image URL</label>
+                    <input
+                      type="text"
+                      name="coverImage"
+                      value={formData.coverImage}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter main cover image URL"
+                    />
+                    {formData.coverImage && (
+                      <img 
+                        src={formData.coverImage} 
+                        alt="Cover preview" 
+                        className="image-preview"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
                     )}
                   </div>
                 </div>
                 
-                <div className="form-group">
-                  <label>Description (Optional)</label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="4"
-                    placeholder="Enter tour description"
-                  ></textarea>
-                </div>
-                
-                <div className="form-group">
-                  <label>Main Cover Image URL</label>
-                  <input
-                    type="text"
-                    name="coverImage"
-                    value={formData.coverImage}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter main cover image URL"
-                  />
-                  {formData.coverImage && (
-                    <img 
-                      src={formData.coverImage} 
-                      alt="Cover preview" 
-                      className="image-preview"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  )}
-                </div>
-                
-                <div className="form-group">
-                  <label>Hero Images (At least 5 recommended)</label>
-                  {formData.heroImages.map((image, index) => (
-                    <div key={`image-${index}`} className="array-input-group">
-                      <input
-                        type="text"
-                        value={image}
-                        onChange={(e) => handleArrayInputChange(index, 'heroImages', e.target.value)}
-                        placeholder={`Image ${index + 1} URL`}
-                      />
-                      {index >= 5 && (
-                        <button 
-                          type="button" 
-                          className="btn-remove"
-                          onClick={() => handleRemoveArrayItem('heroImages', index)}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    className="btn-add"
-                    onClick={() => handleAddArrayItem('heroImages', '')}
-                  >
-                    Add More Images
-                  </button>
+                <div className="form-row">
+                  <div className="form-group half-width">
+                    <label>Hero Images (Up to 5 images)</label>
+                    {formData.heroImages.map((image, index) => (
+                      <div key={`hero-${index}`} className="array-input-group">
+                        <input
+                          type="text"
+                          value={image}
+                          onChange={(e) => handleArrayInputChange(index, 'heroImages', e.target.value)}
+                          placeholder={`Enter hero image ${index + 1} URL`}
+                        />
+                        {image && (
+                          <img 
+                            src={image} 
+                            alt={`Hero ${index + 1} preview`} 
+                            className="image-preview-small"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                        {index > 0 && (
+                          <button 
+                            type="button" 
+                            className="btn-remove"
+                            onClick={() => handleRemoveArrayItem('heroImages', index)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {formData.heroImages.length < 5 && (
+                      <button 
+                        type="button" 
+                        className="btn-add"
+                        onClick={() => handleAddArrayItem('heroImages', '')}
+                      >
+                        Add Hero Image
+                      </button>
+                    )}
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Itinerary</label>
+                    {formData.itinerary?.map((day, index) => (
+                      <div key={`day-${index}`} className="itinerary-day">
+                        <div className="itinerary-header">
+                          <h4>Day {day.day}</h4>
+                          <button 
+                            type="button" 
+                            className="btn-remove"
+                            onClick={() => handleRemoveArrayItem('itinerary', index)}
+                          >
+                            Remove Day
+                          </button>
+                        </div>
+                        <textarea
+                          value={day.description}
+                          onChange={(e) => handleArrayInputChange(index, 'itinerary', e.target.value, 'description')}
+                          placeholder="Enter day description"
+                          rows="3"
+                        />
+                        <div className="activities-section">
+                          <label>Activities</label>
+                          {day.activities?.map((activity, activityIndex) => (
+                            <div key={`activity-${activityIndex}`} className="array-input-group">
+                              <input
+                                type="text"
+                                value={activity}
+                                onChange={(e) => handleActivityChange(index, activityIndex, e.target.value)}
+                                placeholder="Enter activity"
+                              />
+                              <button 
+                                type="button" 
+                                className="btn-remove"
+                                onClick={() => handleRemoveActivity(index, activityIndex)}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                          <button 
+                            type="button" 
+                            className="btn-add"
+                            onClick={() => handleAddActivity(index)}
+                          >
+                            Add Activity
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <button 
+                      type="button" 
+                      className="btn-add"
+                      onClick={() => handleAddArrayItem('itinerary', { day: formData.itinerary?.length + 1 || 1, description: '', activities: [''] })}
+                    >
+                      Add Day
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="form-row">
@@ -949,15 +1021,23 @@ const TourManagement = () => {
                 </div>
                 
                 <div className="form-group">
+                  <label>Group Size</label>
+                  <input
+                    type="text"
+                    name="groupSize"
+                    value={formData.groupSize}
+                    onChange={handleInputChange}
+                    placeholder="e.g., 10-15 people"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
                   <label>Highlights (Enter each highlight on a new line)</label>
                   <textarea
                     value={formData.highlights.join('\n')}
                     onChange={(e) => handleArrayInputChange(0, 'highlights', e.target.value)}
-                    placeholder="Enter highlights, one per line
-Example:
-Scenic mountain views
-Local cultural experiences
-Adventure activities"
+                    placeholder="Enter highlights, one per line\nExample:\nScenic mountain views\nLocal cultural experiences\nAdventure activities"
                     rows="6"
                     className="highlights-textarea"
                   />
@@ -969,12 +1049,7 @@ Adventure activities"
                   <textarea
                     value={formData.includes.join('\n')}
                     onChange={(e) => handleArrayInputChange(0, 'includes', e.target.value)}
-                    placeholder="Enter included items, one per line
-Example:
-8 nights' accommodation
-All meals and beverages
-Guided tours
-Transportation"
+                    placeholder="Enter included items, one per line\nExample:\n8 nights' accommodation\nAll meals and beverages\nGuided tours\nTransportation"
                     rows="6"
                     className="includes-textarea"
                   />
@@ -986,12 +1061,7 @@ Transportation"
                   <textarea
                     value={formData.excludes.join('\n')}
                     onChange={(e) => handleArrayInputChange(0, 'excludes', e.target.value)}
-                    placeholder="Enter excluded items, one per line
-Example:
-International flights
-Travel insurance
-Personal expenses
-Visa fees"
+                    placeholder="Enter excluded items, one per line\nExample:\nInternational flights\nTravel insurance\nPersonal expenses\nVisa fees"
                     rows="6"
                     className="excludes-textarea"
                   />
@@ -1054,44 +1124,6 @@ Visa fees"
                 
                 <div className="form-row">
                   <div className="form-group half-width">
-                    <label>Price</label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      min="0"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group half-width">
-                    <label>Discount Price (Optional)</label>
-                    <input
-                      type="number"
-                      name="discountPrice"
-                      value={formData.discountPrice}
-                      onChange={handleInputChange}
-                      min="0"
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group half-width">
-                    <label>Difficulty</label>
-                    <select
-                      name="difficulty"
-                      value={formData.difficulty}
-                      onChange={handleInputChange}
-                    >
-                      <option value="easy">Easy</option>
-                      <option value="medium">Medium</option>
-                      <option value="difficult">Difficult</option>
-                    </select>
-                  </div>
-                  
-                  <div className="form-group half-width">
                     <label>Status</label>
                     <select
                       name="status"
@@ -1103,36 +1135,35 @@ Visa fees"
                       <option value="inactive">inactive</option>
                     </select>
                   </div>
-                </div>
-                
-                <div className="form-group checkbox-group" style={{ display: 'flex', gap: '20px' }}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="featured"
-                      checked={formData.featured}
-                      onChange={handleInputChange}
-                    />
-                    Featured Tour
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="hottestTour"
-                      checked={formData.hottestTour}
-                      onChange={handleInputChange}
-                    />
-                    Hottest Tour
-                  </label>
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="popularTour"
-                      checked={formData.popularTour}
-                      onChange={handleInputChange}
-                    />
-                    Popular Tour
-                  </label>
+                  <div className="form-group half-width checkbox-group horizontal-badges">
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="featured"
+                        checked={formData.featured}
+                        onChange={handleInputChange}
+                      />
+                      Featured Tour
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="hottestTour"
+                        checked={formData.hottestTour}
+                        onChange={handleInputChange}
+                      />
+                      Hottest Tour
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="popularTour"
+                        checked={formData.popularTour}
+                        onChange={handleInputChange}
+                      />
+                      Popular Tour
+                    </label>
+                  </div>
                 </div>
                 
                 <div className="form-actions">
