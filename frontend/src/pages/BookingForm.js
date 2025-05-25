@@ -605,6 +605,31 @@ const BookingForm = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="loading">
+        <div className="loading-spinner"></div>
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-message">
+        <FaInfoCircle /> {error}
+      </div>
+    );
+  }
+
+  if (!tour) {
+    return (
+      <div className="error-message">
+        <FaInfoCircle /> Tour not found
+      </div>
+    );
+  }
+
   return (
     <section className="booking-page">
       <div className="container">
@@ -613,7 +638,25 @@ const BookingForm = () => {
             <FaArrowLeft /> Back to Tour
           </Link>
           <h1>Book Your Tour</h1>
-          <p>Complete the form below to book {tour.title}</p>
+          <h2 className="tour-title">{tour.title}</h2>
+          <div className="tour-quick-info">
+            <div className="quick-info-item">
+              <FaMapMarkerAlt className="info-icon" />
+              <span><strong>Country:</strong> {tour.country}</span>
+            </div>
+            <div className="quick-info-item">
+              <FaRegClock className="info-icon" />
+              <span><strong>Duration:</strong> {tour.days} Days / {tour.nights} Nights</span>
+            </div>
+            <div className="quick-info-item">
+              <FaCalendarAlt className="info-icon" />
+              <span><strong>Best Season:</strong> {tour.bestTimeToVisit}</span>
+            </div>
+            <div className="quick-info-item">
+              <FaUsers className="info-icon" />
+              <span><strong>Group Size:</strong> {tour.groupSize}</span>
+            </div>
+          </div>
         </div>
         
         {/* Progress Steps */}

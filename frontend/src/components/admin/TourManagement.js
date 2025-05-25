@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../common/ConfirmationModal';
@@ -39,9 +39,9 @@ const TourManagement = () => {
     heroImages: ['', '', '', '', ''],
     days: 1,
     nights: 0,
-    highlights: [''],
-    includes: [''],
-    excludes: [''],
+    highlights: [{ text: '', icon: 'FaStar' }],
+    includes: [{ text: '', category: 'accommodation' }],
+    excludes: [{ text: '', category: 'general' }],
     visaRequirements: '',
     bestTimeToVisit: '',
     travelTips: [''],
@@ -499,30 +499,22 @@ const TourManagement = () => {
   };
 
   const handleArrayInputChange = (index, field, value, subfield = null) => {
-    const updatedArray = [...formData[field]];
-    
-    // Handle bulk input for highlights, includes, and excludes
-    if ((field === 'highlights' || field === 'includes' || field === 'excludes') && value.includes('\n')) {
-      const items = value.split('\n').filter(item => item.trim() !== '');
-      setFormData({
-        ...formData,
-        [field]: items
-      });
-      return;
-    }
-
-    if (subfield) {
-      updatedArray[index] = {
-        ...updatedArray[index],
-        [subfield]: value
-      };
-    } else {
-      updatedArray[index] = value;
-    }
-    
-    setFormData({
-      ...formData,
-      [field]: updatedArray
+    setFormData(prev => {
+      const newData = { ...prev };
+      const array = [...prev[field]];
+      
+      if (subfield) {
+        // Handle nested object updates
+        array[index] = {
+          ...array[index],
+          [subfield]: value
+        };
+      } else {
+        array[index] = value;
+      }
+      
+      newData[field] = array;
+      return newData;
     });
   };
 
@@ -532,6 +524,12 @@ const TourManagement = () => {
     if (field === 'itinerary') {
       const nextDay = updatedArray.length + 1;
       updatedArray.push({ day: nextDay, description: '', activities: [''] });
+    } else if (field === 'highlights') {
+      updatedArray.push({ text: '', icon: 'FaStar' });
+    } else if (field === 'includes') {
+      updatedArray.push({ text: '', category: 'accommodation' });
+    } else if (field === 'excludes') {
+      updatedArray.push({ text: '', category: 'general' });
     } else {
       updatedArray.push(defaultValue);
     }

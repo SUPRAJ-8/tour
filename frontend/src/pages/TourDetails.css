@@ -201,7 +201,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
 }
 
 .title-rating h1 {
@@ -254,12 +253,28 @@
 .duration-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--light-color);
+  background-color: #f8f9fa;
   border-radius: 4px;
-  color: var(--primary-color);
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+
+}
+
+.duration-badge .duration-icon {
+  width: 16px;
+  height: 16px;
+  color: #0d6efd;
+}
+
+.duration-badge span:first-of-type {
+  color: #6c757d;
+}
+
+.duration-badge .duration-value {
   font-weight: 500;
-  margin-bottom: 2rem;
+  color: #212529;
+  margin-left: 0.25rem;
 }
 
 .tour-header-content {
@@ -1489,9 +1504,19 @@
 
 .checkbox-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.75rem;
+  font-size: 0.875rem;
+  color: #4b5563;
   cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2563eb;
 }
 
 .checkbox-label input[type="checkbox"] {
@@ -1540,7 +1565,7 @@
 .confusion-section {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: #FFF7E6;
+  background: rgb(194, 255, 194);
   border: 1px solid #FFE4B3;
   border-radius: 8px;
 }
@@ -1553,7 +1578,7 @@
 }
 
 .confusion-section p {
-  color: #6B7280;
+  color: #1d1f24;
   font-size: 0.9375rem;
   margin-bottom: 1rem;
 }
@@ -1591,7 +1616,7 @@
   border: 1px solid #E5E7EB;
   border-radius: 8px;
   padding: 1.5rem;
-}
+}t
 
 .modal-confusion h3 {
   font-size: 1.125rem;
@@ -1603,7 +1628,8 @@
 .modal-confusion p {
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
-  color: #6B7280;
+  color: #1d1f24;
+
 }
 
 .modal-confusion .whatsapp-link {
@@ -1645,7 +1671,9 @@
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 2rem;
-  min-height: 600px;
+  padding: 2rem;
+  max-height: calc(90vh - 4rem);
+  overflow-y: auto;
 }
 
 /* Modal Left Section */
@@ -1672,23 +1700,88 @@
 }
 
 .modal-tour-info {
-  padding: 0.5rem 0;
+  background-color: var(--white-color);
+  border-radius: 8px;
+  width: 299.46px;
 }
 
 .modal-tour-info h3 {
   font-size: 1.25rem;
-  color: #111827;
-  margin-bottom: 0.75rem;
+  color: #1a202c;
   font-weight: 600;
+  padding: 1rem;
+  height: auto;
+  background-color: #f8fafc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
-.modal-tour-duration {
+.modal-tour-info .tour-details {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.modal-tour-info .detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #4a5568;
+  border-radius: 4px;
+  width: 250px;
+  padding: 4px 0;
+}
+
+.modal-tour-info .checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #6B7280;
   font-size: 0.875rem;
+  color: #4b5563;
+  cursor: pointer;
 }
+
+.checkbox-label input[type="checkbox"] {
+  margin-left: 0.5rem;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* For Font Awesome icons */
+.modal-tour-info .detail-item i,
+.modal-tour-info .detail-item svg {
+  width: 16px;
+  height: 16px;
+  color: #38b2ac;
+  flex-shrink: 0;
+}
+
+/* For image icons */
+.modal-tour-info .detail-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: invert(31%) sepia(93%) saturate(1954%) hue-rotate(202deg) brightness(97%) contrast(98%);
+  /* This filter creates #2563eb blue color */
+}
+
+.modal-tour-info .detail-label {
+  font-weight: 500;
+  color: #2d3748;
+  width: 85px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+
 
 .modal-tour-duration svg {
   color: #2563EB;
@@ -1722,7 +1815,7 @@
 /* Update confusion section in modal */
 .modal-left .modal-confusion {
   margin-top: auto;
-  background: #F9FAFB;
+  background: rgb(194, 255, 194);
   border: 1px solid #E5E7EB;
   border-radius: 8px;
 }

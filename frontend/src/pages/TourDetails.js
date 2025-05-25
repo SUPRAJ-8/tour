@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, FaMoneyBillWave, 
-  FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand, FaMapMarkedAlt, FaCheckCircle, FaTag, FaCog, FaArrowRight, FaEnvelope, FaPhone, FaUser, FaFlag, FaWhatsapp } from 'react-icons/fa';
+  FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand, FaMapMarkedAlt, FaCheckCircle, FaTag, FaCog, FaArrowRight, FaEnvelope, FaPhone, FaUser, FaFlag, FaWhatsapp, FaRegCalendar } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
@@ -84,10 +84,28 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                 <img src={tour.images?.[0] || tour.coverImage || '/images/placeholder.jpg'} alt={tour.title} />
               </div>
               <div className="modal-tour-info">
-                <h3>{tour.title || '4N/5D Bangkok-Pattaya Tour Package'}</h3>
-                <div className="modal-tour-duration">
-                  <FaClock />
-                  <span>{tour.duration || '5 Days 4 Nights'}</span>
+                <h3>{tour.title}</h3>
+                <div className="tour-details">
+                  <div className="detail-item">
+                    <img src="/images/icons/globe.svg" alt="" className="detail-icon" />
+                    <span className="detail-label">Country:</span>
+                    <span>{tour.country}</span>
+                  </div>
+                  <div className="detail-item">
+                    <img src="images/icons/calendar.svg" alt="" className="detail-icon" />
+                    <span className="detail-label">Duration:</span>
+                    <span>{tour.days} Days / {tour.nights} Nights</span>
+                  </div>
+                  <div className="detail-item">
+                    <img src="images/icons/weather.svg" alt="" className="detail-icon" />
+                    <span className="detail-label">Best Season:</span>
+                    <span>{tour.bestTimeToVisit}</span>
+                  </div>
+                  <div className="detail-item">
+                    <img src="images/icons/group.svg" alt="" className="detail-icon" />
+                    <span className="detail-label">Group Size:</span>
+                    <span>{tour.groupSize}</span>
+                  </div>
                 </div>
               </div>
               
@@ -230,7 +248,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                       onChange={(e) => setFormData({...formData, agreeToTerms: e.target.checked})}
                       required
                     />
-                    By submitting, you agree to our and <Link to="/terms">Terms & Conditions</Link> and <Link to="/privacy">Privacy Policy</Link>.
+                    By submitting, you agree to our and <Link to="/terms">Terms & Conditions</Link> and <Link to="/privacy">Privacy Policy</Link>
                   </label>
                 </div>
 
@@ -431,8 +449,9 @@ const TourDetails = () => {
           </div>
 
           <div className="duration-badge">
-            <FaClock />
-            <span>{tour.duration || 5} Days {tour.nights || 4} Nights</span>
+            <FaCalendarAlt className="duration-icon" />
+            <span>Duration</span>
+            <span className="duration-value">{tour.nights || 4} Nights/{tour.days || 5} Days</span>
           </div>
           
           {/* Tour content wrapper for positioning */}

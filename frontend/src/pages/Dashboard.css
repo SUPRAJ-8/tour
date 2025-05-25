@@ -288,8 +288,6 @@
 .detail-label {
   font-size: 0.8rem;
   color: var(--gray-color);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .detail-value {

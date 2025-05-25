@@ -57,7 +57,12 @@ function App() {
   const { loading } = useAuth();
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading">
+        <div className="loading-spinner"></div>
+        Loading...
+      </div>
+    );
   }
 
   return (

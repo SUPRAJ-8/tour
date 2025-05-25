@@ -51,7 +51,7 @@ const Navbar = () => {
     <nav className={`navbar ${isHomePage ? 'transparent' : ''} ${scrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
         <Link to="/" className="navbar-logo">
-          TravelTour
+          <img src="/images/logo.png" alt="TravelTour Logo" className="nav-logo" />
         </Link>
 
         <div className="navbar-toggle" onClick={toggleMenu}>
