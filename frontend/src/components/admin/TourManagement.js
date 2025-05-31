@@ -31,7 +31,7 @@ const TourManagement = () => {
   const [currentTour, setCurrentTour] = useState(null);
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     title: '',
     country: '',
     description: '',
@@ -39,9 +39,9 @@ const TourManagement = () => {
     heroImages: ['', '', '', '', ''],
     days: 1,
     nights: 0,
-    highlights: [{ text: '', icon: 'FaStar' }],
-    includes: [{ text: '', category: 'accommodation' }],
-    excludes: [{ text: '', category: 'general' }],
+    highlights: [''],
+    includes: [''],
+    excludes: [''],
     visaRequirements: '',
     bestTimeToVisit: '',
     travelTips: [''],
@@ -51,7 +51,9 @@ const TourManagement = () => {
     hottestTour: false,
     popularTour: false,
     itinerary: [{ day: 1, description: '', activities: [''] }]
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const fetchTours = useCallback(async (page = pagination.page) => {
     try {
@@ -311,7 +313,12 @@ const TourManagement = () => {
         popularTour: Boolean(formData.popularTour),
         price: formData.price ? parseFloat(formData.price) : undefined,
         maxGroupSize: formData.maxGroupSize ? parseInt(formData.maxGroupSize) : undefined,
-        difficulty: formData.difficulty || undefined
+        difficulty: formData.difficulty || undefined,
+        visaRequirements: formData.visaRequirements || '',
+        bestTimeToVisit: formData.bestTimeToVisit || '',
+        travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
+        groupSize: formData.groupSize || '10-15',
+        itinerary: formData.itinerary || [{ day: 1, description: '', activities: [''] }]
       };
 
       let response;
@@ -431,6 +438,11 @@ const TourManagement = () => {
     popularTour: false
   });
 
+  const clearForm = () => {
+    setFormData(initialFormState);
+    toast.success('Form cleared successfully');
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -444,8 +456,8 @@ const TourManagement = () => {
       return;
     }
     
-    // Handle regular input changes
-    if (type !== 'checkbox' || !['popularTour', 'hottestTour', 'featured'].includes(name)) {
+    // Handle regular input changes including textareas
+    if (type === 'textarea' || type === 'text' || type === 'number' || !['popularTour', 'hottestTour', 'featured'].includes(name)) {
       setFormData(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
@@ -1010,42 +1022,62 @@ const TourManagement = () => {
                   />
                 </div>
                 
+
+                
                 <div className="form-group">
-                  <label>Highlights (Enter each highlight on a new line)</label>
+                  <label>Highlights (use ,, to separate points)</label>
                   <textarea
                     value={formData.highlights.join('\n')}
-                    onChange={(e) => handleArrayInputChange(0, 'highlights', e.target.value)}
-                    placeholder="Enter highlights, one per line\nExample:\nScenic mountain views\nLocal cultural experiences\nAdventure activities"
+                    onChange={(e) => {
+                      const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
+                      setFormData(prev => ({
+                        ...prev,
+                        highlights: lines
+                      }));
+                    }}
+                    placeholder="Enter highlights with double commas (,,) to separate points\nExample:\nScenic mountain views,, Local experiences\nBeach activities,, Water sports"
                     rows="6"
                     className="highlights-textarea"
                   />
-                  <small className="input-help">Each line will be treated as a separate highlight</small>
+                  <small className="input-help">Use double commas (,,) to create separate points in the same line</small>
                 </div>
-                
+
                 <div className="form-group">
-                  <label>Includes (Enter each item on a new line)</label>
+                  <label>What's Included (use ,, to separate points)</label>
                   <textarea
                     value={formData.includes.join('\n')}
-                    onChange={(e) => handleArrayInputChange(0, 'includes', e.target.value)}
-                    placeholder="Enter included items, one per line\nExample:\n8 nights' accommodation\nAll meals and beverages\nGuided tours\nTransportation"
+                    onChange={(e) => {
+                      const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
+                      setFormData(prev => ({
+                        ...prev,
+                        includes: lines
+                      }));
+                    }}
+                    placeholder="Enter included items with double commas (,,) to separate points\nExample:\nAccommodation,, All meals\nGuided tours,, Transportation"
                     rows="6"
                     className="includes-textarea"
                   />
-                  <small className="input-help">Each line will be treated as a separate included item</small>
+                  <small className="input-help">Use double commas (,,) to create separate points in the same line</small>
                 </div>
-                
+
                 <div className="form-group">
-                  <label>Excludes (Enter each item on a new line)</label>
+                  <label>What's Not Included (use ,, to separate points)</label>
                   <textarea
                     value={formData.excludes.join('\n')}
-                    onChange={(e) => handleArrayInputChange(0, 'excludes', e.target.value)}
-                    placeholder="Enter excluded items, one per line\nExample:\nInternational flights\nTravel insurance\nPersonal expenses\nVisa fees"
+                    onChange={(e) => {
+                      const lines = e.target.value.split('\n').filter(line => line.trim() !== '');
+                      setFormData(prev => ({
+                        ...prev,
+                        excludes: lines
+                      }));
+                    }}
+                    placeholder="Enter excluded items with double commas (,,) to separate points\nExample:\nInternational flights,, Travel insurance\nPersonal expenses,, Visa fees"
                     rows="6"
                     className="excludes-textarea"
                   />
-                  <small className="input-help">Each line will be treated as a separate excluded item</small>
+                  <small className="input-help">Use double commas (,,) to create separate points in the same line</small>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Visa Requirements</label>
                   <div className="array-input-group">
@@ -1147,6 +1179,9 @@ const TourManagement = () => {
                 <div className="form-actions">
                   <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
                     Cancel
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={clearForm}>
+                    Clear Form
                   </button>
                   <button type="submit" className="btn-primary">
                     {currentTour ? 'Update Tour' : 'Add Tour'}

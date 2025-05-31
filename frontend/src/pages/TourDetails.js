@@ -554,35 +554,24 @@ const TourDetails = () => {
               </div>
 
               {/* Highlights Section */}
-              <div className="highlights-section">
-                <h2>Highlights</h2>
-                <div className="highlights-grid">
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Visit the iconic Grand Palace and Temple of the Emerald Buddha</span>
-                  </div>
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Experience traditional Thai massage and spa treatments</span>
-                  </div>
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Explore the famous floating markets of Bangkok</span>
-                  </div>
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Enjoy pristine beaches and crystal-clear waters in Pattaya</span>
-                  </div>
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Visit the Sanctuary of Truth wooden temple</span>
-                  </div>
-                  <div className="highlight-item">
-                    <FaStar className="highlight-icon" />
-                    <span className="highlight-content">Experience vibrant nightlife and cultural shows</span>
+              {tour.highlights && tour.highlights.length > 0 && (
+                <div className="highlights-section">
+                  <h2>Highlights</h2>
+                  <div className="highlights-grid">
+                    {tour.highlights.map((highlight, index) => {
+                      // Split if the highlight contains ,,
+                      const points = highlight.split(',,').map(point => point.trim()).filter(point => point !== '');
+                      
+                      return points.map((point, pointIndex) => (
+                        <div key={`${index}-${pointIndex}`} className="highlight-item">
+                          <FaStar className="highlight-icon" />
+                          <span className="highlight-content">{point}</span>
+                        </div>
+                      ));
+                    }).flat()}
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Inclusions Section */}
               <div className="inclusions">
@@ -591,54 +580,32 @@ const TourDetails = () => {
                 
                 <div className="includes-excludes-grid">
                   <div className="includes-section">
-                    <h3>Includes</h3>
+                    <h3>What's Included</h3>
                     <ul className="includes-list">
-                      <li>
-                        <FaCheck className="include-icon" />
-                        <span>Visa processing fee</span>
-                      </li>
-                      <li>
-                        <FaCheck className="include-icon" />
-                        <span>3/4-star accommodations with daily breakfast (double/twin sharing)</span>
-                      </li>
-                      <li>
-                        <FaCheck className="include-icon" />
-                        <span>Airport pickup and drop-off in shared vehicles</span>
-                      </li>
-                      <li>
-                        <FaCheck className="include-icon" />
-                        <span>Guided tours to destinations mentioned in the itinerary</span>
-                      </li>
+                      {tour.includes && tour.includes.map((item, index) => {
+                        const points = item.split(',,').map(point => point.trim()).filter(point => point !== '');
+                        return points.map((point, pointIndex) => (
+                          <li key={`${index}-${pointIndex}`}>
+                            <FaCheck className="include-icon" />
+                            <span>{point}</span>
+                          </li>
+                        ));
+                      }).flat()}
                     </ul>
                   </div>
 
                   <div className="excludes-section">
-                    <h3>Excludes</h3>
+                    <h3>What's Not Included</h3>
                     <ul className="excludes-list">
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>International and domestic airfare</span>
-                      </li>
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>Transportation outside the specified itinerary</span>
-                      </li>
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>Personal expenses (tips, shopping, laundry, activities not listed)</span>
-                      </li>
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>Lunch & Dinner</span>
-                      </li>
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>Personal Expenses</span>
-                      </li>
-                      <li>
-                        <FaTimes className="exclude-icon" />
-                        <span>National Park Fees</span>
-                      </li>
+                      {tour.excludes && tour.excludes.map((item, index) => {
+                        const points = item.split(',,').map(point => point.trim()).filter(point => point !== '');
+                        return points.map((point, pointIndex) => (
+                          <li key={`${index}-${pointIndex}`}>
+                            <FaTimes className="exclude-icon" />
+                            <span>{point}</span>
+                          </li>
+                        ));
+                      }).flat()}
                     </ul>
                   </div>
                 </div>
