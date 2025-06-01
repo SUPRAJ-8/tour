@@ -18,8 +18,15 @@ const TourSchema = new mongoose.Schema({
     required: [true, 'Tour must belong to a destination']
   },
   duration: {
-    type: Number,
+    type: String,
     required: [true, 'Tour must have a duration']
+  },
+  bestSeason: {
+    type: String
+  },
+  groupSize: {
+    type: String,
+    required: [true, 'Tour must have a group size']
   },
   price: {
     type: Number
@@ -32,9 +39,7 @@ const TourSchema = new mongoose.Schema({
   discountPrice: {
     type: Number
   },
-  maxGroupSize: {
-    type: Number
-  },
+
   difficulty: {
     type: String,
     enum: {

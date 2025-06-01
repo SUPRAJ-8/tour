@@ -673,12 +673,7 @@ const TourDetails = () => {
               <div className="additional-info">
                 <h2>Additional Information</h2>
                 
-                {tour.bestTimeToVisit && (
-                  <div className="info-item">
-                    <h3><FaUmbrellaBeach /> Best Time to Visit</h3>
-                    <p>{tour.bestTimeToVisit}</p>
-                  </div>
-                )}
+
                 
                 {tour.visaRequirements && (
                   <div className="info-item">

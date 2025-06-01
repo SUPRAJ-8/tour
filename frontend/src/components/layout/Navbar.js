@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaTimes } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
-  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
   // Check if current page is home page
@@ -38,15 +35,6 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   return (
     <nav className={`navbar ${isHomePage ? 'transparent' : ''} ${scrolled ? 'scrolled' : ''}`}>
       <div className="container navbar-container">
@@ -70,11 +58,6 @@ const Navbar = () => {
             </Link>
           </li>
           <li className="navbar-item">
-            <Link to="/destinations" className="navbar-link" onClick={() => setIsOpen(false)}>
-              Destinations
-            </Link>
-          </li>
-          <li className="navbar-item">
             <Link to="/countries" className="navbar-link" onClick={() => setIsOpen(false)}>
               Countries
             </Link>
@@ -90,35 +73,6 @@ const Navbar = () => {
             </Link>
           </li>
 
-          {isAuthenticated && user.role === 'admin' && (
-            <li className="navbar-item user-dropdown">
-              <div className="user-menu" onClick={toggleDropdown}>
-                <FaUserCircle />
-                <span>{user.name}</span>
-              </div>
-              {showDropdown && (
-                <ul className="dropdown-menu">
-                  <li>
-                    <Link to="/admin-dashboard" onClick={() => {
-                      setIsOpen(false);
-                      setShowDropdown(false);
-                    }}>
-                      Admin Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <button onClick={() => {
-                      handleLogout();
-                      setIsOpen(false);
-                      setShowDropdown(false);
-                    }}>
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
-          )}
         </ul>
       </div>
     </nav>

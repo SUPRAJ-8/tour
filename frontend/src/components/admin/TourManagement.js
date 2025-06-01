@@ -37,15 +37,12 @@ const TourManagement = () => {
     description: '',
     coverImage: '',
     heroImages: ['', '', '', '', ''],
-    days: 1,
-    nights: 0,
     highlights: [''],
     includes: [''],
     excludes: [''],
     visaRequirements: '',
-    bestTimeToVisit: '',
+
     travelTips: [''],
-    groupSize: '10-15',
     status: 'active',
     featured: false,
     hottestTour: false,
@@ -301,7 +298,9 @@ const TourManagement = () => {
         title: formData.title,
         description: formData.description || '',
         destination: destinationId,
-        duration: parseInt(formData.days) || 1,
+        duration: formData.duration || '',
+        groupSize: formData.groupSize || '',
+        bestSeason: formData.bestSeason || '',
         highlights: formData.highlights.filter(item => item.trim() !== ''),
         includes: formData.includes.filter(item => item.trim() !== ''),
         excludes: formData.excludes.filter(item => item.trim() !== ''),
@@ -312,12 +311,9 @@ const TourManagement = () => {
         hottestTour: Boolean(formData.hottestTour),
         popularTour: Boolean(formData.popularTour),
         price: formData.price ? parseFloat(formData.price) : undefined,
-        maxGroupSize: formData.maxGroupSize ? parseInt(formData.maxGroupSize) : undefined,
         difficulty: formData.difficulty || undefined,
         visaRequirements: formData.visaRequirements || '',
-        bestTimeToVisit: formData.bestTimeToVisit || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        groupSize: formData.groupSize || '10-15',
         itinerary: formData.itinerary || [{ day: 1, description: '', activities: [''] }]
       };
 
@@ -407,15 +403,14 @@ const TourManagement = () => {
       description: tour.description || '',
       coverImage: tour.coverImage || '',
       heroImages: tour.images?.length ? [...tour.images] : ['', '', '', '', ''],
-      days: tour.duration || 1,
-      nights: (tour.duration || 1) - 1,
+      duration: tour.duration || '',
+      groupSize: tour.groupSize || '',
+      bestSeason: tour.bestSeason || '',
       highlights: tour.highlights?.length ? [...tour.highlights] : [''],
       includes: tour.includes?.length ? [...tour.includes] : [''],
       excludes: tour.excludes?.length ? [...tour.excludes] : [''],
       visaRequirements: tour.visaRequirements || '',
-      bestTimeToVisit: tour.bestTimeToVisit || '',
       travelTips: tour.travelTips?.length ? [...tour.travelTips] : [''],
-      groupSize: tour.groupSize || '10-15',
       status: tour.status === 'inactive' ? 'inactive' : 'active',
       featured: Boolean(tour.featured),
       hottestTour: Boolean(tour.hottestTour),
@@ -716,7 +711,6 @@ const TourManagement = () => {
               <thead>
                 <tr>
                   <th>Title</th>
-                  <th>Duration</th>
                   <th>Country</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -726,7 +720,6 @@ const TourManagement = () => {
                 {filteredTours.map((tour) => (
                   <tr key={tour._id}>
                     <td>{tour.title}</td>
-                    <td>{tour.duration} days</td>
                     <td>{tour.destination?.country || 'N/A'}</td>
                     <td>
                       <span className={`status-badge ${tour.status === 'inactive' ? 'inactive' : 'active'}`}>
@@ -984,43 +977,6 @@ const TourManagement = () => {
                   </div>
                 </div>
                 
-                <div className="form-row">
-                  <div className="form-group half-width">
-                    <label>Number of days</label>
-                    <input
-                      type="number"
-                      name="days"
-                      value={formData.days}
-                      onChange={handleInputChange}
-                      min="1"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group half-width">
-                    <label>Number of nights</label>
-                    <input
-                      type="number"
-                      name="nights"
-                      value={formData.nights}
-                      onChange={handleInputChange}
-                      min="0"
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>Group Size</label>
-                  <input
-                    type="text"
-                    name="groupSize"
-                    value={formData.groupSize}
-                    onChange={handleInputChange}
-                    placeholder="e.g., 10-15 people"
-                    required
-                  />
-                </div>
                 
 
                 
@@ -1078,6 +1034,43 @@ const TourManagement = () => {
                   <small className="input-help">Use double commas (,,) to create separate points in the same line</small>
                 </div>
 
+                <div className="form-row">
+                  <div className="form-group half-width">
+                    <label>Duration</label>
+                    <input
+                      type="text"
+                      name="duration"
+                      value={formData.duration}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 5 Days 4 Nights"
+                      required
+                    />
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Group Size</label>
+                    <input
+                      type="text"
+                      name="groupSize"
+                      value={formData.groupSize}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 2-10 people"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Best Season</label>
+                  <input
+                    type="text"
+                    name="bestSeason"
+                    value={formData.bestSeason}
+                    onChange={handleInputChange}
+                    placeholder="e.g., October to March"
+                    required
+                  />
+                </div>
+
                 <div className="form-group">
                   <label>Visa Requirements</label>
                   <div className="array-input-group">
@@ -1092,16 +1085,6 @@ const TourManagement = () => {
                   </div>
                 </div>
                 
-                <div className="form-group">
-                  <label>Best Time to Visit (Optional)</label>
-                  <input
-                    type="text"
-                    name="bestTimeToVisit"
-                    value={formData.bestTimeToVisit}
-                    onChange={handleInputChange}
-                    placeholder="e.g., October to March"
-                  />
-                </div>
                 
                 <div className="form-group">
                   <label>Travel Tips (Optional)</label>

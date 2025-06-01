@@ -9,7 +9,6 @@ import {
   FaCalendarAlt, 
   FaChartLine, 
   FaSignOutAlt,
-  FaMapMarkerAlt,
   FaPlane,
   FaStar,
   FaDollarSign
@@ -19,7 +18,6 @@ import ConfirmationModal from '../components/common/ConfirmationModal';
 
 import CountryManagement from '../components/admin/CountryManagement';
 import TourManagement from '../components/admin/TourManagement';
-import DestinationManagement from '../components/admin/DestinationManagement';
 import BookingManagement from '../components/admin/BookingManagement';
 import UserManagement from '../components/admin/UserManagement';
 import './AdminDashboard.css';
@@ -34,7 +32,6 @@ const AdminDashboard = () => {
     totalUsers: 0,
     totalTours: 0,
     totalCountries: 0,
-    totalDestinations: 0,
     totalBookings: 0,
     recentBookings: [],
     topTours: []
@@ -75,9 +72,6 @@ const AdminDashboard = () => {
         case 'countries':
           await fetchCountries();
           break;
-        case 'destinations':
-          await fetchDestinations();
-          break;
         case 'bookings':
           await fetchBookings();
           break;
@@ -102,7 +96,6 @@ const AdminDashboard = () => {
         fetchUsers(),
         fetchTours(),
         fetchCountries(),
-        fetchDestinations(),
         fetchBookings()
       ]);
       
@@ -110,7 +103,6 @@ const AdminDashboard = () => {
       const totalUsers = Array.isArray(users) ? users.length : 0;
       const totalTours = Array.isArray(tours) ? tours.length : 0;
       const totalCountries = Array.isArray(countries) ? countries.length : 0;
-      const totalDestinations = Array.isArray(destinations) ? destinations.length : 0;
       const totalBookings = Array.isArray(bookings) ? bookings.length : 0;
       
       // Get recent bookings (latest 5)
@@ -193,7 +185,6 @@ const AdminDashboard = () => {
         totalUsers,
         totalTours,
         totalCountries,
-        totalDestinations,
         totalBookings,
         recentBookings,
         topTours
@@ -259,18 +250,10 @@ const AdminDashboard = () => {
       // return response.data;
       
       // Mock data for development
-      return [
-        { _id: 'd1', name: 'Bangkok', country: 'Thailand' },
-        { _id: 'd2', name: 'Phuket', country: 'Thailand' },
-        { _id: 'd3', name: 'Chiang Mai', country: 'Thailand' },
-        { _id: 'd4', name: 'Bali', country: 'Indonesia' },
-        { _id: 'd5', name: 'Hanoi', country: 'Vietnam' },
-        { _id: 'd6', name: 'Tokyo', country: 'Japan' },
-
-      ];
+      return [];
     } catch (error) {
-      console.error('Error fetching destinations:', error);
-      toast.error('Failed to fetch destinations data');
+      console.error('Error fetching countries:', error);
+      toast.error('Failed to fetch countries data');
       return [];
     }
   };
@@ -655,15 +638,6 @@ const AdminDashboard = () => {
               </li>
               <li>
                 <button
-                  className={`admin-menu-item ${activeTab === 'destinations' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('destinations')}
-                >
-                  <FaMapMarkerAlt />
-                  <span>Destinations</span>
-                </button>
-              </li>
-              <li>
-                <button
                   className={`admin-menu-item ${activeTab === 'bookings' ? 'active' : ''}`}
                   onClick={() => handleTabChange('bookings')}
                 >
@@ -696,7 +670,6 @@ const AdminDashboard = () => {
             {activeTab === 'dashboard' && renderDashboardTab()}
             {activeTab === 'tours' && <TourManagement />}
             {activeTab === 'countries' && <CountryManagement />}
-            {activeTab === 'destinations' && <DestinationManagement />}
             {activeTab === 'bookings' && <BookingManagement />}
             {activeTab === 'users' && <UserManagement />}
           </div>

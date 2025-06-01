@@ -16,7 +16,6 @@ import Tours from './pages/Tours';
 import TourDetails from './pages/TourDetails';
 import TestTourDetails from './pages/TestTourDetails';
 import TourDetail from './pages/TourDetail';
-import Destinations from './pages/Destinations';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
@@ -106,7 +105,6 @@ function App() {
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/tours" element={<MainLayout><Tours /></MainLayout>} />
         <Route path="/tours/:id" element={<MainLayout><TourDetails /></MainLayout>} />
-        <Route path="/destinations" element={<MainLayout><Destinations /></MainLayout>} />
         <Route path="/countries" element={<MainLayout><Countries /></MainLayout>} />
         <Route path="/countries/asia" element={<MainLayout><AsianCountries /></MainLayout>} />
         <Route path="/countries/europe" element={<MainLayout><EuropeanCountries /></MainLayout>} />
