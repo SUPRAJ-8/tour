@@ -233,6 +233,11 @@ exports.updateTour = async (req, res) => {
       runValidators: true
     });
 
+    // Ensure days and nights are saved from request body
+    if (req.body.days !== undefined) tour.days = req.body.days;
+    if (req.body.nights !== undefined) tour.nights = req.body.nights;
+    await tour.save();
+
     res.status(200).json({
       success: true,
       data: tour

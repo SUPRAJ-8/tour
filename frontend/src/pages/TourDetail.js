@@ -251,7 +251,7 @@ const TourDetail = () => {
             <div className="breadcrumb">
               <Link to="/">Home</Link> <span className="breadcrumb-arrow">›</span> 
               <Link to="/tours">Tours</Link> <span className="breadcrumb-arrow">›</span> 
-              <Link to={`/countries/${tour.category}/${countryId}`}>{country.name}</Link> <span className="breadcrumb-arrow">›</span> 
+              <Link to={`/countries/${tour.category}/${country.id}`}>{country.name}</Link> <span className="breadcrumb-arrow">›</span> 
               <span>{tour.title}</span>
             </div>
 

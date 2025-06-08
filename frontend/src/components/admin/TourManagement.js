@@ -36,12 +36,15 @@ const TourManagement = () => {
     country: '',
     description: '',
     coverImage: '',
-    heroImages: ['', '', '', '', ''],
+    heroImages: [''],
     highlights: [''],
     includes: [''],
     excludes: [''],
     visaRequirements: '',
-
+    days: '',
+    nights: '',
+    bestSeason: '',
+    groupSize: '',
     travelTips: [''],
     status: 'active',
     featured: false,
@@ -51,6 +54,23 @@ const TourManagement = () => {
   };
 
   const [formData, setFormData] = useState(initialFormState);
+
+  // Delete handlers
+  const handleDeleteClick = (tour) => {
+    setTourToDelete(tour);
+    setShowDeleteConfirmation(true);
+  };
+  async function handleConfirmDelete() {
+    try {
+      await deleteTour(tourToDelete._id);
+      toast.success('Tour deleted successfully!');
+      setShowDeleteConfirmation(false);
+      setTourToDelete(null);
+    } catch (err) {
+      toast.error('Failed to delete tour.');
+      console.error('Delete tour error:', err);
+    }
+  }
 
   const fetchTours = useCallback(async (page = pagination.page) => {
     try {
@@ -240,11 +260,6 @@ const TourManagement = () => {
     setShowCountryDropdown(false);
   };
 
-  const handleDeleteClick = (tour) => {
-    setTourToDelete(tour);
-    setShowDeleteConfirmation(true);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -254,10 +269,7 @@ const TourManagement = () => {
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       let destinationId = null;
 
-      if (currentTour && currentTour.destination) {
-        destinationId = currentTour.destination._id;
-        console.log('Using existing destination:', destinationId);
-      } else if (formData.country) {
+      if (formData.country) {
         console.log('Looking up destination for country:', formData.country);
         
         const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, {
@@ -288,6 +300,9 @@ const TourManagement = () => {
           destinationId = newDestination.data.data._id;
           console.log('Created new destination:', destinationId);
         }
+      } else if (currentTour && currentTour.destination) {
+        destinationId = currentTour.destination._id;
+        console.log('Using existing destination:', destinationId);
       }
 
       if (!destinationId) {
@@ -298,7 +313,9 @@ const TourManagement = () => {
         title: formData.title,
         description: formData.description || '',
         destination: destinationId,
-        duration: formData.duration || '',
+        country: formData.country,
+        days: formData.days || '',
+        nights: formData.nights || '',
         groupSize: formData.groupSize || '',
         bestSeason: formData.bestSeason || '',
         highlights: formData.highlights.filter(item => item.trim() !== ''),
@@ -371,16 +388,16 @@ const TourManagement = () => {
       country: '',
       description: '',
       coverImage: '',
-      heroImages: ['', '', '', '', ''],
-      days: 1,
-      nights: 0,
+      heroImages: [''],
       highlights: [''],
       includes: [''],
       excludes: [''],
       visaRequirements: '',
-      bestTimeToVisit: '',
+      days: '',
+      nights: '',
+      bestSeason: '',
+      groupSize: '',
       travelTips: [''],
-      groupSize: '10-15',
       status: 'active',
       featured: false,
       hottestTour: false,
@@ -402,8 +419,9 @@ const TourManagement = () => {
       country: tour.destination?.country || '',
       description: tour.description || '',
       coverImage: tour.coverImage || '',
-      heroImages: tour.images?.length ? [...tour.images] : ['', '', '', '', ''],
-      duration: tour.duration || '',
+      heroImages: tour.images?.length ? [...tour.images] : [''],
+      days: tour.days || '',
+      nights: tour.nights || '',
       groupSize: tour.groupSize || '',
       bestSeason: tour.bestSeason || '',
       highlights: tour.highlights?.length ? [...tour.highlights] : [''],
@@ -591,25 +609,6 @@ const TourManagement = () => {
       ...formData,
       itinerary: updatedItinerary
     });
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!tourToDelete) return;
-    
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      await axios.delete(`${apiUrl}/api/tours/${tourToDelete._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      toast.success('Tour deleted successfully!');
-      setShowDeleteConfirmation(false);
-      setTourToDelete(null);
-      fetchTours(); // Refresh the tours list
-    } catch (error) {
-      console.error('Error deleting tour:', error);
-      toast.error('Failed to delete tour. Please try again.');
-    }
   };
 
   // Group tours by country
@@ -977,9 +976,49 @@ const TourManagement = () => {
                   </div>
                 </div>
                 
-                
+                <div className="form-row">
+                  <div className="form-group half-width">
+                    <label>Days</label>
+                    <input
+                      type="text"
+                      name="days"
+                      value={formData.days}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 5"
+                    />
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Nights</label>
+                    <input
+                      type="text"
+                      name="nights"
+                      value={formData.nights}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 4"
+                    />
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Group Size</label>
+                    <input
+                      type="text"
+                      name="groupSize"
+                      value={formData.groupSize}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 2-10 people"
+                    />
+                  </div>
+                  <div className="form-group half-width">
+                    <label>Best Season</label>
+                    <input
+                      type="text"
+                      name="bestSeason"
+                      value={formData.bestSeason}
+                      onChange={handleInputChange}
+                      placeholder="e.g., October to March"
+                    />
+                  </div>
+                </div>
 
-                
                 <div className="form-group">
                   <label>Highlights (use ,, to separate points)</label>
                   <textarea
@@ -1034,43 +1073,6 @@ const TourManagement = () => {
                   <small className="input-help">Use double commas (,,) to create separate points in the same line</small>
                 </div>
 
-                <div className="form-row">
-                  <div className="form-group half-width">
-                    <label>Duration</label>
-                    <input
-                      type="text"
-                      name="duration"
-                      value={formData.duration}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 5 Days 4 Nights"
-                      required
-                    />
-                  </div>
-                  <div className="form-group half-width">
-                    <label>Group Size</label>
-                    <input
-                      type="text"
-                      name="groupSize"
-                      value={formData.groupSize}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 2-10 people"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Best Season</label>
-                  <input
-                    type="text"
-                    name="bestSeason"
-                    value={formData.bestSeason}
-                    onChange={handleInputChange}
-                    placeholder="e.g., October to March"
-                    required
-                  />
-                </div>
-
                 <div className="form-group">
                   <label>Visa Requirements</label>
                   <div className="array-input-group">
@@ -1084,7 +1086,6 @@ const TourManagement = () => {
                     ></textarea>
                   </div>
                 </div>
-                
                 
                 <div className="form-group">
                   <label>Travel Tips (Optional)</label>

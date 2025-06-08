@@ -69,7 +69,15 @@ const BookingSchema = new mongoose.Schema({
 });
 
 // Add indexes for faster queries
-BookingSchema.index({ tour: 1, user: 1 }, { unique: true, sparse: true }); // sparse allows null user field for guest bookings
+// Enforce unique booking per user per tour for non-guest bookings only
+BookingSchema.index(
+  { tour: 1, user: 1 },
+  {
+    name: 'tour_1_user_1',
+    unique: true,
+    partialFilterExpression: { isGuestBooking: false }
+  }
+);
 BookingSchema.index({ startDate: 1 });
 BookingSchema.index({ status: 1 });
 

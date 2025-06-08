@@ -217,81 +217,122 @@ const BookingForm = () => {
     window.scrollTo(0, 0);
   };
 
-  const validateForm = () => {
-    const errors = {};
-    const today = new Date();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^[0-9\+\-\s]{7,15}$/;
-    
-    if (!bookingData.name.trim()) {
-      errors.name = 'Name is required';
-    }
-    
-    if (!bookingData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!emailRegex.test(bookingData.email)) {
-      errors.email = 'Please enter a valid email address';
-    }
-    
-    if (!bookingData.phone.trim()) {
-      errors.phone = 'Phone number is required';
-    } else if (!phoneRegex.test(bookingData.phone)) {
-      errors.phone = 'Please enter a valid phone number';
-    }
-    
-    if (!bookingData.startDate) {
-      errors.startDate = 'Start date is required';
-    } else if (bookingData.startDate < today) {
-      errors.startDate = 'Start date cannot be in the past';
-    }
-    
-    if (!bookingData.numberOfPeople || bookingData.numberOfPeople < 1) {
-      errors.numberOfPeople = 'Number of people must be at least 1';
-    } else if (tour && tour.maxGroupSize && bookingData.numberOfPeople > tour.maxGroupSize) {
-      errors.numberOfPeople = `Maximum group size is ${tour.maxGroupSize}`;
-    }
-    
-    if (!bookingData.paymentMethod) {
-      errors.paymentMethod = 'Payment method is required';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
-    console.log('Submitting booking');
     e.preventDefault();
     
-    if (validateForm()) {
-      setIsSubmitting(true);
+    try {
+      // Get tour details to calculate price and total amount
+      const tourResponse = await axios.get(`/api/tours/${tourId}`);
+      const tour = tourResponse.data;
+
+      // Validate form data
+      const errors = {};
       
-      try {
-        const bookingPayload = {
+      // Basic validation
+      if (!bookingData.name?.trim()) {
+        errors.name = 'Name is required';
+      }
+
+      if (!bookingData.email?.trim()) {
+        errors.email = 'Email is required';
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bookingData.email)) {
+        errors.email = 'Please enter a valid email address';
+      }
+
+      if (!bookingData.phone?.trim()) {
+        errors.phone = 'Phone number is required';
+      }
+
+      if (!bookingData.startDate) {
+        errors.startDate = 'Start date is required';
+      } else if (new Date(bookingData.startDate) < new Date()) {
+        errors.startDate = 'Start date cannot be in the past';
+      }
+
+      if (!bookingData.numberOfPeople || bookingData.numberOfPeople < 1) {
+        errors.numberOfPeople = 'Number of people must be at least 1';
+      } else if (tour.maxGroupSize && bookingData.numberOfPeople > tour.maxGroupSize) {
+        errors.numberOfPeople = `Maximum group size is ${tour.maxGroupSize}`;
+      }
+
+      if (!bookingData.paymentMethod) {
+        errors.paymentMethod = 'Payment method is required';
+      }
+
+      if (Object.keys(errors).length > 0) {
+        throw new Error(JSON.stringify(errors));
+      }
+
+      let bookingPayload;
+      let endpoint;
+      if (!isAuthenticated) {
+        // For guest booking, send only validated fields at root
+        bookingPayload = {
           tour: tourId,
-          name: bookingData.name,
-          email: bookingData.email,
-          phone: bookingData.phone,
-          startDate: bookingData.startDate,
+          name: bookingData.name.trim(),
+          email: bookingData.email.trim(),
+          phone: bookingData.phone.trim(),
+          startDate: bookingData.startDate.toISOString(),
           numberOfPeople: parseInt(bookingData.numberOfPeople),
-          paymentMethod: bookingData.paymentMethod,
-          specialRequests: bookingData.specialRequests,
-          user: user?._id // Include user ID if authenticated
+          paymentMethod: bookingData.paymentMethod.toLowerCase(),
+          specialRequests: bookingData.specialRequests || ''
         };
-        
-        // Choose endpoint based on authentication status
-        const endpoint = isAuthenticated ? '/api/bookings' : '/api/bookings/guest';
-        await axios.post(endpoint, bookingPayload);
-        
+        endpoint = '/api/bookings/guest';
+      } else {
+        // For authenticated booking, send full payload
+        bookingPayload = {
+          tour: tourId,
+          name: bookingData.name.trim(),
+          email: bookingData.email.trim(),
+          phone: bookingData.phone.trim(),
+          startDate: bookingData.startDate.toISOString(),
+          numberOfPeople: parseInt(bookingData.numberOfPeople),
+          paymentMethod: bookingData.paymentMethod.toLowerCase(),
+          specialRequests: bookingData.specialRequests || '',
+          user: user._id,
+          price: tour.price,
+          currency: tour.currency || 'NPR',
+          totalAmount: tour.price * parseInt(bookingData.numberOfPeople),
+          status: 'pending',
+          paymentStatus: 'pending'
+        };
+        endpoint = '/api/bookings';
+      }
+      
+      const response = await axios.post(endpoint, bookingPayload);
+      
+      if (response.data.success) {
         setBookingSuccess(true);
         setIsSubmitting(false);
         toast.success('Booking successful! Check your email for confirmation.');
-        
-      } catch (err) {
-        console.error('Error creating booking:', err);
-        setError(err.response?.data?.message || 'Failed to create booking');
-        setIsSubmitting(false);
+      } else {
+        console.error('Backend error:', response.data);
+        throw new Error(response.data.message || 'Booking failed');
       }
+      
+    } catch (err) {
+      console.error('Error creating booking:', err);
+      
+      // Handle different types of errors
+      // Log backend error for debugging
+      console.error('FULL AXIOS ERROR OBJECT:', err);
+      if (err.response) {
+        console.error('Backend error response:', err.response.data);
+      } else {
+        console.error('No backend response. Error:', err.message);
+      }
+      if (err.response?.data?.errors) {
+        // Handle validation errors from backend
+        setError(Object.values(err.response.data.errors).join('\n'));
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Failed to create booking. Please check all fields.');
+      }
+      
+      setIsSubmitting(false);
     }
   };
 
@@ -299,31 +340,6 @@ const BookingForm = () => {
     return (
       <div className="loading-container">
         <div className="loader"></div>
-        <p>Loading booking form...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container">
-        <div className="error-container">
-          <h2>Error</h2>
-          <p>{error}</p>
-          <Link to="/tours" className="btn btn-primary">Back to Tours</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!tour) {
-    return (
-      <div className="container">
-        <div className="error-container">
-          <h2>Tour Not Found</h2>
-          <p>The tour you're looking for doesn't exist or has been removed.</p>
-          <Link to="/tours" className="btn btn-primary">Back to Tours</Link>
-        </div>
       </div>
     );
   }

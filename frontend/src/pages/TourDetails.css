@@ -1278,7 +1278,9 @@
 
 /* Inclusions Section */
 .inclusions {
-  margin-bottom: 3rem;
+  background-color: white;
+  padding: 1rem;
+  padding-left: 2rem;
 }
 
 .inclusions h2 {
@@ -1287,11 +1289,7 @@
   color: #111827;
 }
 
-.inclusions-subtitle {
-  color: #6B7280;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
+
 
 .includes-excludes-grid {
   display: grid;
@@ -1303,7 +1301,7 @@
 .excludes-section {
   background: #FFFFFF;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .includes-section h3,
@@ -1353,17 +1351,16 @@
   margin-bottom: 3rem;
   background: #FFFFFF;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 1rem;
+  padding-left: 2rem;
 }
 
 .highlights-section h2 {
   font-size: 2rem;
-  margin-bottom: 2rem;
   color: #111827;
 }
 
 .highlights-grid {
-  display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
@@ -1773,6 +1770,14 @@
   /* This filter creates #2563eb blue color */
 }
 
+.highlight-icon-head{
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: invert(31%) sepia(93%) saturate(1954%) hue-rotate(202deg) brightness(97%) contrast(98%);
+}
+
 .modal-tour-info .detail-label {
   font-weight: 500;
   color: #2d3748;
@@ -1814,7 +1819,6 @@
 
 /* Update confusion section in modal */
 .modal-left .modal-confusion {
-  margin-top: auto;
   background: rgb(194, 255, 194);
   border: 1px solid #E5E7EB;
   border-radius: 8px;

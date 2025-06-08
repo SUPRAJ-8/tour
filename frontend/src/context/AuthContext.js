@@ -14,8 +14,10 @@ export const AuthProvider = ({ children }) => {
 
   // Set axios default headers and base URL
   useEffect(() => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-    axios.defaults.baseURL = apiUrl;
+    const envUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    // Ensure single '/api' prefix
+    const rootUrl = envUrl.endsWith('/api') ? envUrl : envUrl.replace(/\/+$/, '');
+    axios.defaults.baseURL = rootUrl.endsWith('/api') ? rootUrl : `${rootUrl}/api`;
 
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -41,7 +43,7 @@ export const AuthProvider = ({ children }) => {
           }
           
           // Get user data
-          const res = await axios.get('/api/auth/me');
+          const res = await axios.get('/auth/me');
           setUser(res.data.data);
         } catch (err) {
           console.error('Error loading user:', err);
@@ -58,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      const res = await axios.post('/api/auth/register', userData);
+      const res = await axios.post('/auth/register', userData);
       
       // Set token and user
       const { token, user } = res.data;
@@ -81,7 +83,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post('/auth/login', { email, password });
       
       // Set token and user
       const { token, user } = res.data;
@@ -111,7 +113,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (userData) => {
     try {
       setError(null);
-      const res = await axios.put('/api/auth/updatedetails', userData);
+      const res = await axios.put('/auth/updatedetails', userData);
       setUser(res.data.data);
       return true;
     } catch (err) {
@@ -128,7 +130,7 @@ export const AuthProvider = ({ children }) => {
   const updatePassword = async (passwordData) => {
     try {
       setError(null);
-      const res = await axios.put('/api/auth/updatepassword', passwordData);
+      const res = await axios.put('/auth/updatepassword', passwordData);
       
       // Update token
       const { token } = res.data;

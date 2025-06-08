@@ -1,7 +1,7 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FaUser, FaEnvelope, FaPhone, FaUsers, FaCalendarAlt, FaComments, FaFlag } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaPhone, FaUsers, FaCalendarAlt, FaComments, FaFlag, FaExclamationCircle } from 'react-icons/fa';
 
 const nationalities = [
   'Nepal', 'India', 'USA', 'UK', 'China', 'Japan', 'Australia', 'France', 'Germany', 'Other'
@@ -112,6 +112,35 @@ const BookingFormFields = ({
               <option key={nat} value={nat}>{nat}</option>
             ))}
           </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">
+            <FaExclamationCircle className="label-icon" /> Status
+          </label>
+          <select
+            name="status"
+            value={bookingData.status}
+            onChange={onChange}
+            className="form-control"
+          >
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label className="form-label">
+            <FaComments className="label-icon" /> Special Requests
+          </label>
+          <textarea
+            name="specialRequests"
+            value={bookingData.specialRequests}
+            onChange={onChange}
+            className="form-control"
+            placeholder="Any special requests"
+            rows={3}
+          />
         </div>
       </div>
       <div className="form-actions">

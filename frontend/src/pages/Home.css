@@ -556,7 +556,6 @@
 .tour-location, .tour-duration-info {
   display: flex;
   align-items: center;
-  margin-bottom: 5px;
   font-size: 10.5px;
   color: #666;
 }

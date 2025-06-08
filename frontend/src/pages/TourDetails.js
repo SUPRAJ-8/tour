@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, FaMoneyBillWave, 
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, 
   FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand, FaMapMarkedAlt, FaCheckCircle, FaTag, FaCog, FaArrowRight, FaEnvelope, FaPhone, FaUser, FaFlag, FaWhatsapp, FaRegCalendar } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
@@ -89,22 +89,22 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                   <div className="detail-item">
                     <img src="/images/icons/globe.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Country:</span>
-                    <span>{tour.country}</span>
+                    <span>{tour.destination?.country || tour.country}</span>
                   </div>
                   <div className="detail-item">
                     <img src="images/icons/calendar.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Duration:</span>
-                    <span>{tour.days} Days / {tour.nights} Nights</span>
+                    <span>{tour.nights} Nights - {tour.days} Days</span>
                   </div>
                   <div className="detail-item">
                     <img src="images/icons/weather.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Best Season:</span>
-                    <span>{tour.bestTimeToVisit}</span>
+                    <span>{tour.bestSeason || tour.bestTimeToVisit}</span>
                   </div>
                   <div className="detail-item">
                     <img src="images/icons/group.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Group Size:</span>
-                    <span>{tour.groupSize}</span>
+                    <span>{tour.groupSize} Travellers</span>
                   </div>
                 </div>
               </div>
@@ -464,7 +464,7 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Country</span>
-                  <span className="meta-value">Thailand</span>
+                  <span className="meta-value">{tour.destination?.country || tour.country}</span>
                 </div>
               </div>
 
@@ -474,7 +474,7 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Best Season</span>
-                  <span className="meta-value">Jan-Jun, Sept-Nov</span>
+                  <span className="meta-value">{tour.bestSeason || tour.bestTimeToVisit || ''}</span>
                 </div>
               </div>
 
@@ -484,7 +484,7 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Duration</span>
-                  <span className="meta-value">4N/5D</span>
+                  <span className="meta-value">{tour.nights} Nights - {tour.days} Days</span>
                 </div>
               </div>
 
@@ -494,7 +494,7 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Group Size</span>
-                  <span className="meta-value">15-30 travelers</span>
+                  <span className="meta-value">{tour.groupSize} Travellers</span>
                 </div>
               </div>
             </div>
@@ -556,7 +556,7 @@ const TourDetails = () => {
               {/* Highlights Section */}
               {tour.highlights && tour.highlights.length > 0 && (
                 <div className="highlights-section">
-                  <h2>Highlights</h2>
+                  <h2><img src="/images/icons/highlight.svg" alt="" className="highlight-icon-head" /> Highlights</h2>
                   <div className="highlights-grid">
                     {tour.highlights.map((highlight, index) => {
                       // Split if the highlight contains ,,
@@ -576,8 +576,6 @@ const TourDetails = () => {
               {/* Inclusions Section */}
               <div className="inclusions">
                 <h2>Inclusions</h2>
-                <p className="inclusions-subtitle">What's Covered in Your Adventure</p>
-                
                 <div className="includes-excludes-grid">
                   <div className="includes-section">
                     <h3>What's Included</h3>
@@ -710,5 +708,3 @@ const TourDetails = () => {
 };
 
 export default TourDetails;
-
-

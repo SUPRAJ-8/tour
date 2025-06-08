@@ -77,7 +77,6 @@ input, select, textarea {
   border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 0.5rem;
-  margin: 0.5rem 0;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -120,4 +119,127 @@ input:focus, select:focus, textarea:focus {
 .hover-effect:hover {
   color: var(--color-accent);
   transition: color 0.3s ease;
-} 
+}
+
+/* Confirmation Modal Overlay */
+.confirmation-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Confirmation Modal Styles */
+.confirmation-modal {
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 320px;
+  width: 90%;
+  background: #fff;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+.confirmation-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #fdecea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.confirmation-modal h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--color-text-dark);
+}
+
+.confirmation-modal p {
+  margin: 0 0 1.5rem;
+  color: var(--color-text-dark);
+  font-size: 1rem;
+}
+
+.confirmation-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.confirmation-buttons button {
+  flex: 1;
+  padding: 0.5rem 0;
+}
+
+.confirmation-buttons .btn-secondary {
+  background: #fff;
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-border);
+}
+
+.confirmation-buttons .btn-secondary:hover {
+  background: var(--color-background);
+}
+
+/* Danger Button */
+.btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+  background-color: #c0392b;
+}
+
+/* Booking Details Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content.details-modal {
+  background: var(--color-background);
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--color-text);
+}
+
+.modal-content.details-modal h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.modal-content.details-modal div {
+  margin-bottom: 0.75rem;
+}
+
+.modal-content.details-modal button.btn-secondary {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}

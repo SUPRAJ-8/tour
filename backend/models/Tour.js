@@ -21,6 +21,14 @@ const TourSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Tour must have a duration']
   },
+  days: {
+    type: String,
+    required: [true, 'Tour must have number of days']
+  },
+  nights: {
+    type: String,
+    required: [true, 'Tour must have number of nights']
+  },
   bestSeason: {
     type: String
   },

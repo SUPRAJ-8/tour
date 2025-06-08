@@ -157,11 +157,11 @@ const HottestTours = () => {
                 <div className="tour-slide-info">
                   <div className="slide-info-item">
                     <FaMapMarkerAlt />
-                    <span>{tour.destination?.name || tour.country || 'China'}</span>
+                    <span>{tour.destination?.country || tour.country}</span>
                   </div>
                   <div className="slide-info-item">
                     <FaCalendarAlt />
-                    <span>{tour.duration || 5} Days {tour.nights || 4} Nights</span>
+                    <span>{tour.nights} Nights - {tour.days} Days</span>
                   </div>
                 </div>
                 <Link to={`/tours/${tour._id || tour.id}`} className="btn btn-primary">View Details</Link>

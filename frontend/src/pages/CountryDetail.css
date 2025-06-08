@@ -481,7 +481,7 @@
 .tour-rating {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: -10px;
 }
 
 .star-icon {
@@ -513,7 +513,6 @@
 .tour-location, .tour-duration {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
   color: #616161;
   font-size: 14px;
 }

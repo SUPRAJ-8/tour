@@ -383,9 +383,6 @@
 .tour-info {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .tour-image {
@@ -432,6 +429,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding-bottom: 5px;
   color: var(--color-text-dark);
 }
 

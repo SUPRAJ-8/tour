@@ -18,8 +18,12 @@ exports.createGuestBooking = async (req, res) => {
       return res.status(404).json({ message: 'Tour not found' });
     }
 
+    // Ensure price exists to satisfy Booking model validation
+    const pricePerPerson = typeof tour.price === 'number' ? tour.price : 0;
+
     // Calculate total amount
-    const totalAmount = tour.price * req.body.numberOfPeople;
+    const numberOfPeople = parseInt(req.body.numberOfPeople, 10) || 1;
+    const totalAmount = pricePerPerson * numberOfPeople;
     
     // Create booking object with guest information
     const bookingData = {
@@ -29,10 +33,10 @@ exports.createGuestBooking = async (req, res) => {
         email: req.body.email,
         phone: req.body.phone
       },
-      price: tour.price,
+      price: pricePerPerson,
       currency: tour.currency || 'NPR',
-      startDate: req.body.startDate,
-      numberOfPeople: req.body.numberOfPeople,
+      startDate: new Date(req.body.startDate),
+      numberOfPeople: numberOfPeople,
       totalAmount: totalAmount,
       status: 'pending',
       paymentMethod: req.body.paymentMethod,
@@ -52,7 +56,7 @@ exports.createGuestBooking = async (req, res) => {
       data: booking
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error creating guest booking:', err);
+    res.status(500).json({ message: err.message || 'Server error' });
   }
 };
