@@ -14,22 +14,8 @@ const { protect, authorize } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public routes
-router.post(
-  '/guest',
-  [
-    check('tour', 'Tour is required').not().isEmpty(),
-    check('name', 'Name is required').not().isEmpty(),
-    check('email', 'Please include a valid email').isEmail(),
-    check('phone', 'Phone number is required').not().isEmpty(),
-    check('startDate', 'Start date is required').not().isEmpty(),
-    check('numberOfPeople', 'Number of people is required').isNumeric(),
-    check('paymentMethod', 'Payment method is required').isIn([
-      'credit_card', 'paypal', 'bank_transfer', 'cash'
-    ])
-  ],
-  createGuestBooking
-);
+// Public route for guest bookings (no express-validator checks here)
+router.post('/guest', createGuestBooking);
 
 // Protected routes (user)
 router.get('/my-bookings', protect, getMyBookings);
@@ -40,7 +26,8 @@ router.post(
     protect,
     check('tour', 'Tour is required').not().isEmpty(),
     check('startDate', 'Start date is required').not().isEmpty(),
-    check('numberOfPeople', 'Number of people is required').isNumeric(),
+    // Allow numeric types for numberOfPeople (validated in controller)
+    check('numberOfPeople', 'Number of people is required').not().isEmpty(),
     check('paymentMethod', 'Payment method is required').isIn([
       'credit_card', 'paypal', 'bank_transfer', 'cash'
     ])

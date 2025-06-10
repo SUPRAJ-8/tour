@@ -48,7 +48,9 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
         startDate: formData.startDate,
         numberOfPeople: parseInt(formData.travelers) || 1,
         specialRequests: formData.message,
-        nationality: formData.nationality
+        nationality: formData.nationality,
+        // Default payment method for guest bookings
+        paymentMethod: 'cash'
       }, {
         headers: {
           'Content-Type': 'application/json',

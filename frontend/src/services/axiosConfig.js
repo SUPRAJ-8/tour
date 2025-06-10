@@ -2,9 +2,7 @@ import axios from 'axios';
 import { getSampleTours, processSampleTours } from './tourService';
 import config from '../config';
 
-// Set base URL for all API requests
-// Use relative path for API requests (will be proxied by development server)
-axios.defaults.baseURL = '/api';
+// Removed baseURL to avoid duplicate '/api' prefix; relying on proxy for '/api' routes
 
 // Check if the app is running on GitHub Pages
 const isGitHubPages = () => {

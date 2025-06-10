@@ -1,17 +1,12 @@
 const Booking = require('../models/Booking');
 const Tour = require('../models/Tour');
-const { validationResult } = require('express-validator');
 
 // @desc    Create new booking for guest (non-authenticated) users
 // @route   POST /api/bookings/guest
 // @access  Public
 exports.createGuestBooking = async (req, res) => {
+  console.log('createGuestBooking invoked with body:', req.body);
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     // Check if tour exists
     const tour = await Tour.findById(req.body.tour);
     if (!tour) {
@@ -56,6 +51,15 @@ exports.createGuestBooking = async (req, res) => {
       data: booking
     });
   } catch (err) {
+    // Handle Mongoose validation errors as 400
+    if (err.name === 'ValidationError') {
+      const errors = {};
+      Object.values(err.errors).forEach(e => {
+        errors[e.path] = e.message;
+      });
+      console.error('Guest booking Mongoose validation errors:', errors);
+      return res.status(400).json({ success: false, errors });
+    }
     console.error('Error creating guest booking:', err);
     res.status(500).json({ message: err.message || 'Server error' });
   }
