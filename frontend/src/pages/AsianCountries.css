@@ -233,6 +233,7 @@
   font-size: 0.9rem;
   display: -webkit-box;
   -webkit-line-clamp: initial;
+  line-clamp: initial;
   -webkit-box-orient: vertical;
   overflow: visible;
   height: auto;
@@ -251,7 +252,7 @@
 }
 
 .info-item:last-child {
-  margin-bottom: 0;
+  margin-bottom: 2px;
 }
 
 .info-label {

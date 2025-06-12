@@ -6,6 +6,7 @@ import { getSampleTours } from '../services/tourService';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt } from 'react-icons/fa';
 import PopularTours from '../components/PopularTours';
 import HottestTours from '../components/HottestTours';
+import FeaturedTours from '../components/FeaturedTours';
 import './Home.css';
 import './Categories.css';
 
@@ -22,7 +23,6 @@ const Home = () => {
     refreshData
   } = useData();
   
-  const [featuredTours, setFeaturedTours] = useState([]);
   const [asianTours, setAsianTours] = useState([]);
   const [europeanTours, setEuropeanTours] = useState([]);
   const [allTours, setAllTours] = useState([]);
@@ -31,6 +31,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
+  const [featuredTours, setFeaturedTours] = useState([]);
 
   // Function to check if a tour is popular
   const isPopularTour = (tour) => {
@@ -65,7 +66,7 @@ const Home = () => {
            tour.hottestTour === 1 ||
            String(tour.hottestTour).toLowerCase() === 'true';
   };
-  
+
   // Function to manually refresh tour data
   const handleRefreshData = async () => {
     console.log('Manually refreshing tour data...');
@@ -253,9 +254,6 @@ const Home = () => {
           setAllTours(filteredAllTours);
         }
         
-        // Get featured/popular tours from context
-        setFeaturedTours(getPopularTours(6) || []);
-        
         // Get hottest tours for the hero slider (up to 10)
         let hottestToursList = tours.filter(isHottestTour);
         console.log('Hottest tours found:', hottestToursList.length);
@@ -302,7 +300,6 @@ const Home = () => {
         console.error('Error processing tour data:', error);
         // Set empty arrays to prevent rendering errors
         setAllTours([]);
-        setFeaturedTours([]);
         setHottestTours([]);
         setAsianTours([]);
         setEuropeanTours([]);
@@ -313,7 +310,30 @@ const Home = () => {
       }
     }
   }, [tours, countries, dataLoading, getPopularTours, getCountriesByContinent, lastRefresh]);
-  
+
+  // Function to check if a tour is featured
+  const isFeaturedTour = tour => (
+    tour.featured === true ||
+    tour.featured === 'true' ||
+    tour.featured === 1
+  );
+
+  // Derive featured tours whenever allTours changes
+  useEffect(() => {
+    const list = allTours.filter(isFeaturedTour).slice(0, 6);
+    console.log('Derived featured tours from allTours:', list);
+    setFeaturedTours(list);
+  }, [allTours]);
+
+  // Also derive featured tours from raw context tours (untouched)
+  useEffect(() => {
+    if (!dataLoading && Array.isArray(tours)) {
+      const list = tours.filter(isFeaturedTour).slice(0, 6);
+      console.log('Derived featured tours from context tours:', list);
+      setFeaturedTours(list);
+    }
+  }, [tours, dataLoading]);
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -336,8 +356,10 @@ const Home = () => {
       <HottestTours />
 
       {/* Most Popular Tours Section */}
-      {/* Popular Tours Section */}
       <PopularTours />
+      
+      {/* Featured Tours Section */}
+      <FeaturedTours tours={featuredTours} />
       
       {/* Categories Section */}
       <section className="section categories-section">
@@ -385,55 +407,6 @@ const Home = () => {
                 <Link to="/countries/europe" className="btn btn-outline">Explore Europe</Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Tours Section */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Featured International Tours</h2>
-          <p className="section-subtitle">Handpicked global experiences by our travel experts</p>
-          
-          <div className="tours-grid">
-            {featuredTours.length > 0 ? (
-              featuredTours.map(tour => (
-                <div key={tour._id} className="tour-card">
-                  <div className="tour-card-image">
-                    <img src={tour.coverImage || tour.imageCover} alt={tour.title || tour.name} />
-                    <div className="tour-card-price">NPR {tour.price}</div>
-                    {tour.hottestTour && <div className="tour-card-badge hottest-tour">Hottest Tour</div>}
-                    {tour.popularTour && <div className="tour-card-badge popular-tour">Popular Tour</div>}
-                  </div>
-                  <div className="tour-card-content">
-                    <h3 className="tour-card-title">{tour.title || tour.name}</h3>
-                    <div className="tour-card-info">
-                      <div className="info-item">
-                        <FaMapMarkerAlt />
-                        <span>{tour.destination?.name || tour.country}</span>
-                      </div>
-                      <div className="info-item">
-                        <FaCalendarAlt />
-                        <span>{tour.duration} days</span>
-                      </div>
-                    </div>
-                    <div className="tour-card-footer">
-                      <div className="tour-card-rating">
-                        <FaStar />
-                        <span>{tour.ratingsAverage} ({tour.ratingsQuantity})</span>
-                      </div>
-                      <Link to={`/tours/${tour._id || tour.id}`} className="btn btn-secondary">View Details</Link>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>No featured tours available at the moment.</p>
-            )}
-          </div>
-          
-          <div className="text-center mt-4">
-            <Link to="/tours" className="btn btn-primary">View All Tours</Link>
           </div>
         </div>
       </section>

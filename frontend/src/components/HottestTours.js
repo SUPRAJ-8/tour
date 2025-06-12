@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaArrowRight, FaArrowLeft, FaFire } from 'react-icons/fa';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -28,6 +28,7 @@ const PrevArrow = (props) => {
 
 const HottestTours = () => {
   const [hottestTours, setHottestTours] = useState([]);
+  const [initialSlide, setInitialSlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -83,10 +84,12 @@ const HottestTours = () => {
         
         // Set the processed tours to state (only if there are valid tours)
         if (processedTours.length > 0) {
-          setHottestTours(processedTours.slice(0, 10));
+          const toursToShow = processedTours.slice(0, 10);
+          const randIndex = Math.floor(Math.random() * toursToShow.length);
+          setInitialSlide(randIndex);
+          setHottestTours(toursToShow);
         } else {
           console.log('No tours with valid destinations found');
-          // Don't update state if no valid tours are found
         }
         
         setLoading(false);
@@ -130,6 +133,7 @@ const HottestTours = () => {
     dots: true,
     infinite: true,
     speed: 500,
+    initialSlide: initialSlide,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
@@ -151,7 +155,7 @@ const HottestTours = () => {
               }}></div>
               <div className="tour-slide-overlay"></div>
               <div className="tour-slide-content">
-                <div className="tour-card-badge hottest-tour">Hottest Tour</div>
+                <div className="tour-card-badge hottest-tour"><FaFire style={{ marginRight: '5px', color: 'white' }} /> Hottest Tour</div>
                 <h1 className="tour-slide-title">{tour.title || tour.name}</h1>
                 <p className="tour-slide-description">{tour.description?.substring(0, 120) || 'Experience an unforgettable journey with our expertly crafted tour package'}...</p>
                 <div className="tour-slide-info">

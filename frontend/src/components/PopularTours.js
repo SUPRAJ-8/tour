@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaBolt, FaHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -15,7 +15,10 @@ import { Navigation, Pagination } from 'swiper/modules';
 const PopularTours = () => {
   const [popularTours, setPopularTours] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+  const [initialSlide, setInitialSlide] = useState(0);
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+
   useEffect(() => {
     const fetchPopularTours = async () => {
       try {
@@ -48,6 +51,10 @@ const PopularTours = () => {
         
         // Only show tours marked as popular
         setPopularTours(popular);
+        // Randomize start slide
+        if (popular.length > 0) {
+          setInitialSlide(Math.floor(Math.random() * popular.length));
+        }
         
         setLoading(false);
       } catch (error) {
@@ -83,33 +90,40 @@ const PopularTours = () => {
             View All Tours <FaChevronRight className="view-all-icon" />
           </Link>
         </div>
-        <Swiper
-          modules={[Navigation, Pagination]}
-          navigation
-          pagination={{ clickable: true }}
-          spaceBetween={20}
-          slidesPerView={'auto'}
-          className="popular-tours-swiper"
-        >
-          {popularTours.map(tour => (
-            <SwiperSlide key={tour._id || tour.id}>
-              <Link to={`/tours/${tour._id||tour.id}`} className="popular-tour-card">
-                <div className="popular-tour-image">
-                  <img src={tour.coverImage||tour.imageCover} alt={tour.title||tour.name} />
-                  <div className="popular-tour-badge"><FaBolt/> Most Popular</div>
-                </div>
-                <div className="popular-tour-content">
-                  <div className="tour-rating">{[1,2,3,4,5].map(s=> <FaStar key={s} style={{color:'#f39c12'}}/>)}<span className="rating-count">({tour.ratingsQuantity||9})</span></div>
-                  <h3 className="popular-tour-title">{tour.title||tour.name}</h3>
-                  <div className="popular-tour-info">
-                    <div className="info-item"><FaMapMarkerAlt style={{color:'#0095ff'}}/><span>{tour.destination?.name||tour.country}</span></div>
-                    <div className="info-item"><BsCalendar3 style={{color:'#0095ff'}}/><span>{tour.duration||5} Days {tour.nights||4} Nights</span></div>
+        <div className="popular-tours-swiper-container">
+          <div className="custom-nav-btn prev" ref={prevRef}><FaChevronLeft/></div>
+          <div className="custom-nav-btn next" ref={nextRef}><FaChevronRight/></div>
+          <Swiper
+            modules={[Navigation, Pagination]}
+            navigation={{ prevEl: prevRef.current, nextEl: nextRef.current }}
+            onInit={swiper => { swiper.params.navigation.prevEl = prevRef.current; swiper.params.navigation.nextEl = nextRef.current; swiper.navigation.init(); swiper.navigation.update(); }}
+            pagination={{ clickable: true }}
+            loop={true}
+            initialSlide={initialSlide}
+            spaceBetween={20}
+            slidesPerView={3}
+            className="popular-tours-swiper"
+          >
+            {popularTours.map(tour => (
+              <SwiperSlide key={tour._id || tour.id}>
+                <Link to={`/tours/${tour._id||tour.id}`} className="popular-tour-card">
+                  <div className="popular-tour-image">
+                    <img src={tour.coverImage||tour.imageCover} alt={tour.title||tour.name} />
+                    <div className="popular-tour-badge"><FaBolt/> Most Popular</div>
                   </div>
-                </div>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                  <div className="popular-tour-content">
+                    <div className="tour-rating">{[1,2,3,4,5].map(s=> <FaStar key={s} style={{color:'#f39c12'}}/>)}<span className="rating-count">({tour.ratingsQuantity||9})</span></div>
+                    <h3 className="popular-tour-title">{tour.title||tour.name}</h3>
+                    <div className="popular-tour-info">
+                      <div className="info-item"><FaMapMarkerAlt style={{color:'#0095ff'}}/><span>{tour.destination?.name||tour.country}</span></div>
+                      <div className="info-item"><BsCalendar3 style={{color:'#0095ff'}}/><span>{tour.duration||5} Days {tour.nights||4} Nights</span></div>
+                    </div>
+                  </div>
+                </Link>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
     </section>
   );

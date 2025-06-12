@@ -476,7 +476,7 @@
 
 /* Hottest Tour Badge */
 .hottest-badge {
-  background-color: #f44336; /* Red */
+  background-color: #e74c3c; /* Red shade per spec */
 }
 
 /* Most Popular Badge */
@@ -486,7 +486,7 @@
 
 /* Featured Tour Badge */
 .featured-badge {
-  background-color: #ff9800; /* Orange */
+  background-color: #f1c40f; /* Yellow */
 }
 
 .tour-popular-badge svg {
