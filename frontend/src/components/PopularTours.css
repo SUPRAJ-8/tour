@@ -13,6 +13,7 @@
   justify-content: center;
   position: relative;
   max-width: 100%;
+  overflow: visible;
 }
 
 /* Container for popular tours - no scrolling */
@@ -21,7 +22,7 @@
   max-width: 100%;
   position: relative;
   padding: 10px 0;
-  overflow: hidden;
+  overflow: visible;
   display: flex;
   justify-content: center;
 }
@@ -35,22 +36,23 @@
   gap: 1.5rem;
   padding: 0;
   justify-content: center;
-  min-height: 450px; /* Ensure consistent height when changing pages */
+  min-height: auto; /* allow cards to size naturally */
+  align-items: flex-start;
   width: 100%;
   max-width: 1080px;
 }
 
 .popular-tour-card {
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 12px; /* reduced curve */
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 400px; /* Fixed width for consistent sliding */
+  width: 414.4px; /* Increased card width */
   height: auto;
   border: 1px solid rgba(0, 0, 0, 0.05);
   margin: 0;
-  flex: 0 0 400px; /* Fixed width, no growing or shrinking */
+  flex: 0 0 414.4px; /* Adjusted to new width */
 }
 
 .popular-tour-card:hover {
@@ -62,6 +64,7 @@
   height: 252px;
   position: relative;
   overflow: hidden;
+  border-radius: 12px 12px 0 0; /* reduced top curve */
 }
 
 .popular-tour-image img {
@@ -92,7 +95,9 @@
 }
 
 .popular-tour-content {
-  padding: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0 0 12px 12px; /* reduced bottom curve */
+  padding: 15px 15px 5px; /* reduce bottom padding */
   display: flex;
   flex-direction: column;
 }
@@ -328,6 +333,50 @@
   padding: 2rem;
   font-size: 1.2rem;
   color: #666;
+}
+
+/* Position Swiper navigation outside cards */
+.popular-tours-swiper {
+  position: relative;
+  overflow: visible;
+  padding-bottom: 80px; /* space for pagination bullets */
+}
+
+.popular-tours-swiper .swiper-pagination {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  z-index: 10;
+}
+
+.popular-tours-swiper.swiper-horizontal {
+  width: 1296px;
+  height: 447.6px;
+}
+
+.popular-tours-swiper .swiper-button-prev,
+.popular-tours-swiper .swiper-button-next {
+  color: #0095ff;
+  width: 32px;
+  height: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.popular-tours-swiper .swiper-button-prev {
+  left: 10px;
+}
+
+.popular-tours-swiper .swiper-button-next {
+  right: 10px;
+}
+
+/* Ensure slides match card width */
+.popular-tours-swiper .swiper-slide {
+  width: 414.4px !important;
+  flex-shrink: 0;
 }
 
 /* Responsive styles */
