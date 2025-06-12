@@ -3,7 +3,7 @@
   background-color: #f9f9f9;
   display: block;
   visibility: visible;
-  margin-top: -100px; /* Ensure no gap with the hero section */
+  margin-top: -80px; /* Ensure no gap with the hero section */
 }
 
 /* Main container for popular tours section with arrows */
@@ -12,14 +12,13 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  max-width: 1140px;
-  margin: 0 auto 1rem;
+  max-width: 100%;
 }
 
 /* Container for popular tours - no scrolling */
 .popular-tours-scroll-container {
   width: 100%;
-  max-width: 1080px;
+  max-width: 100%;
   position: relative;
   padding: 10px 0;
   overflow: hidden;
@@ -47,11 +46,11 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 350px; /* Fixed width for consistent sliding */
+  width: 400px; /* Fixed width for consistent sliding */
   height: auto;
   border: 1px solid rgba(0, 0, 0, 0.05);
   margin: 0;
-  flex: 0 0 350px; /* Fixed width, no growing or shrinking */
+  flex: 0 0 400px; /* Fixed width, no growing or shrinking */
 }
 
 .popular-tour-card:hover {
@@ -133,9 +132,7 @@
   text-overflow: ellipsis;
   height: auto;
   white-space: normal;
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid #eee;
+  padding: 8px 0 0 0;
 }
 
 .popular-tour-info {
@@ -220,8 +217,8 @@
 .nav-arrow:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background-color: #f5f5f5;
-  color: #ccc;
+  background-color: lightblue;
+  color: darkblue;
 }
 
 .nav-arrow-left {
@@ -263,7 +260,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 1rem;
 }

@@ -223,7 +223,8 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #4b5563;
+  color: black;
+  font-weight: bold;
 }
 
 .form-group input,

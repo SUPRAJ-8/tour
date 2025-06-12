@@ -41,9 +41,12 @@ const Tours = () => {
   };
   
   // Format duration as "X Days Y Nights"
-  const formatDuration = (days) => {
-    if (!days || isNaN(days)) return '? Days ? Nights';
-    return `${days} Days ${days - 1} Nights`;
+  const formatDuration = (tour) => {
+    const { days, nights } = tour;
+    if (!days || !nights || isNaN(days) || isNaN(nights)) {
+      return <span>? Days ? Nights</span>;
+    }
+    return <span>{nights} Nights - {days} Days</span>;
   };
 
   useEffect(() => {
@@ -660,7 +663,7 @@ const Tours = () => {
                             </div>
                             <div className="tour-duration-info">
                               <FaCalendarAlt />
-                              <span>{formatDuration(tourDuration)}</span>
+                              {formatDuration(tour)}
                             </div>
                           </div>
                         </Link>

@@ -27,10 +27,6 @@ router.post(
     check('title', 'Title is required').not().isEmpty(),
     check('description', 'Description is required').not().isEmpty(),
     check('destination', 'Destination is required').not().isEmpty(),
-    check('duration', 'Duration is required').isNumeric(),
-    check('price', 'Price is required').isNumeric(),
-    check('maxGroupSize', 'Max group size is required').isNumeric(),
-    check('difficulty', 'Difficulty is required').isIn(['easy', 'medium', 'difficult']),
     check('coverImage', 'Cover image is required').not().isEmpty()
   ],
   createTour

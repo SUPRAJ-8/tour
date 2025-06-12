@@ -3,6 +3,7 @@
   position: relative;
   height: 80vh;
   overflow: hidden;
+  margin-top: -80px; /* Lift slider under navbar */
 }
 
 .hero-slider-inner {
@@ -203,13 +204,6 @@
   opacity: 1;
 }
 
-/* Hero Section */
-.hero-section {
-  position: relative;
-  height: 80vh;
-  overflow: hidden;
-}
-
 /* Most Popular Section */
 .most-popular-section {
   padding: 60px 0;
@@ -280,7 +274,7 @@
 
 .popular-tour-title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: bold;
   color: var(--heading-color);
 }
 
@@ -295,7 +289,8 @@
   display: flex;
   align-items: center;
   font-size: 14px;
-  color: var(--text-color);
+  color: black;
+  font-weight: 600;
 }
 
 .popular-tour-info .info-item svg {
@@ -408,7 +403,7 @@
 }
 
 .popular-tour-title {
-  font-size: 30px;
+  font-size: 16px;
   color: var(--dark-color);
 }
 
@@ -416,13 +411,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .info-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.2rem;
   color: var(--text-color);
   font-size: 0.9rem;
 }
@@ -443,7 +437,7 @@
 
 /* Featured Tours Section */
 .section {
-  padding: 3rem 0;
+  padding: 5rem 0 0 0;
 }
 
 /* Add padding to specific sections that need it */

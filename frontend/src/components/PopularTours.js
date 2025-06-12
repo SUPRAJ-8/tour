@@ -108,7 +108,7 @@ const PopularTours = () => {
             {popularTours
               .slice(currentIndex, currentIndex + toursPerPage)
               .map((tour, index) => (
-            <div key={tour._id || tour.id} className="popular-tour-card">
+            <Link key={tour._id || tour.id} to={`/tours/${tour._id || tour.id}`} className="popular-tour-card">
               <div className="popular-tour-image">
                 <img src={tour.coverImage || tour.imageCover} alt={tour.title || tour.name} />
                 <div className="popular-tour-badge"><FaBolt /> Most Popular</div>
@@ -133,7 +133,7 @@ const PopularTours = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
             </div>
           </div>

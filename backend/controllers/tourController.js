@@ -199,7 +199,7 @@ exports.createTour = async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ success: false, errors: errors.array() });
     }
 
     // Add user to req.body
@@ -212,6 +212,11 @@ exports.createTour = async (req, res) => {
       data: tour
     });
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      const errors = {};
+      Object.values(err.errors).forEach(e => { errors[e.path] = e.message; });
+      return res.status(400).json({ success: false, errors });
+    }
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }

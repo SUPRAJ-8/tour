@@ -425,20 +425,13 @@ const TourDetails = () => {
       </div>
 
       <div className="container">
-        {/* Breadcrumbs
-        <div className="breadcrumbs">
-          <Link to="/">Home</Link> <span className="separator">›</span> 
-          <Link to="/tours">Tours</Link> <span className="separator">›</span> 
-          <span>{tour.title}</span>
-        </div> */}
-
         {/* Tour Header */}
         <div className="tour-header">
           {/* Breadcrumb */}
           <div className="breadcrumb">
-            <Link to="/">Home</Link> <span>›</span>
-            <Link to="/tours">Tours</Link> <span>›</span>
-            <Link to="/tours/thailand">Thailand</Link> <span>›</span>
+            <Link to="/">Home</Link> <span className="breadcrumb-arrow">›</span>
+            <Link to="/tours">Tours</Link> <span className="breadcrumb-arrow">›</span>
+            <Link to={`/countries/${tour.category}/${tour.destination?._id || tour.destination}`}>{tour.destination?.name || tour.country}</Link> <span className="breadcrumb-arrow">›</span>
             <span>{tour.title}</span>
           </div>
 
@@ -453,7 +446,7 @@ const TourDetails = () => {
           <div className="duration-badge">
             <FaCalendarAlt className="duration-icon" />
             <span>Duration</span>
-            <span className="duration-value">{tour.nights || 4} Nights/{tour.days || 5} Days</span>
+            <span className="duration-value">{tour.nights || 4} Nights - {tour.days || 5} Days</span>
           </div>
           
           {/* Tour content wrapper for positioning */}

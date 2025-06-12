@@ -173,7 +173,7 @@
 }
 
 .form-label .label-icon {
-  color: var(--primary-color);
+  color: #2563EBda;
   font-size: 1.1rem;
 }
 
@@ -708,7 +708,7 @@
 .tour-main h2 {
   font-size: 1.75rem;
   margin-bottom: 1.5rem;
-  color: var(--dark-color);
+  color: black;
   border-bottom: 2px solid var(--primary-light-color);
   padding-bottom: 0.75rem;
 }
@@ -728,7 +728,7 @@
 
 .tour-description p {
   line-height: 1.7;
-  color: var(--gray-color);
+  color: #46474D;
   margin-bottom: 1rem;
 }
 
@@ -1253,7 +1253,6 @@
 .info-item {
   display: flex;
   align-items: center;
-  gap: 12px;
   color: #4B5563;
   font-size: 14px;
 }
@@ -1329,7 +1328,7 @@
 }
 
 .includes-list .include-icon {
-  color: #10B981;
+  color: #2563EB;
   flex-shrink: 0;
   margin-top: 0.25rem;
 }
@@ -1420,8 +1419,6 @@
 }
 
 .booking-modal-header {
-  margin-bottom: 15px;
-  padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -1792,10 +1789,6 @@
   color: #2563EB;
 }
 
-/* Modal Right Section */
-.modal-right {
-  padding: 1.5rem;
-}
 
 /* Update existing modal styles */
 .booking-modal {

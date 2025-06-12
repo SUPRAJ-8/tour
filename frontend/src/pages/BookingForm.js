@@ -299,8 +299,8 @@ const BookingForm = () => {
         endpoint = '/api/bookings';
       }
       
-      // Debug: log request payload and endpoint
-      console.debug('Guest booking submit:', { endpoint, bookingPayload });
+      // Log request payload and endpoint for debugging
+      console.log('Guest booking submit:', { endpoint, bookingPayload });
       const response = await axios.post(endpoint, bookingPayload);
       
       if (response.data.success) {

@@ -33,18 +33,22 @@ const TourManagement = () => {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const initialFormState = {
     title: '',
-    country: '',
+    destination: '',
     description: '',
+    duration: '',
+    days: '',
+    nights: '',
+    groupSize: '',
+    price: '',
+    maxGroupSize: '',
+    difficulty: '',
     coverImage: '',
     heroImages: [''],
     highlights: [''],
     includes: [''],
     excludes: [''],
     visaRequirements: '',
-    days: '',
-    nights: '',
     bestSeason: '',
-    groupSize: '',
     travelTips: [''],
     status: 'active',
     featured: false,
@@ -84,9 +88,6 @@ const TourManagement = () => {
         return;
       }
       
-      console.log('Making API request to:', `${apiUrl}/api/tours`);
-      console.log('Using token:', token ? 'Token exists' : 'No token');
-      
       const response = await axios.get(`${apiUrl}/api/tours`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -94,16 +95,8 @@ const TourManagement = () => {
         }
       });
       
-      console.log('API Response status:', response.status);
-      console.log('API Response data:', response.data);
-      
       if (response.data && Array.isArray(response.data.data)) {
         const tours = response.data.data;
-        console.log('Found tours:', tours.length);
-        if (tours.length > 0) {
-          console.log('Sample tour:', tours[0]);
-        }
-        
         setTours(tours);
         
         if (response.data.pagination) {
@@ -112,8 +105,6 @@ const TourManagement = () => {
             ...response.data.pagination
           }));
         }
-        
-        console.log('Tours state updated, total tours:', tours.length);
       } else {
         console.warn('Invalid API response format:', response.data);
         setTours([]);
@@ -192,23 +183,12 @@ const TourManagement = () => {
     setSearchTerm(e.target.value);
   };
 
-  console.log('Current status filter:', statusFilter);
-  console.log('All tours before filtering:', tours);
-
   const filteredTours = useMemo(() => {
-    console.log('Filtering tours:', tours);
-    if (!Array.isArray(tours)) return [];
-    
     let filtered = tours;
     
-    console.log('Current status filter:', statusFilter);
-    console.log('Tours before filtering:', tours);
-
     // Apply status filter
     filtered = tours.filter(tour => {
       if (!tour) return false;
-      
-      console.log('Checking tour:', tour.title, 'Status:', tour.status);
       
       // For 'all' filter, show all tours
       if (statusFilter === 'all') return true;
@@ -236,7 +216,6 @@ const TourManagement = () => {
       });
     }
 
-    console.log('Filtered tours:', filtered);
     return filtered;
   }, [tours, statusFilter, searchTerm]);
 
@@ -254,7 +233,7 @@ const TourManagement = () => {
   const handleCountrySelect = (countryName) => {
     setFormData({
       ...formData,
-      country: countryName
+      destination: countryName
     });
     setCountrySearchTerm(countryName);
     setShowCountryDropdown(false);
@@ -269,40 +248,32 @@ const TourManagement = () => {
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       let destinationId = null;
 
-      if (formData.country) {
-        console.log('Looking up destination for country:', formData.country);
-        
+      if (formData.destination) {
         const destinationsResponse = await axios.get(`${apiUrl}/api/destinations`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
         const destinations = destinationsResponse.data.data || [];
-        console.log('Found destinations:', destinations.length);
-        
         const matchingDestination = destinations.find(
-          dest => dest.country?.toLowerCase() === formData.country.toLowerCase()
+          dest => dest.country?.toLowerCase() === formData.destination.toLowerCase()
         );
         
         if (matchingDestination) {
           destinationId = matchingDestination._id;
-          console.log('Found matching destination:', matchingDestination.name);
         } else {
-          console.log('Creating new destination for:', formData.country);
           const newDestination = await axios.post(`${apiUrl}/api/destinations`, {
-            name: formData.country,
-            country: formData.country,
-            description: `Tours in ${formData.country}`,
+            name: formData.destination,
+            country: formData.destination,
+            description: `Tours in ${formData.destination}`,
             continent: 'Asia',
             coverImage: formData.coverImage || 'https://example.com/default.jpg'
           }, {
             headers: { Authorization: `Bearer ${token}` }
           });
           destinationId = newDestination.data.data._id;
-          console.log('Created new destination:', destinationId);
         }
       } else if (currentTour && currentTour.destination) {
         destinationId = currentTour.destination._id;
-        console.log('Using existing destination:', destinationId);
       }
 
       if (!destinationId) {
@@ -313,9 +284,10 @@ const TourManagement = () => {
         title: formData.title,
         description: formData.description || '',
         destination: destinationId,
-        country: formData.country,
+        duration: formData.duration,
         days: formData.days || '',
         nights: formData.nights || '',
+        maxGroupSize: formData.maxGroupSize,
         groupSize: formData.groupSize || '',
         bestSeason: formData.bestSeason || '',
         highlights: formData.highlights.filter(item => item.trim() !== ''),
@@ -327,8 +299,8 @@ const TourManagement = () => {
         featured: Boolean(formData.featured),
         hottestTour: Boolean(formData.hottestTour),
         popularTour: Boolean(formData.popularTour),
-        price: formData.price ? parseFloat(formData.price) : undefined,
-        difficulty: formData.difficulty || undefined,
+        price: formData.price,
+        difficulty: formData.difficulty,
         visaRequirements: formData.visaRequirements || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
         itinerary: formData.itinerary || [{ day: 1, description: '', activities: [''] }]
@@ -336,26 +308,20 @@ const TourManagement = () => {
 
       let response;
       if (currentTour) {
-        console.log('Updating tour:', currentTour._id);
-        console.log('Update data:', tourData);
-        
         response = await axios.put(`${apiUrl}/api/tours/${currentTour._id}`, tourData, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        console.log('Update response:', response.data);
         toast.success('Tour updated successfully!');
       } else {
-        console.log('Creating new tour with data:', tourData);
         response = await axios.post(`${apiUrl}/api/tours`, tourData, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        console.log('Create response:', response.data);
         toast.success('Tour created successfully!');
       }
 
@@ -364,16 +330,24 @@ const TourManagement = () => {
     } catch (err) {
       console.error('Error saving tour:', err);
       console.error('Error response:', err.response);
-      
+
       let errorMessage = 'Failed to save tour. ';
-      if (err.response) {
-        errorMessage += err.response.data?.message || 'Please try again later.';
+      const resp = err.response?.data;
+      if (resp) {
+        if (Array.isArray(resp.errors)) {
+          errorMessage += resp.errors.map(e => e.msg || e.message).join(' ');
+        } else if (resp.errors && typeof resp.errors === 'object') {
+          errorMessage += Object.values(resp.errors).join(' ');
+        } else if (resp.message) {
+          errorMessage += resp.message;
+        } else {
+          errorMessage += 'Please try again later.';
+        }
       } else if (err.request) {
         errorMessage += 'No response from server. Please check your connection.';
       } else {
         errorMessage += 'An unexpected error occurred.';
       }
-      
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -382,21 +356,24 @@ const TourManagement = () => {
   };
 
   const handleAddNewClick = useCallback(() => {
-    console.log('Adding new tour');
     setFormData({
       title: '',
-      country: '',
+      destination: '',
       description: '',
+      duration: '',
+      days: '',
+      nights: '',
+      groupSize: '',
+      price: '',
+      maxGroupSize: '',
+      difficulty: '',
       coverImage: '',
       heroImages: [''],
       highlights: [''],
       includes: [''],
       excludes: [''],
       visaRequirements: '',
-      days: '',
-      nights: '',
       bestSeason: '',
-      groupSize: '',
       travelTips: [''],
       status: 'active',
       featured: false,
@@ -410,13 +387,10 @@ const TourManagement = () => {
   }, []);
 
   const handleEditClick = (tour) => {
-    console.log('Editing tour:', tour);
-    console.log('Tour status before edit:', tour.status);
-    
     setCurrentTour(tour);
     const newFormData = {
       title: tour.title || '',
-      country: tour.destination?.country || '',
+      destination: tour.destination?.country || '',
       description: tour.description || '',
       coverImage: tour.coverImage || '',
       heroImages: tour.images?.length ? [...tour.images] : [''],
@@ -435,7 +409,6 @@ const TourManagement = () => {
       popularTour: Boolean(tour.popularTour),
       itinerary: tour.itinerary || [{ day: 1, description: '', activities: [''] }]
     };
-    console.log('Setting form data with status:', newFormData.status);
     setFormData(newFormData);
     setShowModal(true);
     
@@ -461,7 +434,6 @@ const TourManagement = () => {
     
     // Special handling for status field
     if (name === 'status') {
-      console.log('Status changed to:', value);
       setFormData(prev => ({
         ...prev,
         status: value === 'inactive' ? 'inactive' : 'active'
@@ -613,9 +585,6 @@ const TourManagement = () => {
 
   // Group tours by country
   const groupToursByCountry = () => {
-    console.log('Current Tours State:', tours);
-    console.log('Filtered Tours:', filteredTours);
-    
     const groupedTours = {};
     
     if (!Array.isArray(filteredTours)) {
@@ -630,7 +599,6 @@ const TourManagement = () => {
       }
       
       const country = tour.destination?.country || 'Other';
-      console.log('Processing tour:', tour.title, 'Country:', country);
       
       if (!groupedTours[country]) {
         groupedTours[country] = [];
@@ -639,7 +607,6 @@ const TourManagement = () => {
       groupedTours[country].push(tour);
     });
     
-    console.log('Grouped Tours:', groupedTours);
     return groupedTours;
   };
   
@@ -730,18 +697,7 @@ const TourManagement = () => {
                         <button
                           className="btn-view"
                           onClick={() => {
-                            console.log('Tour data:', tour);
-                            // Log all possible ID formats
-                            console.log('Tour IDs:', {
-                              _id: tour._id,
-                              id: tour.id,
-                              tourId: tour.tourId,
-                              objectId: tour.objectId
-                            });
-                            // Use the first available ID format
-                            const tourId = tour._id || tour.id || tour.tourId || tour.objectId;
-                            console.log('Using tour ID for navigation:', tourId);
-                            navigate(`/tours/${tourId}`);
+                            navigate(`/tours/${tour._id}`);
                           }}
                           title="View tour details"
                         >
@@ -810,11 +766,11 @@ const TourManagement = () => {
                     />
                   </div>
                   <div className="form-group half-width">
-                    <label>Country*</label>
+                    <label>Destination*</label>
                     <div className="custom-dropdown">
                       <input
                         type="text"
-                        placeholder="Search and select a country..."
+                        placeholder="Search and select a destination..."
                         value={countrySearchTerm}
                         onChange={handleCountrySearch}
                         onFocus={() => setShowCountryDropdown(true)}
@@ -833,7 +789,7 @@ const TourManagement = () => {
                               </div>
                             ))
                           ) : (
-                            <div className="dropdown-item no-results">No countries found</div>
+                            <div className="dropdown-item no-results">No destinations found</div>
                           )}
                         </div>
                       )}
