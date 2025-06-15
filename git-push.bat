@@ -1,8 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM ─── Default Commit Message ───────────────────────────────────────────────
-set commit_message=Auto-commit on %date% at %time%
+REM ─── Prompt for Commit Message ────────────────────────────────────────────
+echo Enter your commit message:
+set /p commit_message=Commit Message: 
+
+REM ─── Use Default Message if None Provided ─────────────────────────────────
+if "!commit_message!"=="" (
+  set commit_message=Auto-commit on %date% at %time%
+  echo No commit message provided. Using default: "!commit_message!"
+)
 
 REM ─── Stage All Changes ────────────────────────────────────────────────────
 echo.
