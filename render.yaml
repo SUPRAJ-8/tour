@@ -1,7 +1,7 @@
 services:
   - type: web
     name: tour-backend
-    env: node
+    runtime: node
     plan: free
     rootDir: backend
     buildCommand: npm install
@@ -18,8 +18,9 @@ services:
       - key: FRONTEND_URL
         value: https://tour-frontend.onrender.com
 
-  - type: static
+  - type: web
     name: tour-frontend
+    runtime: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
