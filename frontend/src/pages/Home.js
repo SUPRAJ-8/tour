@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useData } from '../context/DataContext';
 import { getSampleTours } from '../services/tourService';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt, FaChevronRight } from 'react-icons/fa';
 import PopularTours from '../components/PopularTours';
 import HottestTours from '../components/HottestTours';
 import FeaturedTours from '../components/FeaturedTours';
@@ -364,12 +364,19 @@ const Home = () => {
       {/* Categories Section */}
       <section className="section categories-section">
         <div className="container">
-          <h2 className="section-title">Explore by Continent</h2>
-          <p className="section-subtitle">Choose your dream destination</p>
+          <div className="section-header categories-header">
+              <div>
+                <h2 className="section-title">Explore by Continent</h2>
+                <p className="section-subtitle">Choose your dream destination</p>
+     
+              </div>
+              <Link to="/countries" className="view-all-continents">View All Continents <FaChevronRight className="view-all-icon" /></Link>
+            </div>
+
           
           <div className="categories-container">
             {/* Asia Category */}
-            <div className="category-card">
+            <Link to="/countries/asia" className="category-card">
               <div className="category-image">
                 <img src={`${process.env.PUBLIC_URL}/images/categories/asia.jpg`} alt="Asia Tours" />
                 <div className="category-overlay"></div>
@@ -377,19 +384,11 @@ const Home = () => {
               <div className="category-content">
                 <h3>Asia</h3>
                 <p>Discover ancient traditions, vibrant cultures, and breathtaking landscapes</p>
-                <div className="category-destinations">
-                  <span>Thailand</span>
-                  <span>Japan</span>
-                  <span>India</span>
-                  <span>China</span>
-                  <span>Singapore</span>
-                </div>
-                <Link to="/countries/asia" className="btn btn-outline">Explore Asia</Link>
               </div>
-            </div>
+            </Link>
             
             {/* Europe Category */}
-            <div className="category-card">
+            <Link to="/countries/europe" className="category-card">
               <div className="category-image">
                 <img src={`${process.env.PUBLIC_URL}/images/categories/europe.jpg`} alt="Europe Tours" />
                 <div className="category-overlay"></div>
@@ -397,16 +396,8 @@ const Home = () => {
               <div className="category-content">
                 <h3>Europe</h3>
                 <p>Experience rich history, stunning architecture, and diverse cultures</p>
-                <div className="category-destinations">
-                  <span>France</span>
-                  <span>Italy</span>
-                  <span>Spain</span>
-                  <span>Germany</span>
-                  <span>UK</span>
-                </div>
-                <Link to="/countries/europe" className="btn btn-outline">Explore Europe</Link>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

@@ -161,17 +161,17 @@
 .categories-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 5rem 1rem;
 }
 
 .categories-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
+  margin-left: 4rem;
 }
 
 .categories-header h2 {
-  font-size: 2.5rem;
-  color: #333;
+  font-size: 32px;
+  color: #0095FF;
   margin-bottom: 0.5rem;
 }
 
@@ -352,7 +352,7 @@
 
 .feature-icon {
   font-size: 3rem;
-  color: #e74c3c;
+  color: rgb(0, 30, 255);
   margin-bottom: 1.5rem;
 }
 

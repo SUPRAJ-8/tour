@@ -16,7 +16,7 @@ const Footer = () => {
               Discover the world with our premium travel experiences. We offer the best tours and travel packages to destinations worldwide.
             </p>
             <div className="footer-social">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.facebook.com/profile.php?id=61576786452991" target="_blank" rel="noopener noreferrer">
                 <FaFacebook />
               </a>
               <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
@@ -41,7 +41,7 @@ const Footer = () => {
                 <Link to="/tours">Tours</Link>
               </li>
               <li>
-                <Link to="/destinations">Destinations</Link>
+                <Link to="/countries">Continents</Link>
               </li>
               <li>
                 <Link to="/about">About Us</Link>
@@ -53,22 +53,13 @@ const Footer = () => {
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-title">Top Destinations</h3>
+            <h3 className="footer-title">Top Continents</h3>
             <ul className="footer-links">
               <li>
-                <Link to="/destinations/asia">Asia</Link>
+                <Link to="/countries/asia">Asia</Link>
               </li>
               <li>
-                <Link to="/destinations/europe">Europe</Link>
-              </li>
-              <li>
-                <Link to="/destinations/north-america">North America</Link>
-              </li>
-              <li>
-                <Link to="/destinations/south-america">South America</Link>
-              </li>
-              <li>
-                <Link to="/destinations/africa">Africa</Link>
+                <Link to="/countries/europe">Europe</Link>
               </li>
             </ul>
           </div>
@@ -78,22 +69,22 @@ const Footer = () => {
             <ul className="footer-contact">
               <li>
                 <FaMapMarkerAlt />
-                <span>123 Travel Street, City, Country</span>
+                <span>Budhanilkantha Sadak, bansbari, Kathmandu, Nepal</span>
               </li>
               <li>
                 <FaPhone />
-                <span>+1 234 567 8900</span>
+                <span>+9779765198757</span>
               </li>
               <li>
                 <FaEnvelope />
-                <span>info@traveltour.com</span>
+                <span>Zyphertourandtravel@gmail.com</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {currentYear} TravelTour. All rights reserved.</p>
+          <p>&copy; {currentYear} Zypher. All rights reserved.</p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>

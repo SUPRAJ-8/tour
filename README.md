@@ -75,7 +75,7 @@ A full-stack tour and travel website built with the MERN stack (MongoDB, Express
    MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret
    JWT_EXPIRE=30d
-   CLIENT_URL=http://localhost:3000
+   FRONTEND_URL=http://localhost:3000
    ```
 
 4. Start the development server:
@@ -189,7 +189,7 @@ NODE_ENV=production
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRE=30d
-CLIENT_URL=https://yourdomain.com
+FRONTEND_URL=https://yourdomain.com
 ```
 
 ## 🚫 Security Best Practices

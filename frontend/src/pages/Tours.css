@@ -1,7 +1,7 @@
 /* Tours Page Layout */
 .tours-page {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 60px;
   padding: 2rem 1rem;
 }
 
@@ -475,18 +475,18 @@
 }
 
 /* Hottest Tour Badge */
-.hottest-badge {
+.tour-popular-badge.hottest-badge {
   background-color: #e74c3c; /* Red shade per spec */
 }
 
 /* Most Popular Badge */
-.popular-badge {
+.tour-popular-badge.popular-badge {
   background-color: #0095ff; /* Blue */
 }
 
 /* Featured Tour Badge */
-.featured-badge {
-  background-color: #f1c40f; /* Yellow */
+.tour-popular-badge.featured-badge {
+  background-color: darkorange; /* Default featured color */
 }
 
 .tour-popular-badge svg {

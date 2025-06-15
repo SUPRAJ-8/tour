@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: tour-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      # ───── Secrets / supplied via Render dashboard ─────
+      - key: MONGODB_URI
+        sync: false            # Add in Render dashboard
+      - key: JWT_SECRET
+        sync: false            # Add in Render dashboard
+      # ───── Public / safe to commit ─────
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://tour-frontend.onrender.com
+
+  - type: static
+    name: tour-frontend
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://tour-backend.onrender.com

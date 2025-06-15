@@ -304,9 +304,10 @@
 }
 
 .section-subtitle {
+  font-weight: 600;
   font-size: 1.2rem;
   color: black;
-  margin-bottom: 0;
+  margin-bottom: 10px;
   text-align: left;
   padding-left: 50px;
 }

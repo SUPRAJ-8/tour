@@ -515,8 +515,6 @@
 
 .tour-popular-badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
   background-color: darkorange;
   color: white;
   padding: 5px 10px;
