@@ -1,9 +1,13 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM ─── Prompt for Commit Message ────────────────────────────────────────────
-echo Enter your commit message:
-set /p commit_message=Commit Message: 
+REM ─── Resolve Commit Message ─────────────────────────────────────────────
+if "%~1"=="" (
+  echo Enter your commit message:
+  set /p commit_message=Commit Message: 
+) else (
+  set commit_message=%*
+)
 
 REM ─── Use Default Message if None Provided ─────────────────────────────────
 if "!commit_message!"=="" (
