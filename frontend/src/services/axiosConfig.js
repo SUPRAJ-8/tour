@@ -1,6 +1,12 @@
 import axios from 'axios';
 import { getSampleTours, processSampleTours } from './tourService';
-import config from '../config';
+
+// Create an axios instance. If REACT_APP_API_URL is set (e.g. in Vercel),
+// use it as the base URL; otherwise fall back to relative paths which work
+// in local dev via the CRA proxy.
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || ''
+});
 
 // Removed baseURL to avoid duplicate '/api' prefix; relying on proxy for '/api' routes
 
@@ -15,14 +21,14 @@ if (isGitHubPages()) {
   console.log('Running on GitHub Pages - Using sample data');
   
   // Intercept all API requests
-  axios.interceptors.request.use(config => {
+  api.interceptors.request.use(config => {
     // Log the intercepted request
     console.log('Intercepted request:', config.url);
     return config;
   });
 
   // Intercept all API responses
-  axios.interceptors.response.use(
+  api.interceptors.response.use(
     response => response,
     error => {
       // Only handle network errors or 404s from API calls
@@ -130,4 +136,4 @@ if (isGitHubPages()) {
   );
 }
 
-export default axios;
+export default api;
