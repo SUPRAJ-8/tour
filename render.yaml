@@ -2,7 +2,7 @@ services:
   - type: web
     name: tour-backend
     runtime: node
-    plan: free
+    plan: starter
     rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
@@ -21,7 +21,7 @@ services:
   - type: web
     name: tour-frontend
     runtime: static
-    plan: free
+    plan: starter
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: build
