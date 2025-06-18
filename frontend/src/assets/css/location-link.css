@@ -1,0 +1,8 @@
+.location-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.location-link:hover {
+  text-decoration: underline;
+}

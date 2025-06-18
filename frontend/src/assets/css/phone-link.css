@@ -1,0 +1,8 @@
+.phone-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.phone-link:hover {
+  text-decoration: underline;
+}

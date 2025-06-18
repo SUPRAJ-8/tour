@@ -1,6 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './assets/css/index.css';
+import './assets/css/phone-link.css';
+import './assets/css/email-link.css';
+import './assets/css/location-link.css';
 import App from './App';
 import { BrowserRouter, HashRouter, createHashRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

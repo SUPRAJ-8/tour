@@ -253,7 +253,6 @@
 .duration-badge {
   display: inline-flex;
   align-items: center;
-  background-color: #f8f9fa;
   border-radius: 4px;
   color: #6c757d;
   font-size: 0.875rem;
@@ -1100,7 +1099,7 @@
   top: 0;
   right: 40px;
   width: 380px;
-  background: #FFFFFF;
+  background: #f6f8ff;
   border-radius: 12px;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 8px 24px rgba(0, 0, 0, 0.04);
   padding: 0;
@@ -1277,7 +1276,6 @@
 
 /* Inclusions Section */
 .inclusions {
-  background-color: white;
   padding: 1rem;
   padding-left: 2rem;
 }
@@ -1662,6 +1660,7 @@
 
 /* Modal Grid Layout */
 .modal-grid {
+  background: #f6f8ff;
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 2rem;
@@ -1672,7 +1671,7 @@
 
 /* Modal Left Section */
 .modal-left {
-  background: #F9FAFB;
+  background: white;
   border-right: 1px solid #E5E7EB;
   padding: 1.5rem;
   display: flex;

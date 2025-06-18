@@ -71,7 +71,6 @@ const Contact = () => {
       <div className="contact-header">
         <div className="container">
           <h1 className="contact-title">Contact Us</h1>
-          <p className="contact-subtitle">Get in touch with our team</p>
         </div>
       </div>
 
@@ -90,7 +89,7 @@ const Contact = () => {
                 </div>
                 <div className="info-content">
                   <h3>Our Location</h3>
-                  <p>123 Travel Street, City, Country</p>
+                  <a href="https://www.google.com/maps?q=Budhanilkantha+Sadak,+bansbari,+Kathmandu,+Nepal" target="_blank" rel="noopener noreferrer" className="location-link">Budhanilkantha Sadak, bansbari, Kathmandu, Nepal</a>
                 </div>
               </div>
               
@@ -100,7 +99,7 @@ const Contact = () => {
                 </div>
                 <div className="info-content">
                   <h3>Phone Number</h3>
-                  <p>+1 234 567 8900</p>
+                  <a href="tel:+9779765198757" className="phone-link">+9779765198757</a>
                 </div>
               </div>
               
@@ -110,7 +109,7 @@ const Contact = () => {
                 </div>
                 <div className="info-content">
                   <h3>Email Address</h3>
-                  <p>info@traveltour.com</p>
+                  <a href="mailto:zyphertourandtravel@gmail.com" className="email-link">zyphertourandtravel@gmail.com</a>
                 </div>
               </div>
               
@@ -121,7 +120,8 @@ const Contact = () => {
                 <div className="info-content">
                   <h3>Working Hours</h3>
                   <p>Monday - Friday: 9am - 5pm</p>
-                  <p>Saturday: 10am - 2pm</p>
+                  <p>Saturday: Holliday</p>
+                  <p>Government Holiday: Holliday</p>
                 </div>
               </div>
             </div>

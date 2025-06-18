@@ -1,7 +1,7 @@
 /* Tour Details Page */
 .tour-details-page {
   width: 100%;
-  background-color: var(--light-color);
+  background-color: white;
   padding-bottom: 3rem;
 }
 
@@ -529,7 +529,7 @@
 }
 
 .info-item svg {
-  color: var(--primary-color);
+  color: rgb(0, 30, 255);
   font-size: 1.2rem;
   margin-top: 0.25rem;
 }

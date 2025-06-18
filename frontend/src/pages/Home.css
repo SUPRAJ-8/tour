@@ -438,6 +438,7 @@
 /* Featured Tours Section */
 .section {
   padding: 5rem 0 0 0;
+  background-color: white;
 }
 
 /* Add padding to specific sections that need it */
@@ -820,3 +821,6 @@
 }
 
 /* Newsletter Section */
+.newsletter-section {
+  background-color: white;
+}

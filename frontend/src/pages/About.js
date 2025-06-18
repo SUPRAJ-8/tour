@@ -9,7 +9,6 @@ const About = () => {
       <div className="about-header">
         <div className="container">
           <h1 className="about-title">About Us</h1>
-          <p className="about-subtitle">Learn more about TravelTour and our mission</p>
         </div>
       </div>
 
@@ -22,7 +21,7 @@ const About = () => {
           <div className="about-text">
             <h2>Our Story</h2>
             <p>
-              TravelTour was founded in 2015 with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
+              Zypher Tour And Travel was founded in 2023 with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
             </p>
             <p>
               We believe that travel has the power to transform lives, broaden perspectives, and create lasting connections between people and cultures. Our carefully curated tours are designed to provide authentic experiences that go beyond typical tourist attractions.

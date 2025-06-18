@@ -69,15 +69,15 @@ const Footer = () => {
             <ul className="footer-contact">
               <li>
                 <FaMapMarkerAlt />
-                <span>Budhanilkantha Sadak, bansbari, Kathmandu, Nepal</span>
+                <a href="https://www.google.com/maps?q=Budhanilkantha+Sadak,+bansbari,+Kathmandu,+Nepal" target="_blank" rel="noopener noreferrer" className="location-link">Budhanilkantha Sadak, bansbari, Kathmandu, Nepal</a>
               </li>
               <li>
                 <FaPhone />
-                <span>+9779765198757</span>
+                <a href="tel:+9779765198757" className="phone-link">+9779765198757</a>
               </li>
               <li>
                 <FaEnvelope />
-                <span>Zyphertourandtravel@gmail.com</span>
+                <a href="mailto:Zyphertourandtravel@gmail.com" className="email-link">Zyphertourandtravel@gmail.com</a>
               </li>
             </ul>
           </div>

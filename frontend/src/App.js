@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import ScrollToTop from './components/routing/ScrollToTop';
 import './assets/css/App.css';
 import './assets/css/AdminLayout.css';
 import './assets/css/theme.css';
@@ -67,6 +68,8 @@ function App() {
   return (
     <div className="app">
       <DataProvider>
+        {/* Reset scroll position on each route change */}
+        <ScrollToTop />
         <Routes>
         {/* Admin routes without navbar and footer */}
         <Route path="/admin" element={
