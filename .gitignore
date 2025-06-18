@@ -10,3 +10,6 @@ uploads/
 backend/.env
 frontend/.env*
 
+*.zip
+*.rar
+*.7z

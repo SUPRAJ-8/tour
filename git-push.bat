@@ -15,6 +15,18 @@ if "!commit_message!"=="" (
   echo No commit message provided. Using default: "!commit_message!"
 )
 
+REM ─── Remove large archive files (.zip, .rar, .7z) from tracking ───────────
+echo.
+echo Ensuring large archive files are not committed ...
+echo *.zip>>.gitignore
+echo *.rar>>.gitignore
+echo *.7z>>.gitignore
+
+REM Remove any already-tracked archives
+git rm --cached -r --ignore-unmatch *.zip
+git rm --cached -r --ignore-unmatch *.rar
+git rm --cached -r --ignore-unmatch *.7z
+
 REM ─── Stage All Changes ────────────────────────────────────────────────────
 echo.
 echo Running: git add -A
