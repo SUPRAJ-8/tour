@@ -1,15 +1,3 @@
-# Node dependencies
-node_modules/
-**/node_modules/
-
-# Static uploads directory (not needed in repo)
-uploads/
-
-# Local environment files
-.env
-backend/.env
-frontend/.env*
-
 *.zip
 *.rar
 *.7z
