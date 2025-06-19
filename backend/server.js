@@ -25,8 +25,24 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+// Dynamic CORS to allow the configured FRONTEND_URL and also handle missing trailing slash
+const allowedOrigins = [
+  process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
+  'http://localhost:3000',
+  'http://localhost:3001'
+].filter(Boolean);
+
 app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'http://localhost:3000', 'http://localhost:3001'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+
+    const normalized = origin.replace(/\/+$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
