@@ -44,7 +44,7 @@ const destinations = [
   {
     name: 'Generic Destination',
     country: 'Generic Country',
-    continent: 'Generic Continent',
+    continent: 'Asia',
     description: 'A generic destination known for its rich wildlife, including generic animals, and diverse bird species.',
     coverImage: 'https://images.unsplash.com/photo-1605640486552-8ad92e02acf7',
     images: [
