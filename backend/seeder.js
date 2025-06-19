@@ -289,7 +289,7 @@ const importData = async () => {
       }
     }
 
-    await Booking.create(bookings);
+    await Booking.insertMany(bookings, { ordered: false });
     console.log('Bookings created...'.green.inverse);
 
     console.log('Data imported!'.green.inverse);
