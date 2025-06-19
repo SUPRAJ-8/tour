@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "mongo-test": "node -e 'require(\"mongoose\").connect(process.env.MONGO_URI,{serverSelectionTimeoutMS:5000}).then(()=>console.log(\"✅ connected\")).catch(e=>console.error(\"❌\",e.message))",
     "data:import": "node seeder",
     "data:destroy": "node seeder -d",
     "test": "echo \"Error: no test specified\" && exit 1"
