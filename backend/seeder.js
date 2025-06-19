@@ -289,8 +289,16 @@ const importData = async () => {
       }
     }
 
-    await Booking.insertMany(bookings, { ordered: false });
-    console.log('Bookings created...'.green.inverse);
+    try {
+      await Booking.insertMany(bookings, { ordered: false });
+      console.log('Bookings created...'.green.inverse);
+    } catch (bulkErr) {
+      if (bulkErr.code === 11000 || bulkErr.name === 'MongoBulkWriteError') {
+        console.log('Duplicate bookings skipped.'.yellow.inverse);
+      } else {
+        throw bulkErr;
+      }
+    }
 
     console.log('Data imported!'.green.inverse);
     process.exit();
