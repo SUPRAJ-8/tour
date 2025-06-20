@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://tour-backend-4h5s.onrender.com/api/$1"
+    }
+  ]
+}
