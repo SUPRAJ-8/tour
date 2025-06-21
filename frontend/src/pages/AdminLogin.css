@@ -54,7 +54,8 @@
 .login-modal h1 {
   text-align: center;
   font-size: 32px;
-  margin-bottom: 30px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   font-weight: 500;
 }
 
@@ -87,11 +88,16 @@
 
 .input-icon {
   position: absolute;
-  right: 0;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: rgba(255, 255, 255, 0.7);
 }
+
+.input-icon.clickable {
+  cursor: pointer;
+}
+
 
 .form-options {
   display: flex;
@@ -143,8 +149,8 @@
 
 .back-to-login {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 170px;
+  top: -30px;
   background-color: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.9);
@@ -169,6 +175,7 @@
 
 .login-button {
   width: 100%;
+  margin-top: 20px;
   padding: 12px;
   background-color: #0f2b46;
   color: white;
@@ -203,6 +210,12 @@
 }
 
 .back-link {
+  position: absolute;
+  top: -32px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  margin-top: 0;
   margin-top: 20px;
   text-align: center;
 }

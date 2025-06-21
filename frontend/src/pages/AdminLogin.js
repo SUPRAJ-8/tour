@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FaLock, FaEnvelope, FaTimes, FaArrowLeft } from 'react-icons/fa';
+import { FaLock, FaEnvelope, FaTimes, FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import deerBackground from '../images/deer.jpg';
 import './AdminLogin.css';
@@ -17,6 +17,7 @@ const AdminLogin = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
@@ -137,14 +138,18 @@ const AdminLogin = () => {
                 <label>Password</label>
                 <div className="input-container">
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={password}
                     onChange={onChange}
                     required
                     minLength="6"
                   />
-                  <FaLock className="input-icon" />
+                  {showPassword ? (
+                    <FaEyeSlash className="input-icon clickable" onClick={() => setShowPassword(false)} />
+                  ) : (
+                    <FaEye className="input-icon clickable" onClick={() => setShowPassword(true)} />
+                  )}
                 </div>
               </div>
               

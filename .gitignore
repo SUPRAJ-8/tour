@@ -58,3 +58,7 @@
 *.zip
 *.rar
 *.7z
+node_modules
+*.zip
+*.rar
+*.7z

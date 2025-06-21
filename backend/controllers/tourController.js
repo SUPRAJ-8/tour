@@ -205,6 +205,23 @@ exports.createTour = async (req, res) => {
     // Add user to req.body
     req.body.createdBy = req.user.id;
 
+    // Ensure destination exists and is ObjectId
+    if (req.body.destination && typeof req.body.destination === 'string' && !req.body.destination.match(/^[0-9a-fA-F]{24}$/)) {
+      // treat as country name
+      const Destination = require('../models/Destination');
+      let destDoc = await Destination.findOne({ country: { $regex: new RegExp(`^${req.body.destination}$`, 'i') } });
+      if (!destDoc) {
+        destDoc = await Destination.create({
+          name: req.body.destination,
+          description: `Tours in ${req.body.destination}`,
+          country: req.body.destination,
+          continent: 'Asia',
+          coverImage: req.body.coverImage || 'https://example.com/default.jpg'
+        });
+      }
+      req.body.destination = destDoc._id;
+    }
+
     const tour = await Tour.create(req.body);
 
     res.status(201).json({

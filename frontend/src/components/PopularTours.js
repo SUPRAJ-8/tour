@@ -49,11 +49,24 @@ const PopularTours = () => {
         
         console.log('Popular tours found:', popular.length);
         
-        // Only show tours marked as popular
-        setPopularTours(popular);
-        // Randomize start slide
+        // Decide which tours to show
+        let toursToShow = [];
         if (popular.length > 0) {
-          setInitialSlide(Math.floor(Math.random() * popular.length));
+          toursToShow = popular;
+        } else {
+          // fallback: pick first few active tours as popular replacement
+          toursToShow = tours.filter(t => t.status === 'active' || t.status === undefined).slice(0, 10);
+        }
+
+        // post-process for image & destination presence
+        const processed = toursToShow.filter(t => (t.coverImage || t.imageCover) && (t.destination?.name || t.country)).map(t => ({
+          ...t,
+          processedImageUrl: t.coverImage || t.imageCover
+        }));
+
+        setPopularTours(processed);
+        if (processed.length > 0) {
+          setInitialSlide(Math.floor(Math.random() * processed.length));
         }
         
         setLoading(false);
@@ -68,11 +81,10 @@ const PopularTours = () => {
 
   if (loading) {
     return (
-      <section className="section popular-tours-section">
-        <div className="container">
-          <h2 className="section-title">Most Popular Tours</h2>
-          <p className="section-subtitle">Discover Top International Tour Packages: Your Adventure Awaits!</p>
-          <div className="loading">Loading popular tours...</div>
+      <section className="section popular-tours-section loading-section" role="status" aria-live="polite">
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span className="loading-percent">Loading popular tours…</span>
         </div>
       </section>
     );

@@ -38,6 +38,7 @@ import PrivateRoute from './components/routing/PrivateRoute';
 // Context
 import { useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
+import LoadingScreen from './components/LoadingScreen';
 
 // Layout wrapper component to conditionally render navbar and footer
 const MainLayout = ({ children }) => (
@@ -57,12 +58,7 @@ function App() {
   const { loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="loading">
-        <div className="loading-spinner"></div>
-        Loading...
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
@@ -77,13 +73,7 @@ function App() {
             <AdminLogin />
           </AdminLayout>
         } />
-        {/* Temporarily allowing direct access to admin dashboard for development */}
-        <Route path="/admin-dashboard" element={
-          <AdminLayout>
-            <AdminDashboard />
-          </AdminLayout>
-        } />
-        {/* Original protected route - uncomment when auth is fixed
+        {/* Admin dashboard protected route */}
         <Route path="/admin-dashboard" element={
           <PrivateRoute>
             {({ user }) => user.role === 'admin' ? (
@@ -93,7 +83,6 @@ function App() {
             ) : <NotFound />}
           </PrivateRoute>
         } />
-        */}
         <Route path="/dashboard" element={
           <PrivateRoute>
             {({ user }) => (

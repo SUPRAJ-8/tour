@@ -107,11 +107,10 @@ const HottestTours = () => {
 
   if (loading) {
     return (
-      <section className="section hottest-tours-section">
-        <div className="container">
-          <h2 className="section-title">Hottest Tours</h2>
-          <p className="section-subtitle">Discover Our Most Popular Tour Packages</p>
-          <div className="loading">Loading hottest tours...</div>
+      <section className="section hottest-tours-section loading-section" role="status" aria-live="polite">
+        <div className="loading-overlay">
+          <div className="loading-spinner" />
+          <span className="loading-percent">Loading hottest tours…</span>
         </div>
       </section>
     );

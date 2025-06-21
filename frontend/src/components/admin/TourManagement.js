@@ -326,6 +326,7 @@ const TourManagement = () => {
       }
 
       setShowModal(false);
+      setPagination(prev => ({ ...prev, page: 1 }));
       fetchTours();
     } catch (err) {
       console.error('Error saving tour:', err);

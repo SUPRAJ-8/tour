@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ConfirmationModal from '../common/ConfirmationModal';
+import { useAuth } from '../../context/AuthContext';
 import { 
   FaSearch,
   FaFilter,
@@ -16,6 +17,8 @@ import {
 import './AdminComponents.css';
 
 const UserManagement = () => {
+  const { token } = useAuth();
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,9 +40,18 @@ const UserManagement = () => {
   }, []);
   
   const fetchUsers = async () => {
+    if (!token) {
+      toast.error('Please log in as admin');
+      return;
+    }
+  
     setLoading(true);
     try {
-      const response = await axios.get('/api/admin/users');
+      const response = await axios.get(`${apiUrl}/api/admin/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -79,7 +91,9 @@ const UserManagement = () => {
     e.preventDefault();
     
     try {
-      await axios.patch(`/api/admin/users/${currentUser._id}`, formData);
+      await axios.patch(`${apiUrl}/api/admin/users/${currentUser._id}`, formData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       toast.success('User updated successfully!');
       fetchUsers();
       closeModal();
@@ -96,7 +110,7 @@ const UserManagement = () => {
   
   const handleToggleUserStatus = async (userId, currentStatus) => {
     try {
-      await axios.patch(`/api/admin/users/${userId}/status`, {
+      await axios.patch(`${apiUrl}/api/admin/users/${userId}/status`, {
         isActive: !currentStatus
       });
       toast.success(`User ${currentStatus ? 'deactivated' : 'activated'} successfully!`);
