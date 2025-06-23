@@ -89,7 +89,7 @@
 .filters-wrapper {
   width: 300px;
   flex-shrink: 0;
-  background-color: #eff6ff;
+  background-color: white;
   border-radius: 8px;
   padding: 1.5rem;
 }
@@ -130,29 +130,32 @@
 /* Search Box */
 .search-box {
   position: relative;
-
+  margin-bottom: 1.5rem;
 }
 
 .search-icon {
   color: #0095ff;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 .search-box .filter-label {
   display: block;
-  margin-left: 1.8rem;
+  margin-left: 0;
   margin-bottom: 0.5rem;
 }
 
 .search-box input {
   width: 100%;
-  padding: 12px 15px;
+  height: 45px;
+  padding: 0 15px 0 45px;
   border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
 }
 
 /* Filter Items */

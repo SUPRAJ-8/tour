@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
 import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -7,6 +9,20 @@ import ConfirmationModal from '../common/ConfirmationModal';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import './TourManagement.css';
+
+// Quill toolbar configuration
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ color: ['#000000', '#111111', '#333333', '#666666', '#999999', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', false] }, { background: [] }],
+    ['link', 'clean']
+  ]
+};
+const quillFormats = [
+  'header', 'bold', 'italic', 'underline', 'list', 'bullet', 'color', 'background', 'link'
+];
 
 const TourManagement = () => {
   const navigate = useNavigate();
@@ -54,7 +70,7 @@ const TourManagement = () => {
     featured: false,
     hottestTour: false,
     popularTour: false,
-    itinerary: [{ day: 1, description: '', activities: [''] }]
+    itinerary: [{ day: 1, title: '', description: '' }]
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -303,7 +319,7 @@ const TourManagement = () => {
         difficulty: formData.difficulty,
         visaRequirements: formData.visaRequirements || '',
         travelTips: formData.travelTips.filter(tip => tip.trim() !== ''),
-        itinerary: formData.itinerary || [{ day: 1, description: '', activities: [''] }]
+        itinerary: formData.itinerary || [{ day: 1, title: '', description: '' }]
       };
 
       let response;
@@ -380,7 +396,7 @@ const TourManagement = () => {
       featured: false,
       hottestTour: false,
       popularTour: false,
-      itinerary: [{ day: 1, description: '', activities: [''] }]
+      itinerary: [{ day: 1, title: '', description: '' }]
     });
     setCurrentTour(null);
     setCountrySearchTerm('');
@@ -408,7 +424,7 @@ const TourManagement = () => {
       featured: Boolean(tour.featured),
       hottestTour: Boolean(tour.hottestTour),
       popularTour: Boolean(tour.popularTour),
-      itinerary: tour.itinerary || [{ day: 1, description: '', activities: [''] }]
+      itinerary: tour.itinerary || [{ day: 1, title: '', description: '' }]
     };
     setFormData(newFormData);
     setShowModal(true);
@@ -521,7 +537,7 @@ const TourManagement = () => {
     
     if (field === 'itinerary') {
       const nextDay = updatedArray.length + 1;
-      updatedArray.push({ day: nextDay, description: '', activities: [''] });
+      updatedArray.push({ day: nextDay, title: '', description: '' });
     } else if (field === 'highlights') {
       updatedArray.push({ text: '', icon: 'FaStar' });
     } else if (field === 'includes') {
@@ -888,45 +904,25 @@ const TourManagement = () => {
                             Remove Day
                           </button>
                         </div>
-                        <textarea
-                          value={day.description}
-                          onChange={(e) => handleArrayInputChange(index, 'itinerary', e.target.value, 'description')}
-                          placeholder="Enter day description"
-                          rows="3"
+                        <input
+                          type="text"
+                          value={day.title}
+                          onChange={(e) => handleArrayInputChange(index, 'itinerary', e.target.value, 'title')}
+                          placeholder="Enter day title"
                         />
-                        <div className="activities-section">
-                          <label>Activities</label>
-                          {day.activities?.map((activity, activityIndex) => (
-                            <div key={`activity-${activityIndex}`} className="array-input-group">
-                              <input
-                                type="text"
-                                value={activity}
-                                onChange={(e) => handleActivityChange(index, activityIndex, e.target.value)}
-                                placeholder="Enter activity"
-                              />
-                              <button 
-                                type="button" 
-                                className="btn-remove"
-                                onClick={() => handleRemoveActivity(index, activityIndex)}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          ))}
-                          <button 
-                            type="button" 
-                            className="btn-add"
-                            onClick={() => handleAddActivity(index)}
-                          >
-                            Add Activity
-                          </button>
-                        </div>
+                        <ReactQuill
+                          modules={quillModules}
+                          formats={quillFormats}
+                          theme="snow"
+                          value={day.description}
+                          onChange={(value)=>handleArrayInputChange(index,'itinerary',value,'description')}
+                        />
                       </div>
                     ))}
                     <button 
                       type="button" 
                       className="btn-add"
-                      onClick={() => handleAddArrayItem('itinerary', { day: formData.itinerary?.length + 1 || 1, description: '', activities: [''] })}
+                      onClick={() => handleAddArrayItem('itinerary', { day: formData.itinerary?.length + 1 || 1, title: '', description: '' })}
                     >
                       Add Day
                     </button>

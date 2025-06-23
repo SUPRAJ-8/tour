@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaChevronDown } from 'react-icons/fa';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -271,6 +272,13 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
 };
 
 const TourDetails = () => {
+  // accordion state for itinerary
+  const [openDays, setOpenDays] = useState([]);
+  const toggleDay = (idx) => {
+    setOpenDays((prev) =>
+      prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]
+    );
+  };
   const { id } = useParams();
   const navigate = useNavigate();
   const [tour, setTour] = useState(null);
@@ -625,13 +633,20 @@ const TourDetails = () => {
                 <div className="itinerary-days">
                   {tour.itinerary && tour.itinerary.length > 0 ? (
                     tour.itinerary.map((day, index) => (
-                      <div className="itinerary-day" key={index}>
-                        <div className="day-header">
-                          <h3>Day {index + 1}: {day.title || 'Exploration Day'}</h3>
+                      <div className={`itinerary-day ${openDays.includes(index)?'open':''}`} key={index}>
+                        <div className="day-header" onClick={() => toggleDay(index)}>
+                          <div className="header-text">
+                            <span className="day-number">DAY {String(index+1).padStart(2,'0')}</span>
+                           <h3 className="day-title">{day.title || day.dayTitle || `Day ${index+1}`}</h3>
+                          </div>
+                          <FaChevronDown className={`chevron ${openDays.includes(index)?'rotate':''}`} />
                         </div>
-                        <div className="day-content">
-                          <p>{day.description || 'Details for this day will be provided upon booking.'}</p>
-                          {day.activities && day.activities.length > 0 && (
+                        {openDays.includes(index) && (
+            <div className="day-content">
+                          {day.description && (
+                              <div className="rich-text" dangerouslySetInnerHTML={{ __html: day.description }} />
+                            )}
+                          {day.activities && day.activities.filter(a=>a && a.trim()!=='').length > 0 && (
                             <div className="day-activities">
                               <h4>Activities:</h4>
                               <ul>
@@ -654,7 +669,8 @@ const TourDetails = () => {
                             </div>
                           )}
                         </div>
-                      </div>
+          )}
+        </div>
                     ))
                   ) : (
                     <p>Detailed itinerary will be provided upon booking.</p>

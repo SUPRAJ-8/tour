@@ -355,6 +355,20 @@
   background-color: #e9ecef;
 }
 
+.itinerary-day input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+/* adjust quill height */
+.itinerary-day .ql-container {
+  min-height: 180px;
+}
+
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -373,7 +387,7 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: 90%;
+  width: 95%;
   max-width: 800px;
   max-height: 90vh;
   padding: 24px;
@@ -382,7 +396,7 @@
 
 .tour-form-modal {
   width: 70%;
-  max-width: 600px;
+  max-width: 2000px;
 }
 
 .modal-header {
@@ -634,9 +648,9 @@
 }
 
 .itinerary-day {
-  background-color: #f8f9fa;
+  background-color: #f6f8ff;
   border: 1px solid #dee2e6;
-  border-radius: 4px;
+  border-radius: 13px;
   padding: 15px;
   margin-bottom: 15px;
 }
