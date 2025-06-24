@@ -50,6 +50,10 @@ app.use(cors({
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
+// -------------------- Serve React Frontend --------------------
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
@@ -73,6 +77,16 @@ app.get('/', (req, res) => {
       health: '/health'
     }
   });
+});
+
+// --------------- Frontend fallback ---------------
+// For any non-API routes, send back React's index.html so client-side routing works
+app.get('*', (req, res, next) => {
+  // Skip if the request is clearly for our API or assets
+  if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads') || req.originalUrl.startsWith('/images')) {
+    return next();
+  }
+  return res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 // Health check route
