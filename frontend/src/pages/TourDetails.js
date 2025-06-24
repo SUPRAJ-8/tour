@@ -286,6 +286,8 @@ const TourDetails = () => {
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllImages, setShowAllImages] = useState(false);
+  // Related tours
+  const [relatedTours, setRelatedTours] = useState([]);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { tours } = useData();
@@ -321,6 +323,18 @@ const TourDetails = () => {
 
     fetchTourData();
   }, [id]);
+
+  // Load related tours once main tour is fetched
+  useEffect(() => {
+    if (!tour) return;
+    // For now, use sample tours and match by country if possible
+    const samples = getSampleTours();
+    const filtered = samples.filter(t => {
+      const tourCountry = (tour.destination && tour.destination.country) || tour.country || '';
+      return tourCountry && t.country && t.country.toLowerCase() === tourCountry.toLowerCase();
+    }).slice(0, 6); // limit to 6
+    setRelatedTours(filtered);
+  }, [tour]);
   
   // Function to navigate through images
   const nextImage = () => {
@@ -447,8 +461,6 @@ const TourDetails = () => {
             <div className="title-section">
               <h1>{tour.title}</h1>
             </div>
-
-            
           </div>
 
           <div className="duration-badge">
@@ -673,8 +685,8 @@ const TourDetails = () => {
         </div>
                     ))
                   ) : (
-                    <p>Detailed itinerary will be provided upon booking.</p>
-                  )}
+                     <p>Detailed itinerary will be provided upon booking.</p>
+                   ) }
                 </div>
               </div>
 
@@ -706,9 +718,33 @@ const TourDetails = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
 
-      {/* Booking Form Modal */}
+      {/* Related Tours */}
+      {relatedTours && relatedTours.length > 0 && (
+        <div className="related-tours-section">
+          <h2 className="related-title">Discover Similar Tours You'll Love</h2>
+          <div className="related-tours-grid">
+            {relatedTours.map((rt) => (
+              <Link
+                key={rt.id}
+                to={`/tour/${rt.id}`}
+                className="related-tour-card"
+              >
+                <div className="related-tour-image" style={{backgroundImage:`url(${rt.imageCover})`}} />
+                <div className="related-tour-content">
+                  <h3 className="related-tour-name">{rt.name}</h3>
+                  <div className="related-tour-meta">
+                    <span><FaMapMarkerAlt/> {rt.country}</span>
+                    <span><FaCalendarAlt/> {rt.duration || rt.days || '?'} Days</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <BookingFormModal 
         isOpen={showBookingModal}
         onClose={() => setShowBookingModal(false)}
