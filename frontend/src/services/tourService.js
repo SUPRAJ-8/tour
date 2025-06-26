@@ -20,6 +20,9 @@ export const fetchAllTours = async () => {
       if (response.data && response.data.tours) {
         toursData = response.data.tours;
         console.log('Found tours in response.data.tours:', toursData.length);
+      } else if (response.data && Array.isArray(response.data.data)) {
+        toursData = response.data.data;
+        console.log('Found tours in response.data.data (array):', toursData.length);
       } else if (Array.isArray(response.data)) {
         toursData = response.data;
         console.log('Found tours in array:', toursData.length);
@@ -56,7 +59,10 @@ export const fetchAllTours = async () => {
         const fallbackResponse = await axios.get(`${apiUrl}/api/tours`);
         console.log('Fallback API Response:', fallbackResponse);
         
-        if (fallbackResponse.data && fallbackResponse.data.data && fallbackResponse.data.data.tours) {
+        if (fallbackResponse.data && Array.isArray(fallbackResponse.data.data)) {
+          toursData = fallbackResponse.data.data;
+          console.log('Found tours in fallbackResponse.data.data (array):', toursData.length);
+        } else if (fallbackResponse.data && fallbackResponse.data.data && fallbackResponse.data.data.tours) {
           toursData = fallbackResponse.data.data.tours;
           console.log('Found tours in fallbackResponse.data.data.tours:', toursData.length);
         } else if (Array.isArray(fallbackResponse.data)) {

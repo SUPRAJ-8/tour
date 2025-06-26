@@ -23,7 +23,7 @@ const FeaturedTours = ({ tours }) => {
 
   if (!tours || tours.length === 0) {
     return (
-      <section className="section popular-tours-section" style={{ marginTop: 0 }}>
+      <section className="section popular-tours-section" style={{ marginTop: 0, paddingTop: 0 }}>
         <div className="container">
           <h2 className="section-title">Featured International Tours</h2>
           <p className="section-subtitle">Handpicked global experiences by our travel experts</p>
@@ -34,7 +34,7 @@ const FeaturedTours = ({ tours }) => {
   }
 
   return (
-    <section className="section popular-tours-section" style={{ marginTop: 0 }}>
+    <section className="section popular-tours-section" style={{ marginTop: 0, paddingTop: 0 }}>
       <div className="container">
         <div className="section-header">
           <div>
@@ -56,7 +56,14 @@ const FeaturedTours = ({ tours }) => {
             loop={true}
             initialSlide={initialSlide}
             spaceBetween={20}
-            slidesPerView={3}
+            breakpoints={{
+              0: { slidesPerView: 1.1, spaceBetween: 10 },
+              480: { slidesPerView: 1.4, spaceBetween: 14 },
+              768: { slidesPerView: 2, spaceBetween: 18 },
+              992: { slidesPerView: 3, spaceBetween: 20 }
+            }}
+            grabCursor={true}
+            threshold={5}
             className="popular-tours-swiper"
           >
             {tours.map(tour => (
@@ -85,6 +92,10 @@ const FeaturedTours = ({ tours }) => {
             ))}
           </Swiper>
         </div>
+        {/* Mobile-only View All button */}
+        <Link to="/tours" className="view-all-tours-button mobile-only">
+          View All Tours <FaChevronRight className="view-all-icon" />
+        </Link>
       </div>
     </section>
   );

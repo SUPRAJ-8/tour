@@ -25,11 +25,26 @@ connectDB();
 
 // Middleware
 app.use(express.json());
-// Dynamic CORS to allow the configured FRONTEND_URL and also handle missing trailing slash
+// ---------------------- CORS CONFIG ----------------------
+if (process.env.NODE_ENV !== 'production') {
+  // In development, allow all origins so mobile devices on LAN can access
+  const corsOptions = {
+    origin: '*',
+    credentials: true
+  };
+  app.use(cors(corsOptions));
+  console.log('CORS: Development mode – allowing all origins');
+} else {
+  // Dynamic CORS to allow configured domains in production
+// Allow local dev LAN IP and localhost during development
+const devOriginRegex = /^http:\/\/192\.168\.(\d{1,3})\.(\d{1,3}):\d+$/;
+
 const allowedOrigins = [
   process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
   'http://localhost:3000',
-  'http://localhost:3001'
+  'http://localhost:3001',
+  'https://suprajshrestha.com.np',
+  'https://www.suprajshrestha.com.np'
 ].filter(Boolean);
 
 app.use(cors({
@@ -38,13 +53,14 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     const normalized = origin.replace(/\/+$/, '');
-    if (allowedOrigins.includes(normalized)) {
+    if (allowedOrigins.includes(normalized) || devOriginRegex.test(normalized)) {
       return callback(null, true);
     }
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
 }));
+} // <-- close production CORS block
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -89,8 +105,16 @@ app.get('*', (req, res, next) => {
   return res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
-// Health check route
+// Health check route (root)
 app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Server is running'
+  });
+});
+
+// Health check route under /api to satisfy frontend checks
+app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'ok', 
     message: 'Server is running'
@@ -114,7 +138,8 @@ process.on('unhandledRejection', (err) => {
 
 // Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const HOST = process.env.HOST || '0.0.0.0';
+app.listen(PORT, HOST, () => {
   console.log(`Server running on port ${PORT}`);
 });
 

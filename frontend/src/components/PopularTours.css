@@ -291,6 +291,10 @@
   white-space: nowrap;
 }
 
+.view-all-tours-button.mobile-only {
+  display: none !important;
+}
+
 .view-all-tours-button:hover {
   background-color: #0077cc;
   transform: translateY(-2px);
@@ -499,6 +503,23 @@
 }
 
 /* Responsive styles */
+
+/* --- Override fixed widths for Swiper, ensure visible on all screens --- */
+.popular-tours-swiper.swiper-horizontal {
+  width: 100% !important;
+  height: auto !important;
+}
+.popular-tours-swiper .swiper-slide {
+  width: auto !important; /* allow Swiper calc */
+  flex-shrink: 0;
+}
+@media (max-width: 576px) {
+  .popular-tours-swiper {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 /* Disable scroll on body when global loader active */
 body.blurred {
   overflow: hidden;
@@ -513,5 +534,45 @@ body.blurred {
 @media (max-width: 576px) {
   .popular-tours-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* adjust section header layout and text sizes */
+  .popular-tours-section .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  .popular-tours-section .section-title {
+    font-size: 1.3rem;
+    text-align: left;
+  }
+  .popular-tours-section .section-subtitle {
+    padding-left: 0;
+    font-size: 1rem;
+    text-align: left;
+  }
+  /* force heading container left-aligned */
+  .popular-tours-section .section-header > div {
+    text-align: left;
+    width: 100%;
+  }
+
+  /* ensure swiper slides have uniform width on small screens */
+  .popular-tours-swiper-container .swiper-slide {
+    width: 85% !important; /* 85% of viewport – leaves peek of next slide */
+  }
+  .popular-tours-swiper-container .popular-tour-card {
+    width: 100%;
+  }
+
+  /* show mobile-only view-all button */
+  .view-all-tours-button:not(.mobile-only) {
+    display: none !important;
+  }
+  .view-all-tours-button.mobile-only {
+    display: inline-flex !important;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
   }
 }

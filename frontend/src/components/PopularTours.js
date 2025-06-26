@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaBolt, FaHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaStar, FaBolt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { BsCalendar3 } from 'react-icons/bs';
 import './PopularTours.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
-// Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-// Swiper modules
 import { Navigation, Pagination } from 'swiper/modules';
 
 const PopularTours = () => {
@@ -25,9 +23,8 @@ const PopularTours = () => {
         setLoading(true);
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         const response = await axios.get(`${apiUrl}/api/tours`);
-        
+
         let tours = [];
-        // Handle different API response formats
         if (response.data && Array.isArray(response.data)) {
           tours = response.data;
         } else if (response.data && response.data.data && Array.isArray(response.data.data.tours)) {
@@ -37,28 +34,17 @@ const PopularTours = () => {
         } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
           tours = response.data.data;
         }
-        
-        // Filter for active and popular tours
-        const popular = tours.filter(tour => 
-          (tour.popularTour === true || 
-          tour.popularTour === 'true' || 
-          tour.popularTour === 1 || 
-          String(tour.popularTour).toLowerCase() === 'true') &&
-          (tour.status === 'active' || tour.status === undefined) // include undefined for backward compatibility
-        );
-        
-        console.log('Popular tours found:', popular.length);
-        
-        // Decide which tours to show
-        let toursToShow = [];
-        if (popular.length > 0) {
-          toursToShow = popular;
-        } else {
-          // fallback: pick first few active tours as popular replacement
-          toursToShow = tours.filter(t => t.status === 'active' || t.status === undefined).slice(0, 10);
-        }
 
-        // post-process for image & destination presence
+        const popular = tours.filter(tour => (
+          tour.popularTour === true ||
+          tour.popularTour === 'true' ||
+          tour.popularTour === 1 ||
+          String(tour.popularTour).toLowerCase() === 'true') &&
+          (tour.status === 'active' || tour.status === undefined)
+        );
+
+        const toursToShow = popular.length > 0 ? popular : tours.filter(t => t.status === 'active' || t.status === undefined).slice(0, 10);
+
         const processed = toursToShow.filter(t => (t.coverImage || t.imageCover) && (t.destination?.name || t.country)).map(t => ({
           ...t,
           processedImageUrl: t.coverImage || t.imageCover
@@ -68,14 +54,13 @@ const PopularTours = () => {
         if (processed.length > 0) {
           setInitialSlide(Math.floor(Math.random() * processed.length));
         }
-        
         setLoading(false);
       } catch (error) {
         console.error('Error fetching popular tours:', error);
         setLoading(false);
       }
     };
-    
+
     fetchPopularTours();
   }, []);
 
@@ -113,7 +98,14 @@ const PopularTours = () => {
             loop={true}
             initialSlide={initialSlide}
             spaceBetween={20}
-            slidesPerView={3}
+            breakpoints={{
+              0: { slidesPerView: 1.1, spaceBetween: 10 },
+              480: { slidesPerView: 1.4, spaceBetween: 14 },
+              768: { slidesPerView: 2, spaceBetween: 18 },
+              992: { slidesPerView: 3, spaceBetween: 20 }
+            }}
+            grabCursor={true}
+            threshold={5}
             className="popular-tours-swiper"
           >
             {popularTours.map(tour => (
@@ -136,6 +128,10 @@ const PopularTours = () => {
             ))}
           </Swiper>
         </div>
+        {/* Mobile-only View All button */}
+        <Link to="/tours" className="view-all-tours-button mobile-only">
+          View All Tours <FaChevronRight className="view-all-icon" />
+        </Link>
       </div>
     </section>
   );

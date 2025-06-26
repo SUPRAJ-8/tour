@@ -233,7 +233,7 @@
   }
   
   .tour-slide-info {
-    flex-direction: column;
+
     gap: 10px;
   }
 }

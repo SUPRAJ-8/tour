@@ -150,6 +150,10 @@
 }
 
 @media (max-width: 768px) {
+  /* hamburger turns dark on white navbar */
+  .navbar.scrolled .navbar-toggle {
+    color: #000;
+  }
   .navbar-toggle {
     display: block;
     color: white;
