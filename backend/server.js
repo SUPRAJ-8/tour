@@ -36,28 +36,16 @@ if (process.env.NODE_ENV !== 'production') {
   console.log('CORS: Development mode – allowing all origins');
 } else {
   // Dynamic CORS to allow configured domains in production
-// Allow local dev LAN IP and localhost during development
-const devOriginRegex = /^http:\/\/192\.168\.(\d{1,3})\.(\d{1,3}):\d+$/;
-
+// ---- Production CORS ----
+// Only allow our deployed front-end domains
 const allowedOrigins = [
   process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
-  'http://localhost:3000',
-  'http://localhost:3001',
   'https://suprajshrestha.com.np',
   'https://www.suprajshrestha.com.np'
 ].filter(Boolean);
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-
-    const normalized = origin.replace(/\/+$/, '');
-    if (allowedOrigins.includes(normalized) || devOriginRegex.test(normalized)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
+  origin: allowedOrigins,
   credentials: true
 }));
 } // <-- close production CORS block
@@ -136,10 +124,8 @@ process.on('unhandledRejection', (err) => {
   console.error(err);
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || '0.0.0.0';
-app.listen(PORT, HOST, () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
