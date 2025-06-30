@@ -892,7 +892,7 @@
 }
 
 .search-box {
-  width: 172px;
+  width: 250px;
   position: relative;
   background: #fff;
   border: 1px solid #e0e0e0;
@@ -926,7 +926,7 @@
 
 .search-icon {
   position: absolute;
-  left: 22px;
+  left: 4px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;

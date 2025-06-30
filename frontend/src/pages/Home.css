@@ -443,8 +443,7 @@
 
 /* Add padding to specific sections that need it */
 .featured-tours-section,
-.why-choose-us-section,
-.newsletter-section {
+.why-choose-us-section {
   padding-top: 3rem;
 }
 
@@ -830,7 +829,6 @@
   display: none !important;
 }
 
-/* Newsletter Section */
 
 @media (max-width: 576px) {
   .container {
@@ -845,9 +843,6 @@
   }
 }
 
-.newsletter-section {
-  background-color: white;
-}
 
 /* -------------------- Responsive Tweaks (2025-06) -------------------- */
 @media (max-width: 768px) {
@@ -935,7 +930,8 @@
     /* push the heading down no matter where it sits */
     h2.section-title,
     .section-title {
-      margin-top: 20px; /* increase / tweak as needed */
+      margin-top: -50px; /* increase / tweak as needed */
+      font-size: 2rem;
     }
   }
 
@@ -954,17 +950,4 @@
   .destinations-grid {
     grid-template-columns: 1fr;
   }
-
-  .newsletter-form {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .newsletter-form input {
-    width: 100%;
-  }
-}
-
-.newsletter-section {
-  background-color: white;
 }

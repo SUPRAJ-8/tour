@@ -1,8 +1,8 @@
 /* Tours Page Layout */
 .tours-page {
-  max-width: 1200px;
-  margin: 0 60px;
-  padding: 2rem 1rem;
+  max-width: 2000px;
+  padding: 2rem 5rem;
+  background-color: white;
 }
 
 /* Tours Header with Admin Link */
@@ -89,7 +89,7 @@
 .filters-wrapper {
   width: 300px;
   flex-shrink: 0;
-  background-color: white;
+  background-color: #f6f8ff;
   border-radius: 8px;
   padding: 1.5rem;
 }
@@ -145,7 +145,8 @@
 
 .search-box .filter-label {
   display: block;
-  margin-left: 0;
+  margin-top: 6px;
+  margin-left: 15px;
   margin-bottom: 0.5rem;
 }
 
@@ -702,6 +703,75 @@
   
   .view-toggle-btn .view-icon {
     font-size: 1.2rem;
+  }
+}
+
+/* Hide filter sidebar on phones */
+@media (max-width: 576px) {
+  .filters-wrapper {
+    display: none;
+  }
+}
+
+/* Extra small devices tweaks */
+@media (max-width: 576px) {
+  /* Show only search box */
+  .filters-wrapper {
+    background: transparent;
+    padding: 0;
+  }
+  .filters-wrapper .filter-title,
+  .filters-wrapper .filter-item,
+  .filters-wrapper .reset-filters-btn {
+    display: none !important;
+  }
+  .filters-wrapper .search-box {
+    margin-bottom: 1rem;
+  }
+
+  /* Compact page padding */
+  .tours-page {
+    max-width: 100%;
+    padding: 1rem;
+  }
+
+  /* Show filters on top instead of hiding */
+  .filters-wrapper {
+    display: block;
+    width: 100%;
+    margin-bottom: 0;
+    margin-left: 23px;
+  }
+
+  /* Adjust title size */
+  .tours-title {
+    font-size: 1.8rem;
+    margin-left: 23px;
+    text-align: center;
+  }
+
+  /* One-column flexible grid */
+  .tours-grid-view {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tours-page {
+    margin: 0 1rem;
+  }
+  .tour-card {
+    width: 100% !important;
+    max-width: 100%;
+  }
+  .tour-image,
+  .tour-image img {
+    width: 100% !important;
+    height: auto !important;
+  }
+  .tours-grid-view {
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
   }
 }
 

@@ -4,8 +4,21 @@ import { getSampleTours, processSampleTours } from './tourService';
 // Create an axios instance. If REACT_APP_API_URL is set (e.g. in Vercel),
 // use it as the base URL; otherwise fall back to relative paths which work
 // in local dev via the CRA proxy.
+// Decide the backend URL:
+// 1. If REACT_APP_API_URL is provided, always use that.
+// 2. Otherwise, when running the dev server on a LAN IP (e.g. 192.168.x.x:3000),
+//    use the same hostname but port 5000 so mobile devices hit the correct backend.
+// 3. Fallback to empty string so CRA dev proxy still works when using localhost.
+const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const fallbackBase = host && host !== 'localhost' && host !== '127.0.0.1'
+  ? `http://${host}:5000` // assume backend runs on 5000 on the same host
+  : '';
+
+// Apply the same baseURL globally so even plain `axios.get()` elsewhere uses the LAN backend
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || fallbackBase;
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || ''
+  baseURL: process.env.REACT_APP_API_URL || fallbackBase
 });
 
 // Removed baseURL to avoid duplicate '/api' prefix; relying on proxy for '/api' routes

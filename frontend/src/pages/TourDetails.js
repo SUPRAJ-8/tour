@@ -745,6 +745,11 @@ const TourDetails = () => {
         </div>
       )}
 
+      {/* Mobile fixed Book button */}
+      <button className="mobile-book-btn" onClick={handleBookNow}>
+        Book This Tour
+      </button>
+
       <BookingFormModal 
         isOpen={showBookingModal}
         onClose={() => setShowBookingModal(false)}

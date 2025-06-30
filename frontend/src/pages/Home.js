@@ -453,18 +453,7 @@ const Home = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="newsletter-section">
-        <div className="container">
-          <div className="newsletter-content">
-            <h2>Subscribe to Our Newsletter</h2>
-            <p>Get exclusive deals, travel tips, and more delivered to your inbox.</p>
-            <form className="newsletter-form">
-              <input type="email" placeholder="Your Email Address" className="form-control" />
-              <button type="submit" className="btn btn-primary">Subscribe</button>
-            </form>
-          </div>
-        </div>
-      </section>
+      
     </div>
   );
 };

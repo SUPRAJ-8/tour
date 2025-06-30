@@ -48,10 +48,23 @@
   transform: scale(1.1);
 }
 
+.navbar.transparent .navbar-link {
+  color: white;
+}
+
+.navbar.transparent .navbar-toggle {
+  color: white;
+}
+
 .navbar.transparent .navbar-logo {
   color: white;
   text-color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.navbar.transparent.scrolled .navbar-link,
+.navbar.scrolled .navbar-link {
+  color: black;
 }
 
 .navbar-menu {
@@ -156,7 +169,7 @@
   }
   .navbar-toggle {
     display: block;
-    color: white;
+    color: black;
   }
 
   .navbar-menu {
@@ -164,7 +177,7 @@
     top: 70px;
     left: -100%;
     flex-direction: column;
-    background-color: rgba(8, 44, 100, 0.95);
+    background-color: white;
     backdrop-filter: blur(10px);
     width: 100%;
     height: calc(100vh - 70px);

@@ -65,7 +65,7 @@ export const DataProvider = ({ children }) => {
         // Fetch countries and tours in parallel if not on GitHub Pages
         const [countriesRes, toursRes] = await Promise.allSettled([
           axios.get(`${API_BASE_URL}/api/countries`),
-          axios.get(`${API_BASE_URL}/api/tours?includeInactive=true`),
+          axios.get(`${API_BASE_URL}/api/tours`),
         ]);
 
         // Handle countries response
@@ -102,7 +102,9 @@ export const DataProvider = ({ children }) => {
           }
           
           console.log('Final processed tours data:', toursData);
-          setTours(toursData);
+          // Convert array into regions/countries structure expected by UI
+          const processed = processSampleTours(toursData);
+          setTours(processed);
         } else {
           console.error("Error fetching tours:", toursRes.reason);
           // Set empty array if request fails to prevent undefined errors

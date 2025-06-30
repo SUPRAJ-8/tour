@@ -1,5 +1,10 @@
 /* Main Page Structure */
+/* Remove bottom gap created by container bottom margin without altering original rule */
+.countries-page .container:last-child {
+  margin-bottom: 0;
+}
 .countries-page {
+  background-color: #fff;
   width: 100%;
   overflow-x: hidden;
 }

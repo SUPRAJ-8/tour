@@ -226,6 +226,12 @@ img {
   }
 }
 
+/* Prevent horizontal scroll globally */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 @media (max-width: 576px) {
   .grid-3, .grid-4 {
     grid-template-columns: 1fr;

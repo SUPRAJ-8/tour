@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import { Link } from 'react-router-dom';
 import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire } from 'react-icons/fa';
 import { fetchAllTours } from '../services/tourService';
@@ -9,6 +10,7 @@ const Tours = () => {
   const [tours, setTours] = useState([]);
   const [regionalTours, setRegionalTours] = useState({ regions: {}, countries: [] });
   const [loading, setLoading] = useState(true);
+  const [rawSearch, setRawSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [country, setCountry] = useState('');  
   const [travelWith, setTravelWith] = useState('');  
@@ -16,9 +18,40 @@ const Tours = () => {
   const [showCountryOptions, setShowCountryOptions] = useState(true);
   const [showDurationOptions, setShowDurationOptions] = useState(false);
   const [duration, setDuration] = useState('');
+
+  // Set up Fuse.js for fuzzy searching across multiple fields
+  const fuse = useMemo(() => new Fuse(tours, {
+    keys: ['name', 'title', 'summary', 'description'],
+    threshold: 0.3,
+    ignoreLocation: true,
+  }), [tours]);
+
+  const toursAfterSearch = useMemo(() => {
+    if (searchTerm === '') return tours;
+    return fuse.search(searchTerm).map(result => result.item);
+  }, [searchTerm, fuse, tours]);
+
+  // Debounce rawSearch input to avoid filtering on every keystroke
+  useEffect(() => {
+    const trimmed = rawSearch.trim();
+    // If input is cleared, update immediately so tours repopulate instantly
+    if (trimmed === '') {
+      setSearchTerm('');
+      return;
+    }
+    const handler = setTimeout(() => {
+      setSearchTerm(trimmed.toLowerCase());
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [rawSearch]);
   const [countries, setCountries] = useState([]);
   const [viewMode, setViewMode] = useState('grid'); // Only grid view is now available
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Whenever any filter changes, reset to first page so results are visible
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, country, travelWith, duration]);
   const toursPerPage = 9; // 3 rows of 3 cards
   
   // Generate star rating display
@@ -257,7 +290,7 @@ const Tours = () => {
   };
   
   // Filter tours based on selected filters
-  const filteredTours = tours.filter(tour => {
+  const filteredTours = toursAfterSearch.filter(tour => {
     // Filter by search term
     const matchesSearch = 
       (tour.name && tour.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
@@ -335,6 +368,7 @@ const Tours = () => {
   
   // Reset all filters
   const resetFilters = () => {
+    setRawSearch('');
     setSearchTerm('');
     setCountry('');
     setTravelWith('');
@@ -409,8 +443,8 @@ const Tours = () => {
             <input 
               type="text" 
               placeholder="Enter any keyword" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={rawSearch}
+              onChange={(e) => setRawSearch(e.target.value)}
             />
           </div>
           

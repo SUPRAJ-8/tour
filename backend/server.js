@@ -25,21 +25,31 @@ connectDB();
 
 // Middleware
 app.use(express.json());
+// ----- Extra header for Chrome Private Network Access (CORS-RFC1918) -----
+app.use((req, res, next) => {
+  // When browser sends Access-Control-Request-Private-Network, we must respond with this header
+  // so that LAN devices (mobile) can access the API from a different port.
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  next();
+});
 // ---------------------- CORS CONFIG ----------------------
 if (process.env.NODE_ENV !== 'production') {
   // In development, allow all origins so mobile devices on LAN can access
+  // In development, reflect the request origin so credentials work correctly
   const corsOptions = {
-    origin: '*',
+    origin: true, // reflects the request origin
     credentials: true
   };
   app.use(cors(corsOptions));
-  console.log('CORS: Development mode – allowing all origins');
+  console.log('CORS: Development mode – dynamic origin enabled');
 } else {
   // Dynamic CORS to allow configured domains in production
 // ---- Production CORS ----
 // Only allow our deployed front-end domains
 const allowedOrigins = [
   process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'https://suprajshrestha.com.np',
   'https://www.suprajshrestha.com.np'
 ].filter(Boolean);

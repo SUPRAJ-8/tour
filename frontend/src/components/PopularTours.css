@@ -52,11 +52,11 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 414.4px; /* Increased card width */
-  height: auto;
+  width: 416px; /* Adjusted card width */
+  height: 423.6px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   margin: 0;
-  flex: 0 0 414.4px; /* Adjusted to new width */
+  flex: 0 0 416px; /* Adjusted to new width */
 }
 
 .popular-tour-card:hover {
@@ -65,6 +65,7 @@
 }
 
 .popular-tour-image {
+  width: 414.4px;
   height: 252px;
   position: relative;
   overflow: hidden;
@@ -104,6 +105,9 @@
   padding: 15px 15px 5px; /* reduce bottom padding */
   display: flex;
   flex-direction: column;
+  width: 414.4px;
+  height: 170px;
+  box-sizing: border-box;
 }
 
 .tour-rating {
@@ -267,6 +271,7 @@
 /* Section header with View All Tours button */
 .section-header {
   display: flex;
+  padding-top: 80px;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
@@ -345,17 +350,17 @@
 /* Position Swiper navigation outside cards */
 .popular-tours-swiper-container {
   position: relative;
-  max-width: calc(3 * 414.4px + 2 * 20px); /* 3 cards + 2 gaps */
+  max-width: 1284px; /* 3 × 414.4 = 1243.2 + 2 × 20 = 40 ⇒ 1283.2 ~ 1284 */
   margin: 0 auto;
-  overflow: hidden;
+  overflow: hidden; /* hide extra slides */
 }
 
 .popular-tours-swiper {
   position: relative;
   overflow: hidden !important;
   padding-bottom: 80px; /* space for pagination bullets */
-  padding-left: 60px; /* increased space for nav buttons */
-  padding-right: 60px; /* increased space for nav buttons */
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .popular-tours-swiper .swiper-wrapper {
@@ -364,11 +369,22 @@
 
 .popular-tours-swiper .swiper-pagination {
   position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
+  bottom: -4px !important;
+  top: auto;
   z-index: 10;
+}
+/* Pagination bullets */
+.popular-tours-swiper .swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #cfd8e3;
+  opacity: 1;
+  transition: background-color 0.3s, transform 0.3s;
+}
+.popular-tours-swiper .swiper-pagination-bullet-active {
+  background: #0095ff;
+  transform: scale(1.3);
 }
 
 .popular-tours-swiper.swiper-horizontal {
@@ -379,20 +395,24 @@
 .popular-tours-swiper .swiper-button-prev,
 .popular-tours-swiper .swiper-button-next {
   position: absolute;
-  z-index: 20;
+  z-index: 50;
   color: #0095ff;
-  width: 32px;
-  height: 32px;
-  top: 50%;
-  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  top: 40%;
+  transform: translateY(-40%);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
 }
 
 .popular-tours-swiper .swiper-button-prev {
-  left: -40px; /* shift further outside */
+  left: 10px;
 }
 
 .popular-tours-swiper .swiper-button-next {
-  right: -40px; /* shift further outside */
+  right: 10px;
 }
 
 /* Ensure slides match card width */
@@ -438,6 +458,11 @@
 }
 
 /* Custom nav buttons */
+
+/* Ensure Swiper does not hide navigation buttons */
+.popular-tours-swiper .swiper-button-lock {
+  display: flex !important;
+}
 .custom-nav-btn {
   position: absolute;
   top: 50%;
@@ -457,21 +482,22 @@
 }
 
 .custom-nav-btn:hover {
-  background-color: #0095ff;
-  color: #fff;
+  background-color: #94b3ca;
+  color: white;
 }
 
 .custom-nav-btn.prev {
-  left: -50px; /* shift further outside */
+  left: -60px;
 }
 
 .custom-nav-btn.next {
-  right: -50px; /* shift further outside */
+  right: -60px;
 }
 
 /* Increase icon size */
 .custom-nav-btn svg {
-  font-size: 18px;
+  font-size: 20px;
+  color: #0095ff;
 }
 
 /* Full-page loading overlay reusing global loader */
@@ -502,7 +528,19 @@
   z-index: 3000;
 }
 
+/* Fix: Ensure pagination bullets are not clipped */
+.popular-tours-swiper {
+  overflow: hidden !important;
+}
+
 /* Responsive styles */
+
+/* Hide pagination on small screens */
+@media (max-width: 576px) {
+  .popular-tours-swiper .swiper-pagination {
+    display: none !important;
+  }
+}
 
 /* --- Override fixed widths for Swiper, ensure visible on all screens --- */
 .popular-tours-swiper.swiper-horizontal {
@@ -574,5 +612,43 @@ body.blurred {
     width: 100%;
     justify-content: center;
     margin-top: 1rem;
+  }
+
+  /* Horizontal gap between slides on phones */
+  .popular-tours-swiper .swiper-slide {
+    margin: 0 13px !important;
+  }
+
+  /* Ensure card and content take full width on small screens */
+  .popular-tour-card {
+    width: calc(100% - 32px) !important; /* leave space for margins */
+    margin: 0 13px !important; /* horizontal margin */
+    box-sizing: border-box;
+  }
+
+  .popular-tour-content {
+    width: 322.76px !important;
+    height: 189px !important;
+    box-sizing: border-box;
+  }
+
+  /* Gap between slides */
+  .popular-tours-swiper-container .swiper-slide {
+    margin: 0 13px !important; /* symmetrical gap */
+  }
+
+  /* Set specific image size for mobile */
+  .popular-tour-image {
+    width: 322.76px !important;
+    height: 189px !important;
+    aspect-ratio: 322.76 / 189;
+    box-sizing: border-box;
+  }
+
+  /* Hide navigation arrows on mobile */
+  .custom-nav-btn,
+  .popular-tours-swiper .swiper-button-prev,
+  .popular-tours-swiper .swiper-button-next {
+    display: none !important;
   }
 }
