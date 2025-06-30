@@ -364,13 +364,20 @@
 .tour-meta-grid {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 2rem;
-  border-radius: 4px;
-  width: 864px;
-  height: 58.2px;
-  margin-left: 0;  /* Ensure no left margin */
   border-top: 1px solid #E5E7EB;
-  padding-top: 1.5rem;
+  margin-left: 0;
+  max-width: 864px;
+}
+
+/* Switch to 2×2 grid layout on small screens */
+@media (max-width: 768px) {
+  .tour-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 2rem;
+  }
 }
 
 .meta-item {
@@ -1169,13 +1176,8 @@
 }
 
 @media (max-width: 640px) {
-  .tour-meta-grid {
-    grid-template-columns: 1fr;
-  }
+
   
-  .meta-item {
-    padding: 1rem;
-  }
   
   .meta-icon {
     width: 36px;
@@ -1184,6 +1186,29 @@
   
   .meta-value {
     font-size: 1rem;
+  }
+}
+
+/* ---------- Mobile Book Button ---------- */
+.mobile-book-btn {
+  display: none; /* hidden by default */
+}
+
+@media (max-width: 768px) {
+  .mobile-book-btn {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem 0;
+    background: var(--primary-color, #2563EB);
+    color: #fff;
+    border: none;
+    font-size: 1.125rem;
+    font-weight: 600;
+    text-align: center;
+    z-index: 2000;
   }
 }
 
@@ -1359,6 +1384,7 @@
 
 @media (max-width: 1200px) {
   .booking-sidebar {
+    display: none;
     position: static;
     width: 100%;
     margin-top: 32px;
@@ -1440,6 +1466,14 @@
   .includes-excludes-grid {
     grid-template-columns: 1fr;
   }
+  /* Remove padding and enlarge font in includes/excludes on mobile */
+  .inclusions {
+    padding: 0;
+  }
+  .includes-list li,
+  .excludes-list li {
+    font-size: 1.125rem;
+  }
 }
 
 /* Highlights Section */
@@ -1481,8 +1515,16 @@
 }
 
 @media (max-width: 768px) {
+  /* Remove padding for highlights section on small screens */
+  .highlights-section {
+    padding: 0;
+  }
   .highlights-grid {
     grid-template-columns: 1fr;
+  }
+  /* Increase font size for highlights text on mobile */
+  .highlight-content {
+    font-size: 1.2rem;
   }
 }
 
@@ -1921,8 +1963,7 @@
   }
 
   .modal-left {
-    border-right: none;
-    border-bottom: 1px solid #E5E7EB;
+    display: none;
   }
 
   .booking-modal {
