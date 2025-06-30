@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { FaFacebook, FaTwitter, FaInstagram, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 import './Footer.css';
 
 const Footer = () => {
@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">TravelTour</h3>
+            <h3 className="footer-title">Zypher Tour And Travels</h3>
             <p className="footer-text">
               Discover the world with our premium travel experiences. We offer the best tours and travel packages to destinations worldwide.
             </p>
@@ -25,8 +25,8 @@ const Footer = () => {
               <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
                 <FaInstagram />
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
-                <FaLinkedin />
+              <a href="https://wa.me/+9779840007310" target="_blank" rel="noopener noreferrer">
+                <FaWhatsapp />
               </a>
             </div>
           </div>
@@ -85,6 +85,7 @@ const Footer = () => {
 
         <div className="footer-bottom">
           <p>&copy; {currentYear} Zypher. All rights reserved.</p>
+          <p>Made with ❤️ by Supraj Shrestha</p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>

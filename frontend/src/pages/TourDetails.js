@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FaChevronDown } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaChevronDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -10,7 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
 import './TourDetails.css';
-import { getSampleTours } from '../services/tourService';
+
+// Swiper for related tours
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 // Booking Form Modal Component
 const BookingFormModal = ({ isOpen, onClose, tour }) => {
@@ -107,7 +112,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                   <div className="detail-item">
                     <img src="images/icons/group.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Group Size:</span>
-                    <span>{tour.groupSize} Travellers</span>
+                    <span>{tour.groupSize} </span>
                   </div>
                 </div>
               </div>
@@ -116,8 +121,8 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
               <div className="confusion-section modal-confusion">
                 <h3>Have confusion?</h3>
                 <p>Feel free to call us with any questions or uncertainties.</p>
-                <a href="https://wa.me/9700664343" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
-                  <FaWhatsapp /> 9802392709
+                <a href="https://wa.me/+9779840007310" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
+                  <FaWhatsapp /> 9840007310
                 </a>
               </div>
             </div>
@@ -272,6 +277,8 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
 };
 
 const TourDetails = () => {
+  const prevRelatedRef = useRef(null);
+  const nextRelatedRef = useRef(null);
   // accordion state for itinerary
   const [openDays, setOpenDays] = useState([]);
   const toggleDay = (idx) => {
@@ -325,15 +332,58 @@ const TourDetails = () => {
   }, [id]);
 
   // Load related tours once main tour is fetched
+  // Fetch related tours once the main tour is available
   useEffect(() => {
     if (!tour) return;
-    // For now, use sample tours and match by country if possible
-    const samples = getSampleTours();
-    const filtered = samples.filter(t => {
-      const tourCountry = (tour.destination && tour.destination.country) || tour.country || '';
-      return tourCountry && t.country && t.country.toLowerCase() === tourCountry.toLowerCase();
-    }).slice(0, 6); // limit to 6
-    setRelatedTours(filtered);
+
+    const fetchRelatedTours = async () => {
+      try {
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const response = await axios.get(`${apiUrl}/api/tours`);
+
+        // Normalise the response to an array
+        let allTours = [];
+        if (Array.isArray(response.data)) {
+          allTours = response.data;
+        } else if (response.data && Array.isArray(response.data.data)) {
+          allTours = response.data.data;
+        } else if (response.data && typeof response.data === 'object') {
+          allTours = [response.data];
+        }
+
+        // Exclude the current tour from suggestions
+        allTours = allTours.filter(
+          (t) => (t._id || t.id) !== (tour._id || tour.id)
+        );
+
+        // Filter by country / destination if possible
+        const tourCountry =
+          (tour.destination && tour.destination.country) || tour.country || '';
+        let filtered = allTours;
+        if (tourCountry) {
+          const countryLower = tourCountry.toLowerCase();
+          const countryMatches = allTours.filter((t) => {
+            const c = (t.destination && t.destination.country) || t.country || '';
+            return c && c.toLowerCase() === countryLower;
+          });
+          if (countryMatches.length >= 4) {
+            filtered = countryMatches;
+          }
+        }
+
+        // Shuffle (Fisher–Yates)
+        for (let i = filtered.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+        }
+
+        setRelatedTours(filtered.slice(0, 6));
+      } catch (err) {
+        console.error('Error fetching related tours:', err);
+      }
+    };
+
+    fetchRelatedTours();
   }, [tour]);
   
   // Function to navigate through images
@@ -509,7 +559,7 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Group Size</span>
-                  <span className="meta-value">{tour.groupSize} Travellers</span>
+                  <span className="meta-value">{tour.groupSize} </span>
                 </div>
               </div>
             </div>
@@ -550,8 +600,8 @@ const TourDetails = () => {
                 <div className="confusion-section">
                   <h3>Have confusion?</h3>
                   <p>Feel free to call us with any questions or uncertainties.</p>
-                  <a href="https://wa.me/9700664343" className="whatsapp-link">
-                    <FaWhatsapp /> 9802392709
+                  <a href="https://wa.me/+9779840007310" className="whatsapp-link">
+                    <FaWhatsapp /> 9840007310
                   </a>
                 </div>
               </div>
@@ -690,28 +740,6 @@ const TourDetails = () => {
                 </div>
               </div>
 
-              {/* Additional Information */}
-              <div className="additional-info">
-                <h2>Additional Information</h2>
-                
-
-                
-                {tour.visaRequirements && (
-                  <div className="info-item">
-                    <h3><FaPassport /> Visa Requirements</h3>
-                    <p>{tour.visaRequirements}</p>
-                  </div>
-                )}
-                
-                {tour.cancellationPolicy && (
-                  <div className="info-item">
-                    <h3>Cancellation Policy</h3>
-                    <p>{tour.cancellationPolicy}</p>
-                  </div>
-                )}
-              </div>
-
-
             </div>
 
             <div className="tour-sidebar">
@@ -724,23 +752,55 @@ const TourDetails = () => {
       {relatedTours && relatedTours.length > 0 && (
         <div className="related-tours-section">
           <h2 className="related-title">Discover Similar Tours You'll Love</h2>
-          <div className="related-tours-grid">
-            {relatedTours.map((rt) => (
-              <Link
-                key={rt.id}
-                to={`/tour/${rt.id}`}
-                className="related-tour-card"
-              >
-                <div className="related-tour-image" style={{backgroundImage:`url(${rt.imageCover})`}} />
-                <div className="related-tour-content">
-                  <h3 className="related-tour-name">{rt.name}</h3>
-                  <div className="related-tour-meta">
-                    <span><FaMapMarkerAlt/> {rt.country}</span>
-                    <span><FaCalendarAlt/> {rt.duration || rt.days || '?'} Days</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          <div className="related-swiper-wrapper">
+            <div className="custom-nav-btn prev" ref={prevRelatedRef}><FaChevronLeft/></div>
+            <div className="custom-nav-btn next" ref={nextRelatedRef}><FaChevronRight/></div>
+
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              navigation={{ prevEl: prevRelatedRef.current, nextEl: nextRelatedRef.current }}
+              onInit={(swiper)=>{swiper.params.navigation.prevEl=prevRelatedRef.current;swiper.params.navigation.nextEl=nextRelatedRef.current;swiper.navigation.init();swiper.navigation.update();}}
+              spaceBetween={20}
+              loop={relatedTours.length>3}
+              breakpoints={{
+                0: { slidesPerView: 1.2 },
+                480: { slidesPerView: 2 },
+                768: { slidesPerView: 3 },
+                992: { slidesPerView: 4 }
+              }}
+              grabCursor={true}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              className="related-tours-swiper"
+            >
+              {relatedTours.map((rt) => (
+                <SwiperSlide key={rt._id || rt.id}>
+                  <Link to={`/tours/${rt._id || rt.id}`} className="tour-card">
+                    <div className="tour-image">
+                      <img
+                        src={rt.coverImage || rt.imageCover || '/images/placeholder.jpg'}
+                        alt={rt.title || rt.name}
+                      />
+                    </div>
+                    <div className="tour-info">
+                      <div className="tour-rating">
+                        <FaStar style={{ color: '#f39c12' }} />{' '}
+                        {Number(rt.ratingsAverage || 5).toFixed(1)}
+                      </div>
+                      <h3 className="tour-name">{rt.title || rt.name}</h3>
+                      <div className="tour-location">
+                        <FaMapMarkerAlt />
+                        <span>
+                          {(rt.destination && rt.destination.country) || rt.country}
+                        </span>
+                      </div>
+                      <div className="tour-duration-info">
+                        <FaCalendarAlt /> {rt.duration || rt.days || rt.nights || '?'} Days
+                      </div>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       )}

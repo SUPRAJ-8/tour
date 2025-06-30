@@ -39,6 +39,7 @@ import PrivateRoute from './components/routing/PrivateRoute';
 import { useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import LoadingScreen from './components/LoadingScreen';
+import WhatsAppButton from './components/WhatsAppButton';
 
 // Layout wrapper component to conditionally render navbar and footer
 const MainLayout = ({ children }) => (
@@ -113,6 +114,7 @@ function App() {
         <Route path="/countries/:continent/:countryName" element={<MainLayout><CountryDetails /></MainLayout>} />
         <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
         </Routes>
+        <WhatsAppButton />
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       </DataProvider>
     </div>
