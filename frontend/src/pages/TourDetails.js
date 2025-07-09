@@ -102,7 +102,7 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                   <div className="detail-item">
                     <img src="images/icons/calendar.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Duration:</span>
-                    <span>{tour.nights} Nights - {tour.days} Days</span>
+                    <span>{tour.type === 'visa' ? (tour.duration || '') : `${tour.nights} Nights - ${tour.days} Days`}</span>
                   </div>
                   <div className="detail-item">
                     <img src="images/icons/weather.svg" alt="" className="detail-icon" />
@@ -121,8 +121,8 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
               <div className="confusion-section modal-confusion">
                 <h3>Have confusion?</h3>
                 <p>Feel free to call us with any questions or uncertainties.</p>
-                <a href="https://wa.me/+9779840007310" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
-                  <FaWhatsapp /> 9840007310
+                <a href="https://wa.me/+9779765198757" className="whatsapp-link" target="_blank" rel="noopener noreferrer">
+                  <FaWhatsapp /> +9779765198757
                 </a>
               </div>
             </div>
@@ -289,6 +289,7 @@ const TourDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tour, setTour] = useState(null);
+  const [isVisa, setIsVisa] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -299,35 +300,68 @@ const TourDetails = () => {
   const { isAuthenticated, user } = useAuth();
   const { tours } = useData();
 
-  useEffect(() => {
-    const fetchTourData = async () => {
-      if (!id) return;
-      
-      setLoading(true);
-      setError(null);
-      
+  // Fetch tour or visa by ID
+  const fetchTourData = async () => {
+    if (!id) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      let fetchedTour = null;
+
+      // Try tour endpoint first; if it fails for any reason, fall back to visa
       try {
-        console.log('Fetching tour with ID:', id);
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        const response = await axios.get(`${apiUrl}/api/tours/${id}`);
-        
-        console.log('Tour API response:', response.data);
-        
-        if (response.data.success) {
-          setTour(response.data.data);
-        } else {
-          setError(response.data.message || 'Tour not found');
+        const tourResp = await axios.get(`${apiUrl}/api/tours/${id}`);
+        if (tourResp.data?.success) {
+          fetchedTour = tourResp.data.data;
         }
       } catch (err) {
-        console.error('Error fetching tour:', err);
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch tour details';
-        console.error('Error message:', errorMessage);
-        setError(errorMessage);
-      } finally {
-        setLoading(false);
+        // Log but continue to attempt visa endpoint
+        console.warn('Tour fetch failed, trying visa endpoint', err?.response?.status);
       }
-    };
 
+      // Fallback to visa endpoint
+      if (!fetchedTour) {
+        try {
+          const visaResp = await axios.get(`${apiUrl}/api/visas/${id}`);
+          const visaRaw = visaResp.data?.data || visaResp.data; // handle different shapes
+          const visa = visaRaw?.data || visaRaw; // support nested data
+          if (visa) {
+            fetchedTour = {
+              ...visa,
+              title: visa.tourPackageName || visa.title || 'Working Visa',
+              destination: { country: visa.destination || visa.country },
+              coverImage: visa.mainCoverImage || visa.coverImage,
+              images: visa.heroImages || visa.images || [],
+              nights: visa.nights || 0,
+            type: 'visa',
+          groupSize: visa.groupSize || visa.group_size || '',
+          bestSeason: visa.bestSeason || visa.best_season || '',
+              days: visa.days || 0,
+            };
+          }
+        } catch (visaErr) {
+          // ignore, will handle below
+        }
+      }
+
+      if (fetchedTour) {
+        setTour(fetchedTour);
+        setIsVisa(fetchedTour.type === 'visa');
+      } else {
+        setError('Tour or Visa not found');
+      }
+    } catch (err) {
+      console.error('Error fetching details:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to fetch details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTourData();
   }, [id]);
 
@@ -339,17 +373,30 @@ const TourDetails = () => {
     const fetchRelatedTours = async () => {
       try {
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        const response = await axios.get(`${apiUrl}/api/tours`);
+        const endpoint = (tour && (tour.type === 'visa' || isVisa)) ? '/api/visas' : '/api/tours';
+    const response = await axios.get(`${apiUrl}${endpoint}`);
 
-        // Normalise the response to an array
+        // Normalise the response to an array (handles various shapes)
         let allTours = [];
-        if (Array.isArray(response.data)) {
-          allTours = response.data;
-        } else if (response.data && Array.isArray(response.data.data)) {
-          allTours = response.data.data;
-        } else if (response.data && typeof response.data === 'object') {
-          allTours = [response.data];
+        const resData = response.data;
+        if (Array.isArray(resData)) {
+          allTours = resData;
+        } else if (Array.isArray(resData?.data)) {
+          allTours = resData.data;
+        } else if (Array.isArray(resData?.data?.data)) {
+          allTours = resData.data.data;
+        } else if (resData && typeof resData === 'object') {
+          allTours = [resData];
         }
+
+        // Map each tour/visa to ensure a consistent `coverImage` field for rendering
+        allTours = allTours.map(t => ({
+          ...t,
+          coverImage: t.coverImage || t.mainCoverImage || t.imageCover || t.image_cover || t.image_cover_url || '',
+          title: t.title || t.tourPackageName || t.name || 'Untitled',
+          destination: (typeof t.destination === 'string' ? { country: t.destination } : t.destination) || (t.country ? { country: t.country } : undefined),
+          country: t.country || (typeof t.destination === 'string' ? t.destination : (t.destination && t.destination.country)) || ''
+        }));
 
         // Exclude the current tour from suggestions
         allTours = allTours.filter(
@@ -370,6 +417,10 @@ const TourDetails = () => {
             filtered = countryMatches;
           }
         }
+        // If still empty, use the entire list except current
+        if (filtered.length === 0) {
+          filtered = allTours;
+        }
 
         // Shuffle (Fisher–Yates)
         for (let i = filtered.length - 1; i > 0; i--) {
@@ -377,7 +428,34 @@ const TourDetails = () => {
           [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
         }
 
-        setRelatedTours(filtered.slice(0, 6));
+        // If no items found for visas, fallback to tours list
+        if (filtered.length === 0 && endpoint === '/api/visas') {
+          try {
+            const toursResp = await axios.get(`${apiUrl}/api/tours`);
+            let tourRes = toursResp.data;
+            let tourList = [];
+            if (Array.isArray(tourRes)) {
+              tourList = tourRes;
+            } else if (Array.isArray(tourRes?.data)) {
+              tourList = tourRes.data;
+            } else if (Array.isArray(tourRes?.data?.data)) {
+              tourList = tourRes.data.data;
+            }
+            tourList = tourList.filter((t) => (t._id || t.id) !== (tour._id || tour.id));
+            // simple shuffle
+            for (let i = tourList.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [tourList[i], tourList[j]] = [tourList[j], tourList[i]];
+            }
+            filtered = tourList.slice(0,6);
+          } catch(err) {
+            console.error('Fallback tour fetch failed:', err);
+          }
+        }
+
+        const finalList = filtered.slice(0,6);
+        console.log('Related items found:', finalList.length, finalList);
+        setRelatedTours(finalList);
       } catch (err) {
         console.error('Error fetching related tours:', err);
       }
@@ -418,7 +496,7 @@ const TourDetails = () => {
 
   if (loading) {
     return (
-      <div className="tour-details-page">
+      <div className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
         <div className="container">
           <div className="loading-container">
             <div className="loading-spinner"></div>
@@ -431,7 +509,7 @@ const TourDetails = () => {
 
   if (error) {
     return (
-      <div className="tour-details-page">
+      <div className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
         <div className="container">
           <div className="error-container">
             <h2>Error</h2>
@@ -443,9 +521,10 @@ const TourDetails = () => {
     );
   }
 
+
   if (!tour) {
     return (
-      <div className="tour-details-page">
+      <div className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
         <div className="container">
           <div className="error-container">
             <h2>Tour Not Found</h2>
@@ -461,7 +540,7 @@ const TourDetails = () => {
   console.log('Rendering tour:', tour);
 
   return (
-    <section className="tour-details-page">
+    <section className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
       {/* Image Gallery */}
       <div className="tour-gallery-container">
         <div className="gallery-grid">
@@ -516,7 +595,9 @@ const TourDetails = () => {
           <div className="duration-badge">
             <FaCalendarAlt className="duration-icon" />
             <span>Duration</span>
-            <span className="duration-value">{tour.nights || 4} Nights - {tour.days || 5} Days</span>
+            <span className="duration-value">
+              {isVisa ? (tour.duration || '') : `${tour.nights} Nights - ${tour.days} Days`}
+            </span>
           </div>
           
           {/* Tour content wrapper for positioning */}
@@ -549,7 +630,9 @@ const TourDetails = () => {
                 </div>
                 <div className="meta-content">
                   <span className="meta-label">Duration</span>
-                  <span className="meta-value">{tour.nights} Nights - {tour.days} Days</span>
+                  <span className="meta-value">
+                    {isVisa ? (tour.duration || '') : `${tour.nights} Nights - ${tour.days} Days`}
+                  </span>
                 </div>
               </div>
 
@@ -600,8 +683,8 @@ const TourDetails = () => {
                 <div className="confusion-section">
                   <h3>Have confusion?</h3>
                   <p>Feel free to call us with any questions or uncertainties.</p>
-                  <a href="https://wa.me/+9779840007310" className="whatsapp-link">
-                    <FaWhatsapp /> 9840007310
+                  <a href="https://wa.me/+9779765198757" className="whatsapp-link">
+                    <FaWhatsapp /> +9779765198757
                   </a>
                 </div>
               </div>
@@ -613,9 +696,13 @@ const TourDetails = () => {
           <div className="tour-content">
                           <div className="tour-main">
                 {/* Tour Description */}
-              <div className="tour-description">
+              <div className="tour-description ql-editor">
                 <h2>Tour Overview</h2>
-                <p>{tour.description || `Experience the best of ${tour.title || 'this destination'} with our comprehensive tour package. This carefully crafted itinerary takes you through the most iconic landmarks and hidden gems, ensuring an unforgettable journey.`}</p>
+                {tour.description ? (
+                  <div className="rich-text" dangerouslySetInnerHTML={{ __html: tour.description }} />
+                ) : (
+                  <p>{`Experience the best of ${tour.title || 'this destination'} with our comprehensive tour package. This carefully crafted itinerary takes you through the most iconic landmarks and hidden gems, ensuring an unforgettable journey.`}</p>
+                )}
               </div>
 
               {/* Highlights Section */}
@@ -639,13 +726,15 @@ const TourDetails = () => {
               )}
 
               {/* Inclusions Section */}
+              {(!isVisa || ((tour.includes && tour.includes.some(item => item && item.trim() !== '')) || (tour.excludes && tour.excludes.some(item => item && item.trim() !== '')))) && (
               <div className="inclusions">
                 <h2>Inclusions</h2>
                 <div className="includes-excludes-grid">
+                  {tour.includes && tour.includes.some(item => item && item.trim() !== '') && (
                   <div className="includes-section">
                     <h3>What's Included</h3>
                     <ul className="includes-list">
-                      {tour.includes && tour.includes.map((item, index) => {
+                      {tour.includes.map((item, index) => {
                         const points = item.split(',,').map(point => point.trim()).filter(point => point !== '');
                         return points.map((point, pointIndex) => (
                           <li key={`${index}-${pointIndex}`}>
@@ -656,11 +745,13 @@ const TourDetails = () => {
                       }).flat()}
                     </ul>
                   </div>
+                  )}
 
+                  {tour.excludes && tour.excludes.some(item => item && item.trim() !== '') && (
                   <div className="excludes-section">
                     <h3>What's Not Included</h3>
                     <ul className="excludes-list">
-                      {tour.excludes && tour.excludes.map((item, index) => {
+                      {tour.excludes.map((item, index) => {
                         const points = item.split(',,').map(point => point.trim()).filter(point => point !== '');
                         return points.map((point, pointIndex) => (
                           <li key={`${index}-${pointIndex}`}>
@@ -671,8 +762,96 @@ const TourDetails = () => {
                       }).flat()}
                     </ul>
                   </div>
+                  )}
                 </div>
               </div>
+              )}
+
+              {/* Visa Headlines */}
+              {isVisa && tour.headlines && tour.headlines.length > 0 && (
+                <div className="visa-section visa-headlines">
+                  {tour.headlines.map((h, idx)=>(
+                    <div key={idx} className="visa-headline-item">
+                      {h.title && <h2>{h.title}</h2>}
+                      {h.details && (
+                        <ul className="headline-details-list">
+                          {h.details.split(',,').map((d,i)=>(d.trim() && <li key={i}>{d.trim()}</li>))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Visa Specific Sections */}
+              {/* Job Opportunities Section */}
+              {/* Removed Job Opportunities section */
+/*
+                <div className="visa-section job-opportunities">
+                  <h2>Job Opportunities</h2>
+                  <ul>
+                    {tour.jobOpportunities.map((job, idx) => (
+                      <li key={idx}>{job}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* Removed Work Permit/Visa section */ /*
+                <div className="visa-section work-permit">
+                  <h2>Work Permit/Visa</h2>
+                  {tour.workPermitVisa && (
+                    <p>{tour.workPermitVisa}</p>
+                  )}
+                  
+                </div>
+              )}
+
+              {/* Existing sections */}
+              {/* Removed Common Sectors section */ /*
+                <div className="visa-section common-sectors">
+                  <h2>{tour.sectorsTitle || 'Common Sectors Available'}</h2>
+                  <ul>
+                    {tour.workPermitVisa.split(/\n|,,/).map((item, idx)=>(
+                      item.trim() && <li key={idx}>{item.trim()}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Removed Requirements section */ /*
+                <div className="visa-section req-to-work">
+                  <h2>{tour.requirementsTitle || 'Requirements to Work'}</h2>
+                  <ul>
+                    {tour.requirements.map((req, idx)=>{
+                      const points=req.split(',,').map(p=>p.trim()).filter(Boolean);
+                      return points.map((p,i)=>(<li key={`${idx}-${i}`}>{p}</li>));
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Removed Application Process section */ /*
+                <div className="visa-section app-process">
+                  <h2>{tour.applicationProcessTitle || 'Application Process'}</h2>
+                  <ul>
+                    {tour.importantNotes.map((note, idx)=>{
+                      const points=note.split(',,').map(p=>p.trim()).filter(Boolean);
+                      return points.map((p,i)=>(<li key={`${idx}-${i}`}>{p}</li>));
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {/* Removed Things to Keep in Mind section */ /*
+                <div className="visa-section keep-mind">
+                  <h2>Things to Keep in Mind</h2>
+                  <ul>
+                    {tour.culturalNotes.map((note, idx)=>{
+                      const points=note.split(',,').map(p=>p.trim()).filter(Boolean);
+                      return points.map((p,i)=>(<li key={`${idx}-${i}`}>{p}</li>));
+                    })}
+                  </ul>
+                </div>
+              )}
 
               {/* Travel Tips */}
               {tour.travelTips && tour.travelTips.length > 0 && (
@@ -690,55 +869,57 @@ const TourDetails = () => {
               )}
 
               {/* Tour Itinerary */}
-              <div className="tour-itinerary">
-                <h2>Itinerary</h2>
-                <div className="itinerary-days">
-                  {tour.itinerary && tour.itinerary.length > 0 ? (
-                    tour.itinerary.map((day, index) => (
-                      <div className={`itinerary-day ${openDays.includes(index)?'open':''}`} key={index}>
-                        <div className="day-header" onClick={() => toggleDay(index)}>
-                          <div className="header-text">
-                            <span className="day-number">DAY {String(index+1).padStart(2,'0')}</span>
-                           <h3 className="day-title">{day.title || day.dayTitle || `Day ${index+1}`}</h3>
-                          </div>
-                          <FaChevronDown className={`chevron ${openDays.includes(index)?'rotate':''}`} />
-                        </div>
-                        {openDays.includes(index) && (
-            <div className="day-content">
-                          {day.description && (
-                              <div className="rich-text" dangerouslySetInnerHTML={{ __html: day.description }} />
-                            )}
-                          {day.activities && day.activities.filter(a=>a && a.trim()!=='').length > 0 && (
-                            <div className="day-activities">
-                              <h4>Activities:</h4>
-                              <ul>
-                                {day.activities.map((activity, actIndex) => (
-                                  <li key={actIndex}>{activity}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                          {day.meals && (
-                            <div className="day-meals">
-                              <h4>Meals:</h4>
-                              <p>{day.meals}</p>
-                            </div>
-                          )}
-                          {day.accommodation && (
-                            <div className="day-accommodation">
-                              <h4>Accommodation:</h4>
-                              <p>{day.accommodation}</p>
-                            </div>
-                          )}
-                        </div>
-          )}
-        </div>
-                    ))
-                  ) : (
-                     <p>Detailed itinerary will be provided upon booking.</p>
-                   ) }
-                </div>
-              </div>
+               {(!isVisa || (tour.itinerary && tour.itinerary.length > 0)) && (
+               <div className="tour-itinerary">
+                 <h2>Itinerary</h2>
+                 <div className="itinerary-days">
+                   {tour.itinerary && tour.itinerary.length > 0 ? (
+                     tour.itinerary.map((day, index) => (
+                       <div className={`itinerary-day ${openDays.includes(index)?'open':''}`} key={index}>
+                         <div className="day-header" onClick={() => toggleDay(index)}>
+                           <div className="header-text">
+                             <span className="day-number">DAY {String(index+1).padStart(2,'0')}</span>
+                            <h3 className="day-title">{day.title || day.dayTitle || `Day ${index+1}`}</h3>
+                           </div>
+                           <FaChevronDown className={`chevron ${openDays.includes(index)?'rotate':''}`} />
+                         </div>
+                         {openDays.includes(index) && (
+             <div className="day-content">
+                           {day.description && (
+                               <div className="rich-text" dangerouslySetInnerHTML={{ __html: day.description }} />
+                             )}
+                           {day.activities && day.activities.filter(a=>a && a.trim()!=='').length > 0 && (
+                             <div className="day-activities">
+                               <h4>Activities:</h4>
+                               <ul>
+                                 {day.activities.map((activity, actIndex) => (
+                                   <li key={actIndex}>{activity}</li>
+                                 ))}
+                               </ul>
+                             </div>
+                           )}
+                           {day.meals && (
+                             <div className="day-meals">
+                               <h4>Meals:</h4>
+                               <p>{day.meals}</p>
+                             </div>
+                           )}
+                           {day.accommodation && (
+                             <div className="day-accommodation">
+                               <h4>Accommodation:</h4>
+                               <p>{day.accommodation}</p>
+                             </div>
+                           )}
+                         </div>
+           )}
+         </div>
+                     ))
+                   ) : (
+                      <p>Detailed itinerary will be provided upon booking.</p>
+                    ) }
+                 </div>
+               </div>
+               )}
 
             </div>
 
@@ -794,7 +975,8 @@ const TourDetails = () => {
                         </span>
                       </div>
                       <div className="tour-duration-info">
-                        <FaCalendarAlt /> {rt.duration || rt.days || rt.nights || '?'} Days
+                        <FaCalendarAlt />{' '}
+                        {rt.nights ? `${rt.nights} Nights - ${rt.days || ''} Days` : (rt.days ? `${rt.days} Days` : (rt.duration || '?'))}
                       </div>
                     </div>
                   </Link>

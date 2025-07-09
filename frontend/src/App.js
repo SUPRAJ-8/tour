@@ -15,7 +15,8 @@ import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Tours from './pages/Tours';
 import TourDetails from './pages/TourDetails';
-import TestTourDetails from './pages/TestTourDetails';
+import WorkingVisaDetails from './pages/WorkingVisaDetails';
+
 import TourDetail from './pages/TourDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -98,6 +99,9 @@ function App() {
         <Route path="/" element={<MainLayout><Home /></MainLayout>} />
         <Route path="/tours" element={<MainLayout><Tours /></MainLayout>} />
         <Route path="/tours/:id" element={<MainLayout><TourDetails /></MainLayout>} />
+<Route path="/working-visa/:id" element={<MainLayout><WorkingVisaDetails /></MainLayout>} />
+        
+          
         <Route path="/countries" element={<MainLayout><Countries /></MainLayout>} />
         <Route path="/countries/asia" element={<MainLayout><AsianCountries /></MainLayout>} />
         <Route path="/countries/europe" element={<MainLayout><EuropeanCountries /></MainLayout>} />

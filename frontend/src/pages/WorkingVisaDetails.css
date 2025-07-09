@@ -1,0 +1,26 @@
+
+/* Styles specific to the Working Visa detail view */
+
+/* Scope everything under the visa-details-page parent class added in TourDetails.js when viewing a visa */
+.visa-details-page {
+    /* Slightly different theme tint (e.g., primary blue) */
+    --visa-primary: Black;
+  }
+  
+  .visa-details-page h1,
+  .visa-details-page h2,
+  .visa-details-page h3 {
+    color: var(--visa-primary);
+  }
+  
+  .visa-details-page .booking-section {
+    display: none; /* hide booking section for visas by default */
+  }
+  
+  /* Badge override for requirements etc. */
+  .visa-details-page .requirements-list li::before {
+    content: "✔";
+    color: var(--visa-primary);
+    margin-right: 6px;
+  }
+  

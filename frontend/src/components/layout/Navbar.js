@@ -58,6 +58,11 @@ const Navbar = () => {
             </Link>
           </li>
           <li className="navbar-item">
+            <Link to="/working-visa" className="navbar-link" onClick={() => setIsOpen(false)}>
+              Working Visa
+            </Link>
+          </li>
+          <li className="navbar-item">
             <Link to="/countries" className="navbar-link" onClick={() => setIsOpen(false)}>
               Countries
             </Link>

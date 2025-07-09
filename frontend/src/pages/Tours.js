@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Fuse from 'fuse.js';
 import { Link } from 'react-router-dom';
-import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire } from 'react-icons/fa';
+import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire, FaPassport } from 'react-icons/fa';
 import { fetchAllTours } from '../services/tourService';
 import RegionalToursList from '../components/RegionalToursList';
 import './Tours.css';
@@ -100,8 +100,8 @@ const Tours = () => {
         // First try to fetch tours from the Tour Management endpoint for the grid view
         try {
           // Try to fetch from the Tour Management API
-          console.log('Trying to fetch from Tour Management API...');
-          const managementResponse = await fetch(`${apiUrl}/api/tours/all`);
+          console.log('Trying primary tours endpoint...');
+          const managementResponse = await fetch(`${apiUrl}/api/tours`);
           const managementData = await managementResponse.json();
           console.log('Tour Management API Response:', managementData);
           
@@ -120,6 +120,24 @@ const Tours = () => {
           
           if (managementTours.length > 0) {
             console.log('Successfully fetched tours from Tour Management:', managementTours);
+            try {
+              const visaResp = await fetch(`${apiUrl}/api/visas`);
+              const visaJson = await visaResp.json();
+              const visasRaw = visaJson?.data?.data || visaJson?.data || [];
+              const visaAsTours = visasRaw.map(v => ({
+                ...v,
+                _id: v._id,
+                title: v.tourPackageName || v.title || 'Working Visa',
+                destination: { country: v.destination || v.country || 'N/A' },
+                coverImage: v.mainCoverImage,
+                days: v.days || 0,
+                nights: v.nights || 0,
+                type: 'visa'
+              }));
+              managementTours = [...managementTours, ...visaAsTours];
+            } catch (e) {
+              console.error('Failed to fetch visas:', e);
+            }
             setTours(managementTours);
             setLoading(false);
             return; // Exit if we successfully got tours from management
@@ -164,6 +182,25 @@ const Tours = () => {
           }
           
           console.log('Setting tours from regular API:', toursData);
+          // merge visas
+          try {
+            const visaResp = await fetch(`${apiUrl}/api/visas`);
+            const visaJson = await visaResp.json();
+            const visasRaw = visaJson?.data?.data || visaJson?.data || [];
+            const visaAsTours = visasRaw.map(v => ({
+              ...v,
+              _id: v._id,
+              title: v.tourPackageName || v.title || 'Working Visa',
+              destination: { country: v.destination || v.country || 'N/A' },
+              coverImage: v.mainCoverImage,
+              days: v.days || 0,
+              nights: v.nights || 0,
+              type: 'visa'
+            }));
+            toursData = [...toursData, ...visaAsTours];
+          } catch (e) {
+            console.error('Failed to fetch visas:', e);
+          }
           setTours(toursData);
         } catch (regularApiError) {
           console.log('Regular API failed, trying fallback endpoint');
@@ -190,7 +227,26 @@ const Tours = () => {
             }
             
             console.log('Setting tours from fallback API:', toursData);
-            setTours(toursData);
+           // before setting tours, fetch visas and merge
+          try {
+            const visaResp = await fetch(`${apiUrl}/api/visas`);
+            const visaJson = await visaResp.json();
+            const visasRaw = visaJson?.data?.data || visaJson?.data || [];
+            const visaAsTours = visasRaw.map(v => ({
+              ...v,
+              _id: v._id,
+              title: v.tourPackageName || v.title || 'Working Visa',
+              destination: { country: v.destination || v.country || 'N/A' },
+              coverImage: v.mainCoverImage,
+              days: v.days || 0,
+              nights: v.nights || 0,
+              type: 'visa'
+            }));
+            toursData = [...toursData, ...visaAsTours];
+          } catch (e) {
+            console.error('Failed to fetch visas:', e);
+          }
+          setTours(toursData);
           } catch (fallbackError) {
             console.log('All API endpoints failed:', fallbackError);
             
@@ -264,6 +320,19 @@ const Tours = () => {
   // Get all tours from regional data
   const getAllTours = () => {
     const allTours = [];
+
+    // include flat tours state first
+    if (tours && Array.isArray(tours)) {
+      tours.forEach(t => {
+        if (t) {
+          allTours.push({
+            ...t,
+            regionKey: t.regionKey || 'General',
+            countryName: (t.destination && t.destination.country) || t.country || 'Unknown'
+          });
+        }
+      });
+    }
     
     if (regionalTours && regionalTours.regions) {
       Object.keys(regionalTours.regions).forEach(regionKey => {
@@ -286,7 +355,9 @@ const Tours = () => {
       });
     }
     
-    return allTours;
+    // Deduplicate by id to avoid repeats when same tour exists in multiple sources
+    const uniqueTours = Array.from(new Map(allTours.map(t => [(t._id || t.id), t])).values());
+    return uniqueTours;
   };
   
   // Filter tours based on selected filters
@@ -645,23 +716,30 @@ const Tours = () => {
                       const isHottest = tour.hottestTour === true;
                       const isPopular = tour.popularTour === true;
                       const isFeatured = tour.featured === true;
+                      const isWorkingVisa = tour.type === 'visa';
                       
                       // For debugging
-                      if (tour.hottestTour || tour.popularTour || tour.featured) {
+                      if (tour.hottestTour || tour.popularTour || tour.featured || isWorkingVisa) {
                         console.log(`Tour ${tourName} badge status:`, {
                           hottestTour: tour.hottestTour,
                           popularTour: tour.popularTour,
                           featured: tour.featured,
-                          tourId: tourId
+                          tourId: tourId,
+                          workingVisa: isWorkingVisa
                         });
                       }
                       
-                      // Use the simpler /tours/:id pattern that is known to work
-                      const tourUrl = `/tours/${tourId}`;
+                      // Route visas to their dedicated path
+                      const tourUrl = isWorkingVisa ? `/working-visa/${tourId}` : `/tours/${tourId}`;
                       
                       return (
                         <Link to={tourUrl} key={tourId} className="tour-card">
                           {/* Display appropriate badge based on tour properties */}
+                          {isWorkingVisa && (
+                            <div className="tour-popular-badge working-visa-badge">
+                              <FaPassport /> Working Visa
+                            </div>
+                          )}
                           {isHottest && (
                             <div className="tour-popular-badge hottest-badge">
                               <FaFire /> Hottest Tour

@@ -335,10 +335,11 @@
   /* width: 304.39px; */
 }
 
-.tour-card:remove {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-}
+
+
+
+
+
 
 .tour-card a {
   text-decoration: none;
@@ -489,6 +490,10 @@
 }
 
 /* Featured Tour Badge */
+.tour-popular-badge.working-visa-badge {
+  background-color:#0077b6; /* blue */
+}
+
 .tour-popular-badge.featured-badge {
   background-color: darkorange; /* Default featured color */
 }
@@ -767,7 +772,6 @@
   .tour-image,
   .tour-image img {
     width: 100% !important;
-    height: auto !important;
   }
   .tours-grid-view {
     grid-template-columns: 1fr !important;

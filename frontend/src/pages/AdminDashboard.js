@@ -11,7 +11,8 @@ import {
   FaSignOutAlt,
   FaPlane,
   FaStar,
-  FaDollarSign
+  FaDollarSign,
+  FaPassport
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import ConfirmationModal from '../components/common/ConfirmationModal';
@@ -20,6 +21,7 @@ import CountryManagement from '../components/admin/CountryManagement';
 import TourManagement from '../components/admin/TourManagement';
 import BookingManagement from '../components/admin/BookingManagement';
 import UserManagement from '../components/admin/UserManagement';
+import WorkingVisaManagement from '../components/admin/WorkingVisaManagement';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -77,6 +79,9 @@ const AdminDashboard = () => {
           break;
         case 'users':
           await fetchUsers();
+          break;
+        case 'working-visa':
+          // No data fetching needed for this tab yet
           break;
         default:
           break;
@@ -629,6 +634,15 @@ const AdminDashboard = () => {
               </li>
               <li>
                 <button
+                  className={`admin-menu-item ${activeTab === 'working-visa' ? 'active' : ''}`}
+                  onClick={() => handleTabChange('working-visa')}
+                >
+                  <FaPassport />
+                  <span>Working Visa</span>
+                </button>
+              </li>
+              <li>
+                <button
                   className={`admin-menu-item ${activeTab === 'countries' ? 'active' : ''}`}
                   onClick={() => handleTabChange('countries')}
                 >
@@ -672,6 +686,7 @@ const AdminDashboard = () => {
             {activeTab === 'countries' && <CountryManagement />}
             {activeTab === 'bookings' && <BookingManagement />}
             {activeTab === 'users' && <UserManagement />}
+            {activeTab === 'working-visa' && <WorkingVisaManagement />}
           </div>
         </div>
       </div>

@@ -17,6 +17,7 @@ const destinationRoutes = require('./routes/destinations');
 const bookingRoutes = require('./routes/bookings');
 const countryRoutes = require('./routes/countries');
 const adminRoutes = require('./routes/admin');
+const visaRoutes = require('./routes/visaRoutes');
 
 const app = express();
 
@@ -75,6 +76,7 @@ app.use('/api/destinations', destinationRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/visas', visaRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -87,7 +89,8 @@ app.get('/', (req, res) => {
       destinations: '/api/destinations',
       bookings: '/api/bookings',
       countries: '/api/countries',
-      admin: '/api/admin',
+            admin: '/api/admin',
+      visas: '/api/visas',
       health: '/health'
     }
   });

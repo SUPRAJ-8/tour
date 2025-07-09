@@ -540,8 +540,8 @@ const TourDetail = () => {
               
               <div className="booking-contact">
                 <p>Need help? Contact us:</p>
-                <a href="tel:+9779876543210" className="contact-phone">+977 9876543210</a>
-                <a href="mailto:info@tours.com" className="contact-email">info@tours.com</a>
+                <a href="tel:015925842" className="contact-phone">+9779765198757</a>
+                <a href="mailto:zyphertourandtravel@gmail.com" className="contact-email">zyphertourandtravel@gmail.com</a>
               </div>
             </div>
           </div>

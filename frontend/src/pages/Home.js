@@ -7,6 +7,7 @@ import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt, FaChevronRig
 import PopularTours from '../components/PopularTours';
 import HottestTours from '../components/HottestTours';
 import FeaturedTours from '../components/FeaturedTours';
+import WorkingVisaCards from '../components/WorkingVisaCards';
 import './Home.css';
 import './Categories.css';
 
@@ -360,6 +361,9 @@ const Home = () => {
       
       {/* Featured Tours Section */}
       <FeaturedTours tours={featuredTours} />
+
+      {/* Working Visa Section */}
+      <WorkingVisaCards />
       
       {/* Categories Section */}
       <section className="section categories-section">

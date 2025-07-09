@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">Zypher Tour And Travels</h3>
+            <h3 className="footer-title">TravelTour</h3>
             <p className="footer-text">
               Discover the world with our premium travel experiences. We offer the best tours and travel packages to destinations worldwide.
             </p>
@@ -85,7 +85,7 @@ const Footer = () => {
 
         <div className="footer-bottom">
           <p>&copy; {currentYear} Zypher. All rights reserved.</p>
-          <p>Made with ❤️ by Supraj Shrestha</p>
+          <p> Made with ❤️ by Supraj Shrestha.</p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>

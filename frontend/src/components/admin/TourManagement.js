@@ -14,14 +14,14 @@ import './TourManagement.css';
 const quillModules = {
   toolbar: [
     [{ header: [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline'],
+    ['bold', 'italic', 'underline', { 'align': [] }],
     [{ list: 'ordered' }, { list: 'bullet' }],
     [{ color: ['#000000', '#111111', '#333333', '#666666', '#999999', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', false] }, { background: [] }],
     ['link', 'clean']
   ]
 };
 const quillFormats = [
-  'header', 'bold', 'italic', 'underline', 'list', 'bullet', 'color', 'background', 'link'
+  'header', 'bold', 'italic', 'underline', 'align', 'list', 'bullet', 'color', 'background', 'link'
 ];
 
 const TourManagement = () => {
@@ -59,7 +59,7 @@ const TourManagement = () => {
     maxGroupSize: '',
     difficulty: '',
     coverImage: '',
-    heroImages: [''],
+    heroImages: Array(5).fill(''),
     highlights: [''],
     includes: [''],
     excludes: [''],
@@ -385,7 +385,7 @@ const TourManagement = () => {
       maxGroupSize: '',
       difficulty: '',
       coverImage: '',
-      heroImages: [''],
+      heroImages: Array(5).fill(''),
       highlights: [''],
       includes: [''],
       excludes: [''],
@@ -410,7 +410,7 @@ const TourManagement = () => {
       destination: tour.destination?.country || '',
       description: tour.description || '',
       coverImage: tour.coverImage || '',
-      heroImages: tour.images?.length ? [...tour.images] : [''],
+      heroImages: (tour.images?.length ? [...tour.images] : []).concat(Array(5).fill('')).slice(0,5),
       days: tour.days || '',
       nights: tour.nights || '',
       groupSize: tour.groupSize || '',
@@ -817,13 +817,13 @@ const TourManagement = () => {
                 <div className="form-row">
                   <div className="form-group half-width">
                     <label>Description (Optional)</label>
-                    <textarea
-                      name="description"
+                    <ReactQuill
+                      modules={quillModules}
+                      formats={quillFormats}
+                      theme="snow"
                       value={formData.description}
-                      onChange={handleInputChange}
-                      rows="4"
-                      placeholder="Enter tour description"
-                    ></textarea>
+                      onChange={(value)=> setFormData(prev=>({...prev, description: value}))}
+                    />
                   </div>
                   <div className="form-group half-width">
                     <label>Main Cover Image URL</label>
@@ -851,7 +851,7 @@ const TourManagement = () => {
                 <div className="form-row">
                   <div className="form-group half-width">
                     <label>Hero Images (Up to 5 images)</label>
-                    {formData.heroImages.map((image, index) => (
+                    {[...formData.heroImages, ...Array(5 - formData.heroImages.length).fill('')].slice(0,5).map((image, index) => (
                       <div key={`hero-${index}`} className="array-input-group">
                         <input
                           type="text"
@@ -869,26 +869,9 @@ const TourManagement = () => {
                             }}
                           />
                         )}
-                        {index > 0 && (
-                          <button 
-                            type="button" 
-                            className="btn-remove"
-                            onClick={() => handleRemoveArrayItem('heroImages', index)}
-                          >
-                            Remove
-                          </button>
-                        )}
+
                       </div>
                     ))}
-                    {formData.heroImages.length < 5 && (
-                      <button 
-                        type="button" 
-                        className="btn-add"
-                        onClick={() => handleAddArrayItem('heroImages', '')}
-                      >
-                        Add Hero Image
-                      </button>
-                    )}
                   </div>
                   <div className="form-group half-width">
                     <label>Itinerary</label>
