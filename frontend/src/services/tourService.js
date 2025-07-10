@@ -11,7 +11,7 @@ export const fetchAllTours = async () => {
     
     try {
       console.log('Fetching from primary API endpoint...');
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost:5000
+      const apiUrl = process.env.REACT_APP_API_URL || ''; // Fallback to localhost:5000
       // For public routes, only get active tours
       const response = await axios.get(`${apiUrl}/api/tours`);
       console.log('Tour API Response:', response);
@@ -55,7 +55,7 @@ export const fetchAllTours = async () => {
       // Try fallback endpoint
       try {
         console.log('Fetching from fallback API endpoint...');
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost:5000
+        const apiUrl = process.env.REACT_APP_API_URL || ''; // Fallback to localhost:5000
         const fallbackResponse = await axios.get(`${apiUrl}/api/tours`);
         console.log('Fallback API Response:', fallbackResponse);
         
