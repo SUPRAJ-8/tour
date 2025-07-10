@@ -780,10 +780,20 @@
 }
 
 .loading {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
   color: #666;
   font-size: 1.1rem;
+}
+
+/* Ensure loader spans full width inside flex/grid container */
+.tours-grid-view .loading {
+  flex: 1 0 100%; /* take full row in flex layout */
+  width: 100%;
+  text-align: center;
 }
 
 .no-tours {

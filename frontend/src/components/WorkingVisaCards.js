@@ -89,7 +89,7 @@ const WorkingVisaCards = () => {
                 <Link to={`/tours/${visa._id || visa.id}`} className="popular-tour-card">
                   <div className="popular-tour-image">
                     <img src={visa.coverImage || '/images/placeholder.jpg'} alt={visa.title} />
-                    <div className="tour-popular-badge featured-badge"><FaPassport /> Working Visa</div>
+                    <div className="tour-popular-badge working-visa-badge"><FaPassport /> Working Visa</div>
                   </div>
                   <div className="popular-tour-content">
                     <div className="tour-rating">

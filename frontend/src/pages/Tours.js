@@ -357,7 +357,14 @@ const Tours = () => {
     
     // Deduplicate by id to avoid repeats when same tour exists in multiple sources
     const uniqueTours = Array.from(new Map(allTours.map(t => [(t._id || t.id), t])).values());
-    return uniqueTours;
+
+    // Shuffle using Fisher–Yates so tours appear in random order on each refresh
+    const shuffledTours = [...uniqueTours];
+    for (let i = shuffledTours.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledTours[i], shuffledTours[j]] = [shuffledTours[j], shuffledTours[i]];
+    }
+    return shuffledTours;
   };
   
   // Filter tours based on selected filters
@@ -693,7 +700,9 @@ const Tours = () => {
         {/* Tours Content */}
         <div className="tours-content">
           {loading ? (
-            <div className="loading">Loading tours...</div>
+            <div className="tours-grid-view">
+              <div className="loading">Loading tours...</div>
+            </div>
           ) : (
             <>
               {/* Grid View - All tours without any categorization */}
