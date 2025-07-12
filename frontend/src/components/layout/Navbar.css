@@ -172,6 +172,12 @@
 }
 
 @media (max-width: 768px) {
+  /* On mobile, always show dark text even on transparent navbar */
+  .navbar.transparent .navbar-link,
+  .navbar.transparent .navbar-logo {
+    color: #000 !important;
+    text-shadow:none;
+  }
   /* hamburger turns dark on white navbar */
   .navbar.scrolled .navbar-toggle {
     color: #000;

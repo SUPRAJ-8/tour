@@ -422,7 +422,7 @@
 }
 
 .info-item svg {
-  color: var(--primary-color);
+  color: #2563EBda;
 }
 
 .popular-tour-footer {
@@ -832,6 +832,10 @@
 
 
 @media (max-width: 576px) {
+  .tour-slide-content .tour-card-badge.hottest-tour{
+    top: -18px;
+  }
+
   .container {
     width: 100% !important;
     max-width: 100% !important;

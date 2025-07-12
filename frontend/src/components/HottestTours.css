@@ -31,6 +31,24 @@
   height: 100%;
 }
 
+/* Image wrapper & responsive hero image */
+.tour-slide-image-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 /* Tour Slide Styles */
 .tour-slide {
   height: 100vh;
@@ -46,9 +64,26 @@
   left: 0;
   width: 100%;
   height: 100%;
+  /* Keep the image filling the frame while centring the important part */
   background-size: cover;
-  background-position: center;
+  background-position: center center;
+  background-repeat: no-repeat;
   z-index: 1;
+}
+
+/* On very tall or mobile portrait screens, shift the image up slightly so the subject   
+   (often lower-third) stays visible after cropping. Adjust as needed per imagery. */
+@media (max-aspect-ratio: 3/4) {
+  .tour-slide-image {
+    background-position: center top;
+  }
+}
+
+/* Provide a minimum height for small devices so the hero doesn’t become too short */
+@media (max-width: 575px) {
+  .tour-slide {
+    min-height: 60vh;
+  }
 }
 
 .tour-slide-overlay {

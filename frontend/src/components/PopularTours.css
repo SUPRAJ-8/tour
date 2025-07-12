@@ -10,6 +10,21 @@
   margin-top: -80px; /* Ensure no gap with the hero section */
 }
 
+.swiper-pagination-fraction, .swiper-pagination-custom, .swiper-horizontal > .swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal{
+  display: none;
+}
+
+/* Remove default bootstrap/container margins for these sections */
+.popular-tours-section .container,
+.popular-tours-section.loading-section .container,
+.working-visa-section .container ,
+.why-choose-us-section .container{
+  margin: 0 50px;         
+  padding-bottom:20px;
+}
+
+/* Why Choose Us container – no outer margin */
+
 /* Main container for popular tours section with arrows */
 .popular-tours-container {
   display: flex;
@@ -54,7 +69,6 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   width: 416px; /* Adjusted card width */
   height: 423.6px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
   margin: 0;
   flex: 0 0 416px; /* Adjusted to new width */
 }
@@ -572,6 +586,18 @@ body.blurred {
 }
 
 @media (max-width: 576px) {
+
+  .btn{
+    margin-bottom: 70px;
+  }
+
+  .popular-tours-section .container,
+   .popular-tours-section.loading-section .container,
+    .working-visa-section .container, 
+    .why-choose-us-section .container{
+    margin: 0;
+  }
+
   .popular-tours-grid {
     grid-template-columns: 1fr;
   }

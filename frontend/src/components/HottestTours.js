@@ -149,13 +149,26 @@ const HottestTours = () => {
         <Slider {...sliderSettings}>
           {hottestTours.map((tour, index) => (
             <div key={tour._id || tour.id || index} className="tour-slide">
-              <div className="tour-slide-image" style={{ 
-                backgroundImage: `url("${tour.processedImageUrl || tour.coverImage || tour.imageCover || tour.mainCoverImage || tour.mainCoverImageURL || tour.image || tour.heroImage || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80'}")`,
-              }}></div>
+              <div className="tour-slide-image-wrapper">
+                <img
+                  src={tour.processedImageUrl || tour.coverImage || tour.imageCover || tour.mainCoverImage || tour.mainCoverImageURL || tour.image || tour.heroImage || 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=1050&q=80'}
+                  alt={tour.title || tour.name}
+                  className="hero-img"
+                />
+              </div>
               <div className="tour-slide-overlay"></div>
               <div className="tour-slide-content">
                 <div className="tour-card-badge hottest-tour"><FaFire style={{ marginRight: '5px', color: 'white' }} /> Hottest Tour</div>
-                <h1 className="tour-slide-title">{tour.title || tour.name}</h1>
+                {
+                  /* Show only first 8 words on mobile screens */
+                  (() => {
+                    const fullTitle = tour.title || tour.name;
+                    if (typeof window !== 'undefined' && window.innerWidth <= 576) {
+                      return <h1 className="tour-slide-title">{fullTitle.split(' ').slice(0, 8).join(' ')}</h1>;
+                    }
+                    return <h1 className="tour-slide-title">{fullTitle}</h1>;
+                  })()
+                }
                 <p className="tour-slide-description">{tour.description?.substring(0, 120) || 'Experience an unforgettable journey with our expertly crafted tour package'}...</p>
                 <div className="tour-slide-info">
                   <div className="slide-info-item">
