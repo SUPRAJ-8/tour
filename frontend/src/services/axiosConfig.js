@@ -9,32 +9,13 @@ import { getSampleTours, processSampleTours } from './tourService';
 // 2. Otherwise, when running the dev server on a LAN IP (e.g. 192.168.x.x:3000),
 //    use the same hostname but port 5000 so mobile devices hit the correct backend.
 // 3. Fallback to empty string so CRA dev proxy still works when using localhost.
-const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+// Decide axios baseURL
+// 1. Use REACT_APP_API_URL when provided (e.g. `.env`, Vercel)
+// 2. Otherwise leave blank so we rely on CRA dev-server proxy (package.json → "proxy")
+//    and same-origin requests in production builds.
+const baseURL = process.env.REACT_APP_API_URL || '';
 
-// Decide what fallback base URL to use when REACT_APP_API_URL is not supplied.
-//  – In production (or any HTTPS origin) we should stick to a relative path so the browser
-//    uses the same origin – this avoids mixed-content issues and lets the reverse-proxy
-//    handle /api routes.
-//  – During local development we still want to be able to hit the backend directly when
-//    the frontend is accessed via the LAN IP (e.g. 192.168.x.x:3000). In that case we
-//    assume the backend is running on port 5000 on the same host.
-let fallbackBase = '';
-if (process.env.NODE_ENV === 'development') {
-  // We are in the CRA dev server – allow direct calls to the LAN backend
-  if (host && host !== 'localhost' && host !== '127.0.0.1') {
-    fallbackBase = `http://${host}:5000`;
-  }
-}
-// For production (or when NODE_ENV is not explicitly set), fallbackBase remains
-// an empty string so axios will use the page's origin.
-
-
-// Apply the same baseURL globally so even plain `axios.get()` elsewhere uses the LAN backend
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || fallbackBase;
-
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || fallbackBase
-});
+const api = axios.create({ baseURL });
 
 // Removed baseURL to avoid duplicate '/api' prefix; relying on proxy for '/api' routes
 

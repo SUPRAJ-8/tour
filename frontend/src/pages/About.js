@@ -15,19 +15,19 @@ const About = () => {
       <div className="container">
         <div className="about-content">
           <div className="about-image">
-            <img src="/images/about-image.jpg" alt="About TravelTour" />
+            <img src="/images/logo.png" alt="About Zypher Tour And Travel" />
           </div>
           
           <div className="about-text">
             <h2>Our Story</h2>
             <p>
-              Zypher Tour And Travel was founded in 2023 with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
+              <b>Zypher Tour And Travel</b> was founded in <b>2023</b> with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
             </p>
             <p>
               We believe that travel has the power to transform lives, broaden perspectives, and create lasting connections between people and cultures. Our carefully curated tours are designed to provide authentic experiences that go beyond typical tourist attractions.
             </p>
             <p>
-              Over the years, we've helped thousands of travelers discover new destinations, create unforgettable memories, and develop a deeper appreciation for the diverse cultures and landscapes our world has to offer.
+              Over the years, we've helped <b>thousands of travelers</b> discover new destinations, create unforgettable memories, and develop a deeper appreciation for the diverse <b>cultures and landscapes</b> our world has to offer.
             </p>
           </div>
         </div>
@@ -77,54 +77,7 @@ const About = () => {
           </div>
         </div>
 
-        <div className="team-section">
-          <h2 className="section-title">Our Team</h2>
-          <div className="team-grid">
-            <div className="team-member">
-              <div className="member-image">
-                <img src="/images/team-1.jpg" alt="John Doe" />
-              </div>
-              <h3>John Doe</h3>
-              <p className="member-role">Founder & CEO</p>
-              <p className="member-bio">
-                With over 20 years of experience in the travel industry, John founded TravelTour with a vision to create meaningful travel experiences.
-              </p>
-            </div>
-            
-            <div className="team-member">
-              <div className="member-image">
-                <img src="/images/team-2.jpg" alt="Jane Smith" />
-              </div>
-              <h3>Jane Smith</h3>
-              <p className="member-role">Head of Operations</p>
-              <p className="member-bio">
-                Jane ensures that every tour runs smoothly, from planning to execution, with a focus on quality and customer satisfaction.
-              </p>
-            </div>
-            
-            <div className="team-member">
-              <div className="member-image">
-                <img src="/images/team-3.jpg" alt="Michael Johnson" />
-              </div>
-              <h3>Michael Johnson</h3>
-              <p className="member-role">Lead Tour Designer</p>
-              <p className="member-bio">
-                Michael combines his passion for travel with deep cultural knowledge to create unique and authentic tour experiences.
-              </p>
-            </div>
-            
-            <div className="team-member">
-              <div className="member-image">
-                <img src="/images/team-4.jpg" alt="Sarah Williams" />
-              </div>
-              <h3>Sarah Williams</h3>
-              <p className="member-role">Customer Relations Manager</p>
-              <p className="member-bio">
-                Sarah is dedicated to providing exceptional customer service and ensuring that every traveler's needs are met.
-              </p>
-            </div>
-          </div>
-        </div>
+        
 
         <div className="cta-section">
           <div className="cta-content">

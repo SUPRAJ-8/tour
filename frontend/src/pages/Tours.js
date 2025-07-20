@@ -73,13 +73,36 @@ const Tours = () => {
     return stars;
   };
   
-  // Format duration as "X Days Y Nights"
+  // Format duration, trying multiple fallbacks so that visas and tours always show meaningful info
   const formatDuration = (tour) => {
-    const { days, nights } = tour;
-    if (!days || !nights || isNaN(days) || isNaN(nights)) {
-      return <span>? Days ? Nights</span>;
+    // 1. If backend already provides a formatted duration string, use it directly
+    if (tour.duration && typeof tour.duration === 'string') {
+      return <span>{tour.duration}</span>;
     }
-    return <span>{nights} Nights - {days} Days</span>;
+
+    const { days, nights } = tour;
+
+    // Convert to numbers in case they come as strings
+    const d = Number(days);
+    const n = Number(nights);
+
+    // 2. If both days and nights are valid positive integers
+    if (!isNaN(d) && !isNaN(n) && d > 0 && n > 0) {
+      return <span>{n} Nights - {d} Days</span>;
+    }
+
+    // 3. If only days is present and valid
+    if (!isNaN(d) && d > 0) {
+      return <span>{d} Days</span>;
+    }
+
+    // 4. If only nights is present and valid
+    if (!isNaN(n) && n > 0) {
+      return <span>{n} Nights</span>;
+    }
+
+    // 5. Fallback placeholder when no duration data is available
+    return <span>? Days</span>;
   };
 
   useEffect(() => {
