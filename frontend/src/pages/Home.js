@@ -10,6 +10,7 @@ import FeaturedTours from '../components/FeaturedTours';
 import WorkingVisaCards from '../components/WorkingVisaCards';
 import './Home.css';
 import './Categories.css';
+import { Helmet } from 'react-helmet';
 
 
 
@@ -353,6 +354,11 @@ const Home = () => {
 
   return (
     <div className="home">
+      <Helmet>
+        <title>Explore Tours | Home</title>
+        <link rel="canonical" href="https://suprajshrestha.com.np/" />
+        <meta name="description" content="Discover hottest and popular tours around the world." />
+      </Helmet>
       {/* Hottest Tours Section */}
       <HottestTours />
 
