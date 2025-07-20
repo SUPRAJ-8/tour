@@ -498,8 +498,7 @@
 }
 
 .custom-nav-btn:hover {
-  background-color: #94b3ca;
-  color: white;
+  background-color: #0095ff;
 }
 
 .custom-nav-btn.prev {
@@ -514,6 +513,10 @@
 .custom-nav-btn svg {
   font-size: 20px;
   color: #0095ff;
+}
+
+.custom-nav-btn svg:hover {
+  color: white;
 }
 
 /* Full-page loading overlay reusing global loader */
