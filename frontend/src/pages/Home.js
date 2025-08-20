@@ -356,7 +356,7 @@ const Home = () => {
     <div className="home">
       <Helmet>
         <title>Explore Tours | Home</title>
-        <link rel="canonical" href="https://suprajshrestha.com.np/" />
+        <link rel="canonical" href="https://zyphertours.com/" />
         <meta name="description" content="Discover hottest and popular tours around the world." />
       </Helmet>
       {/* Hottest Tours Section */}

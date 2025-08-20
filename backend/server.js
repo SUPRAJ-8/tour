@@ -51,8 +51,8 @@ const allowedOrigins = [
   process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://suprajshrestha.com.np',
-  'https://www.suprajshrestha.com.np'
+  'https://zyphertours.com',
+  'https://www.zyphertours.com'
 ].filter(Boolean);
 
 app.use(cors({
