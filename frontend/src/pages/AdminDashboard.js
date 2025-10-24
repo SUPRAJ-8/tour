@@ -22,13 +22,14 @@ import TourManagement from '../components/admin/TourManagement';
 import BookingManagement from '../components/admin/BookingManagement';
 import UserManagement from '../components/admin/UserManagement';
 import WorkingVisaManagement from '../components/admin/WorkingVisaManagement';
+import { DashboardSkeleton } from '../components/admin/AdminSkeleton';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -62,7 +63,8 @@ const AdminDashboard = () => {
   }, [navigate, user, activeTab]);
 
   const fetchData = async () => {
-    setLoading(true);
+    // Only show loading if fetch takes longer than 200ms
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       switch(activeTab) {
         case 'dashboard':
@@ -90,6 +92,7 @@ const AdminDashboard = () => {
       console.error('Error fetching data:', error);
       toast.error(`Failed to load ${activeTab} data. Please try again.`);
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -336,7 +339,7 @@ const AdminDashboard = () => {
 
   const renderDashboardTab = () => {
     if (loading) {
-      return <div className="loading">Loading statistics...</div>;
+      return <DashboardSkeleton />;
     }
 
     return (

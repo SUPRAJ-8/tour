@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
+import { TableSkeleton } from './AdminSkeleton';
 import './TourManagement.css';
 
 // Quill toolbar configuration
@@ -31,7 +32,7 @@ const TourManagement = () => {
 
   // State definitions
   const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,8 +94,8 @@ const TourManagement = () => {
   }
 
   const fetchTours = useCallback(async (page = pagination.page) => {
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
-      setLoading(true);
       setError(null);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       
@@ -126,38 +127,12 @@ const TourManagement = () => {
         setTours([]);
         toast.error('Invalid response format from server');
       }
-    } catch (err) {
-      console.error('Error fetching tours:', err);
-      console.error('Error response:', err.response);
-      
-      let errorMessage = 'Failed to fetch tours. ';
-      
-      if (err.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.error('Error status:', err.response.status);
-        console.error('Error data:', err.response.data);
-        
-        if (err.response.status === 401) {
-          errorMessage += 'Please log in again.';
-          // Force logout on authentication error
-          logout();
-        } else {
-          errorMessage += err.response.data?.message || 'Please try again later.';
-        }
-      } else if (err.request) {
-        // The request was made but no response was received
-        console.error('No response received:', err.request);
-        errorMessage += 'No response from server. Please check your connection.';
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.error('Error setting up request:', err.message);
-        errorMessage += 'An unexpected error occurred.';
-      }
-      
-      setError(errorMessage);
-      setTours([]);
-    } finally {
+      clearTimeout(timeoutId);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching tours:', error);
+      setError(error.response?.data?.message || 'Failed to load tours');
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }, [pagination.page, pagination.limit, token, logout]);
@@ -630,7 +605,7 @@ const TourManagement = () => {
   const groupedTours = groupToursByCountry();
 
   if (loading) {
-    return <div className="loading">Loading tours...</div>;
+    return <TableSkeleton />;
   }
 
   if (error) {

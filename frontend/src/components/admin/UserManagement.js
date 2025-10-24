@@ -14,13 +14,14 @@ import {
   FaCalendarAlt,
   FaShieldAlt
 } from 'react-icons/fa';
+import { TableSkeleton } from './AdminSkeleton';
 import './AdminComponents.css';
 
 const UserManagement = () => {
   const { token } = useAuth();
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -45,7 +46,7 @@ const UserManagement = () => {
       return;
     }
   
-    setLoading(true);
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       const response = await axios.get(`${apiUrl}/api/admin/users`, {
         headers: {
@@ -53,9 +54,12 @@ const UserManagement = () => {
         }
       });
       setUsers(response.data);
+      clearTimeout(timeoutId);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching users:', error);
-    } finally {
+      toast.error('Failed to load users');
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -90,16 +94,20 @@ const UserManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       await axios.patch(`${apiUrl}/api/admin/users/${currentUser._id}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('User updated successfully!');
       fetchUsers();
-      closeModal();
+      clearTimeout(timeoutId);
+      setLoading(false);
     } catch (error) {
       console.error('Error updating user:', error);
       toast.error('Failed to update user. Please try again.');
+      clearTimeout(timeoutId);
+      setLoading(false);
     }
   };
   
@@ -148,7 +156,7 @@ const UserManagement = () => {
   };
   
   if (loading) {
-    return <div className="loading">Loading users...</div>;
+    return <TableSkeleton />;
   }
   
   return (

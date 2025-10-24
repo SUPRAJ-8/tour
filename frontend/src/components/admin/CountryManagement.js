@@ -149,7 +149,7 @@ const FlagImage = ({ countryName, flagImageUrl }) => {
 
 const CountryManagement = () => {
   const { countries, dataLoading, addCountry, updateCountry, deleteCountry, refreshData } = useData();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [continentFilter, setContinentFilter] = useState("all");

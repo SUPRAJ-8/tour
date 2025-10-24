@@ -18,11 +18,12 @@ import {
 import './AdminComponents.css';
 import BookingFormFields from './BookingFormFields';
 import { useAuth } from '../../context/AuthContext';
+import { TableSkeleton } from './AdminSkeleton';
 
 const BookingManagement = () => {
   const { token } = useAuth();
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterPayment, setFilterPayment] = useState('');
@@ -50,16 +51,18 @@ const BookingManagement = () => {
   }, []);
   
   const fetchBookings = async () => {
-    setLoading(true);
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       const response = await axios.get('/bookings', { headers: { Authorization: `Bearer ${token}` } });
       console.log('Admin GET /bookings response:', response.data);
       const fetchedBookings = response.data.data || response.data;
       setBookings(fetchedBookings);
+      clearTimeout(timeoutId);
+      setLoading(false);
     } catch (error) {
-      console.error('Error fetching bookings (admin):', error.response || error);
-      toast.error('Failed to load bookings. Check console for details.');
-    } finally {
+      console.error('Error fetching bookings:', error);
+      toast.error('Failed to load bookings');
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -273,7 +276,7 @@ const BookingManagement = () => {
   };
   
   if (loading) {
-    return <div className="loading">Loading bookings...</div>;
+    return <TableSkeleton />;
   }
   
   return (

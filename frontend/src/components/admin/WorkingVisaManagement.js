@@ -5,7 +5,8 @@ import { toast } from 'react-toastify';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import './WorkingVisaManagement.css';
+import './AdminComponents.css';
+import { TableSkeleton } from './AdminSkeleton';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -17,7 +18,7 @@ const WorkingVisaManagement = () => {
   const [countrySearchTerm, setCountrySearchTerm] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const filteredCountries = countries.filter(c => c.toLowerCase().includes(countrySearchTerm.toLowerCase()));
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentVisa, setCurrentVisa] = useState(null);
@@ -66,8 +67,8 @@ const WorkingVisaManagement = () => {
   }, [token]);
 
   const fetchVisas = useCallback(async () => {
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
-      setLoading(true);
       setError(null);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       const response = await axios.get(`${apiUrl}/api/visas`, {
@@ -75,12 +76,14 @@ const WorkingVisaManagement = () => {
       });
       // The API returns data in the shape: { data: { data: visas[] } }
       // So we need to access the nested `data` key to get the actual array
-      setVisas(response.data?.data?.data || []);
+      const visasData = response.data?.data?.data || [];
+      setVisas(visasData);
+      clearTimeout(timeoutId);
+      setLoading(false);
     } catch (err) {
-      setError('Failed to fetch visa information.');
-      toast.error('Failed to fetch visa information.');
-      console.error(err);
-    } finally {
+      console.error('Error fetching visas:', err);
+      setError('Failed to load visas');
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   }, [token]);
