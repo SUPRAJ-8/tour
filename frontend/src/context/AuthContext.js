@@ -9,7 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [loading, setLoading] = useState(false); // Temporarily set to false to skip loading
+  const [loading, setLoading] = useState(true); // Set to true to show skeleton during auth check
   const [error, setError] = useState(null);
 
   // Set axios default headers and base URL

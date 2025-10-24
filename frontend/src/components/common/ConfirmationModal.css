@@ -31,7 +31,7 @@
 }
 
 .modal-header.warning {
-  background-color: #ff9800;
+  background-color: #dc3545;
   color: white;
 }
 
@@ -71,7 +71,7 @@
 .modal-icon {
   font-size: 2rem;
   margin-right: 15px;
-  color: #ff9800;
+  color: #ff0000;
 }
 
 .modal-body p {
@@ -113,11 +113,11 @@
 }
 
 .btn-confirm.warning {
-  background-color: #ff9800;
+  background-color: #ff0000;
 }
 
 .btn-confirm.warning:hover {
-  background-color: #e68a00;
+  background-color: #9b0000;
 }
 
 .btn-confirm.danger {

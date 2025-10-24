@@ -3,32 +3,66 @@ import './AdminSkeleton.css';
 
 export const DashboardSkeleton = () => {
   return (
-    <div className="admin-skeleton">
-      {/* Stats Cards */}
-      <div className="skeleton-stats-grid">
-        <div className="skeleton-stat-card"></div>
-        <div className="skeleton-stat-card"></div>
-        <div className="skeleton-stat-card"></div>
-        <div className="skeleton-stat-card"></div>
+    <section className="admin-dashboard-page">
+      {/* Header Skeleton */}
+      <div className="admin-dashboard-header">
+        <div className="container">
+          <div className="skeleton-header-title"></div>
+          <div className="skeleton-user-info">
+            <div className="skeleton-user-name"></div>
+            <div className="skeleton-user-role"></div>
+          </div>
+        </div>
       </div>
 
-      {/* Charts/Tables Section */}
-      <div className="skeleton-content-grid">
-        <div className="skeleton-content-card">
-          <div className="skeleton-card-header"></div>
-          <div className="skeleton-table-row"></div>
-          <div className="skeleton-table-row"></div>
-          <div className="skeleton-table-row"></div>
-          <div className="skeleton-table-row"></div>
-        </div>
-        <div className="skeleton-content-card">
-          <div className="skeleton-card-header"></div>
-          <div className="skeleton-table-row"></div>
-          <div className="skeleton-table-row"></div>
-          <div className="skeleton-table-row"></div>
+      <div className="container">
+        <div className="admin-dashboard-content">
+          {/* Sidebar Skeleton */}
+          <div className="admin-sidebar">
+            <ul className="admin-menu">
+              {Array.from({ length: 7 }).map((_, index) => (
+                <li key={index}>
+                  <div className="skeleton-menu-item">
+                    <div className="skeleton-menu-icon"></div>
+                    <div className="skeleton-menu-text"></div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="admin-main">
+            <div className="admin-skeleton">
+              {/* Stats Cards */}
+              <div className="skeleton-stats-grid">
+                <div className="skeleton-stat-card"></div>
+                <div className="skeleton-stat-card"></div>
+                <div className="skeleton-stat-card"></div>
+                <div className="skeleton-stat-card"></div>
+              </div>
+
+              {/* Charts/Tables Section */}
+              <div className="skeleton-content-grid">
+                <div className="skeleton-content-card">
+                  <div className="skeleton-card-header"></div>
+                  <div className="skeleton-table-row"></div>
+                  <div className="skeleton-table-row"></div>
+                  <div className="skeleton-table-row"></div>
+                  <div className="skeleton-table-row"></div>
+                </div>
+                <div className="skeleton-content-card">
+                  <div className="skeleton-card-header"></div>
+                  <div className="skeleton-table-row"></div>
+                  <div className="skeleton-table-row"></div>
+                  <div className="skeleton-table-row"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

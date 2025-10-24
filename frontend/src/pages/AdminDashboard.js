@@ -208,44 +208,24 @@ const AdminDashboard = () => {
 
   const fetchTours = async () => {
     try {
-      // For development, simulate API call with mock data
-      // In production, uncomment the API call
-      // const response = await axios.get('/api/tours');
-      // return Array.isArray(response.data) ? response.data : [];
-      
-      // Mock data for development
-      return [
-        { _id: 't1', title: 'Bangkok Explorer', country: 'Thailand', duration: { days: 5, nights: 4 }, price: 1299, rating: 4.8 },
-        { _id: 't2', title: 'Phuket Adventure', country: 'Thailand', duration: { days: 7, nights: 6 }, price: 1599, rating: 4.6 },
-        { _id: 't3', title: 'Chiang Mai Trek', country: 'Thailand', duration: { days: 4, nights: 3 }, price: 899, rating: 4.9 },
-        { _id: 't4', title: 'Bali Paradise', country: 'Indonesia', duration: { days: 6, nights: 5 }, price: 1399, rating: 4.7 },
-        { _id: 't5', title: 'Vietnam Heritage', country: 'Vietnam', duration: { days: 8, nights: 7 }, price: 1799, rating: 4.5 }
-      ];
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/tours`);
+      const toursData = response.data?.data || response.data || [];
+      return Array.isArray(toursData) ? toursData : [];
     } catch (error) {
       console.error('Error fetching tours:', error);
-      toast.error('Failed to fetch tours data');
       return [];
     }
   };
 
   const fetchCountries = async () => {
     try {
-      // For development, simulate API call with mock data
-      // In production, uncomment the API call
-      // const response = await axios.get('/api/countries');
-      // return response.data;
-      
-      // Mock data for development
-      return [
-        { _id: 'c1', name: 'Thailand', continent: 'Asia' },
-        { _id: 'c2', name: 'Indonesia', continent: 'Asia' },
-        { _id: 'c3', name: 'Vietnam', continent: 'Asia' },
-        { _id: 'c4', name: 'Japan', continent: 'Asia' },
-
-      ];
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/countries`);
+      const countriesData = response.data?.data || response.data || [];
+      return Array.isArray(countriesData) ? countriesData : [];
     } catch (error) {
       console.error('Error fetching countries:', error);
-      toast.error('Failed to fetch countries data');
       return [];
     }
   };
@@ -268,57 +248,24 @@ const AdminDashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      // For development, simulate API call with mock data
-      // In production, uncomment the API call
-      // const response = await axios.get('/api/bookings');
-      // return response.data;
-      
-      // Generate random dates within the last 30 days
-      const getRandomDate = () => {
-        const now = new Date();
-        const daysAgo = Math.floor(Math.random() * 30);
-        now.setDate(now.getDate() - daysAgo);
-        return now;
-      };
-      
-      // Mock data for development with realistic booking data
-      return [
-        { _id: 'b1', user: { name: 'John Doe', email: 'john@example.com' }, tour: { _id: 't1', title: 'Bangkok Explorer' }, date: getRandomDate(), status: 'Confirmed', totalAmount: 1299, createdAt: getRandomDate() },
-        { _id: 'b2', user: { name: 'Jane Smith', email: 'jane@example.com' }, tour: { _id: 't2', title: 'Phuket Adventure' }, date: getRandomDate(), status: 'Pending', totalAmount: 1599, createdAt: getRandomDate() },
-        { _id: 'b3', user: { name: 'Mike Wilson', email: 'mike@example.com' }, tour: { _id: 't3', title: 'Chiang Mai Trek' }, date: getRandomDate(), status: 'Completed', totalAmount: 899, createdAt: getRandomDate() },
-        { _id: 'b4', user: { name: 'Sarah Johnson', email: 'sarah@example.com' }, tour: { _id: 't1', title: 'Bangkok Explorer' }, date: getRandomDate(), status: 'Confirmed', totalAmount: 2598, createdAt: getRandomDate() },
-        { _id: 'b5', user: { name: 'Robert Brown', email: 'robert@example.com' }, tour: { _id: 't4', title: 'Bali Paradise' }, date: getRandomDate(), status: 'Confirmed', totalAmount: 1399, createdAt: getRandomDate() },
-        { _id: 'b6', user: { name: 'Emily Davis', email: 'emily@example.com' }, tour: { _id: 't2', title: 'Phuket Adventure' }, date: getRandomDate(), status: 'Cancelled', totalAmount: 1599, createdAt: getRandomDate() },
-        { _id: 'b7', user: { name: 'Thomas Wilson', email: 'thomas@example.com' }, tour: { _id: 't5', title: 'Vietnam Heritage' }, date: getRandomDate(), status: 'Pending', totalAmount: 1799, createdAt: getRandomDate() },
-        { _id: 'b8', user: { name: 'Jennifer Lee', email: 'jennifer@example.com' }, tour: { _id: 't3', title: 'Chiang Mai Trek' }, date: getRandomDate(), status: 'Confirmed', totalAmount: 899, createdAt: getRandomDate() },
-        { _id: 'b9', user: { name: 'Michael Johnson', email: 'michael@example.com' }, tour: { _id: 't1', title: 'Bangkok Explorer' }, date: getRandomDate(), status: 'Completed', totalAmount: 1299, createdAt: getRandomDate() },
-        { _id: 'b10', user: { name: 'Lisa Anderson', email: 'lisa@example.com' }, tour: { _id: 't4', title: 'Bali Paradise' }, date: getRandomDate(), status: 'Confirmed', totalAmount: 1399, createdAt: getRandomDate() }
-      ];
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/bookings`);
+      const bookingsData = response.data?.data || response.data || [];
+      return Array.isArray(bookingsData) ? bookingsData : [];
     } catch (error) {
       console.error('Error fetching bookings:', error);
-      toast.error('Failed to fetch bookings data');
       return [];
     }
   };
 
   const fetchUsers = async () => {
     try {
-      // For development, simulate API call with mock data
-      // In production, uncomment the API call
-      // const response = await axios.get('/api/users');
-      // return response.data;
-      
-      // Mock data for development
-      return [
-        { _id: 'u1', name: 'John Doe', email: 'john@example.com', role: 'user' },
-        { _id: 'u2', name: 'Jane Smith', email: 'jane@example.com', role: 'user' },
-        { _id: 'u3', name: 'Admin User', email: 'admin@example.com', role: 'admin' },
-        { _id: 'u4', name: 'Sarah Johnson', email: 'sarah@example.com', role: 'user' },
-        { _id: 'u5', name: 'Mike Wilson', email: 'mike@example.com', role: 'user' }
-      ];
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await axios.get(`${apiUrl}/api/users`);
+      const usersData = response.data?.data || response.data || [];
+      return Array.isArray(usersData) ? usersData : [];
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Failed to fetch users data');
       return [];
     }
   };

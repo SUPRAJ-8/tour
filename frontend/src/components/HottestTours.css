@@ -52,12 +52,17 @@
   width:100%;
   height:100%;
   object-fit:cover;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   object-position: center;
   position: relative;
   z-index: 0;
+  /* High-quality smooth rendering for large hero images */
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Two-column layout */

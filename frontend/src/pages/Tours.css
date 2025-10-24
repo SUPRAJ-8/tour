@@ -356,12 +356,18 @@
   width: 304.39px;
   height: 189px;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.5s ease;
   display: block;
+  /* Image quality optimization */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .tour-card:hover .tour-image img {
-  transform: scale(1.08);
+  transform: scale(1.08) translateZ(0);
 }
 
 .tour-info {

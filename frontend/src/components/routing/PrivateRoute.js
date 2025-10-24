@@ -1,12 +1,13 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { DashboardSkeleton } from '../admin/AdminSkeleton';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <DashboardSkeleton />;
   }
 
   if (!isAuthenticated) {

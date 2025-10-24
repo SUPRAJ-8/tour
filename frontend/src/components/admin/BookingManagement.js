@@ -292,12 +292,7 @@ const BookingManagement = () => {
           </button>
         </div>
       </div>
-      
-      <div className="admin-actions">
-        <button className="btn btn-success add-booking-btn" onClick={handleAddBooking}>
-          <FaPlus /> Add Booking
-        </button>
-      </div>
+
       
       <div className="admin-filters">
         <div className="search-box">

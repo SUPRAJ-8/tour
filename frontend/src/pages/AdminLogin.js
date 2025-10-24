@@ -180,6 +180,10 @@ const AdminLogin = () => {
                 {isSubmitting ? 'Logging in...' : 'Login'}
               </button>
             </form>
+            
+            <div className="back-link">
+              <Link to="/" className="back-button">Back to Main</Link>
+            </div>
           </>
         ) : (
           // Forgot Password Form
@@ -222,10 +226,6 @@ const AdminLogin = () => {
             </form>
           </>
         )}
-        
-        <div className="back-link">
-          <Link to="/" className="back-button">Back to Main</Link>
-        </div>
       </div>
     </div>
   );

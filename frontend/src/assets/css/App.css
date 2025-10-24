@@ -1,3 +1,11 @@
+/* Global Image Quality Optimization */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
 /* App Container */
 .app {
   display: flex;

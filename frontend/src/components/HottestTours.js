@@ -153,7 +153,7 @@ const HottestTours = () => {
                 <div className="tour-slide-content">
                   <div className="tour-card-badge hottest-tour"><FaFire style={{ marginRight: '5px', color: 'white' }} /> Hottest Tour</div>
                   <h1 className="tour-slide-title">{tour.title || tour.name}</h1>
-                  <p className="tour-slide-description">{tour.description?.substring(0, 120) || 'Experience an unforgettable journey with our expertly crafted tour package'}...</p>
+                  <p className="tour-slide-description">{(tour.description?.replace(/<[^>]*>/g, '') || 'Experience an unforgettable journey with our expertly crafted tour package').substring(0, 120)}...</p>
                   <div className="tour-slide-info">
                     <div className="slide-info-item">
                       <FaMapMarkerAlt />

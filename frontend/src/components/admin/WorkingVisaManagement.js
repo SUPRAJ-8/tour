@@ -66,7 +66,7 @@ const WorkingVisaManagement = () => {
     }
   }, [token]);
 
-  const fetchVisas = useCallback(async () => {
+  const fetchVisas = useCallback(async (showToast = false) => {
     const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       setError(null);
@@ -80,13 +80,23 @@ const WorkingVisaManagement = () => {
       setVisas(visasData);
       clearTimeout(timeoutId);
       setLoading(false);
+      if (showToast) {
+        toast.success('Visa data refreshed successfully!');
+      }
     } catch (err) {
       console.error('Error fetching visas:', err);
       setError('Failed to load visas');
       clearTimeout(timeoutId);
       setLoading(false);
+      if (showToast) {
+        toast.error('Failed to refresh visa data');
+      }
     }
   }, [token]);
+
+  const handleRefresh = () => {
+    fetchVisas(true);
+  };
 
   useEffect(() => {
     fetchVisas();
@@ -275,13 +285,13 @@ const WorkingVisaManagement = () => {
 
   return (
     <div className="admin-management-container">
-      <div className="admin-management-header">
+      <div className="admin-content-header">
         <h2>Working Visa Management</h2>
-        <div className="header-actions">
-            <button onClick={handleAddNewClick} className="action-btn add-btn">
+        <div className="header-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+            <button onClick={handleAddNewClick} className="btn-primary">
                 <FaPlus /> Add New Visa Info
             </button>
-            <button onClick={fetchVisas} className="action-btn refresh-btn" disabled={loading}>
+            <button onClick={handleRefresh} className="btn-refresh" disabled={loading}>
                 <FaSyncAlt className={loading ? 'rotating' : ''} /> Refresh
             </button>
         </div>
@@ -312,10 +322,30 @@ const WorkingVisaManagement = () => {
                             {visa.status}
                         </span>
                     </td>
-                    <td className="actions-cell">
-                      <button onClick={() => handleViewDetails(visa)} className="action-btn view-btn" title="View Details"><FaEye /></button>
-                      <button onClick={() => handleEditClick(visa)} className="action-btn edit-btn" title="Edit"><FaEdit /></button>
-                      <button onClick={() => handleDeleteClick(visa)} className="action-btn delete-btn" title="Delete"><FaTrash /></button>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="btn-action btn-view"
+                          title="View Visa"
+                          onClick={() => handleViewDetails(visa)}
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="btn-action btn-edit"
+                          title="Edit Visa"
+                          onClick={() => handleEditClick(visa)}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="btn-action btn-delete"
+                          title="Delete Visa"
+                          onClick={() => handleDeleteClick(visa)}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
