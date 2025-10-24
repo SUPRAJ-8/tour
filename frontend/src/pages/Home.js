@@ -8,6 +8,7 @@ import PopularTours from '../components/PopularTours';
 import HottestTours from '../components/HottestTours';
 import FeaturedTours from '../components/FeaturedTours';
 import WorkingVisaCards from '../components/WorkingVisaCards';
+import ToursSectionSkeleton from '../components/ToursSectionSkeleton';
 import './Home.css';
 import './Categories.css';
 import { Helmet } from 'react-helmet';
@@ -30,7 +31,7 @@ const Home = () => {
   const [allTours, setAllTours] = useState([]);
   const [hottestTours, setHottestTours] = useState([]);
   const [popularDestinations, setPopularDestinations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(Date.now());
   const [featuredTours, setFeaturedTours] = useState([]);
@@ -141,8 +142,9 @@ const Home = () => {
 
   useEffect(() => {
     const loadTourData = async () => {
+      // Only show skeleton if fetch takes longer than 200ms
+      const timeoutId = setTimeout(() => setLoading(true), 200);
       try {
-        setLoading(true);
         console.log('Loading tour data, lastRefresh:', lastRefresh);
         
         let toursToUse = [];
@@ -185,7 +187,7 @@ const Home = () => {
         if (toursToUse.length === 0) {
           console.log('No tour data available');
           setError('No tours available. Please try again later.');
-          setLoading(false); // Make sure to set loading to false even if no tours are found
+          // setLoading(false); // Temporarily disabled
           return;
         }
         
@@ -210,11 +212,14 @@ const Home = () => {
         
         // Set all tours and update loading state
         setAllTours(toursToUse);
+        clearTimeout(timeoutId);
         setLoading(false);
       } catch (error) {
         console.error('Error loading tour data:', error);
         setError('Failed to load tours. Please try again later.');
+        clearTimeout(timeoutId);
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
@@ -308,7 +313,7 @@ const Home = () => {
         setPopularDestinations([]);
       } finally {
         // Always set loading to false when data processing is complete
-        setLoading(false);
+        // setLoading(false); // Handled by first useEffect
       }
     }
   }, [tours, countries, dataLoading, getPopularTours, getCountriesByContinent, lastRefresh]);
@@ -338,8 +343,23 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading">Loading...</div>
+      <div className="home">
+        <Helmet>
+          <title>Explore Tours | Home</title>
+          <link rel="canonical" href="https://zyphertours.com/" />
+          <meta name="description" content="Discover hottest and popular tours around the world." />
+        </Helmet>
+        {/* Hottest Tours will load independently */}
+        <HottestTours />
+        
+        {/* Popular Tours Skeleton */}
+        <ToursSectionSkeleton title="Most Popular Tours" />
+        
+        {/* Featured Tours Skeleton */}
+        <ToursSectionSkeleton title="Featured Tours" />
+        
+        {/* Working Visa Skeleton */}
+        <ToursSectionSkeleton title="Working Visa Packages" />
       </div>
     );
   }

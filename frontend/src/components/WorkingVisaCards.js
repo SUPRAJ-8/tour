@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaMapMarkerAlt, FaStar, FaChevronLeft, FaChevronRight, FaPassport } from 'react-icons/fa';
 import { BsCalendar3 } from 'react-icons/bs';
+import ToursSectionSkeleton from './ToursSectionSkeleton';
 import './PopularTours.css';
 import '../pages/Tours.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,12 +14,15 @@ import axios from 'axios';
 
 const WorkingVisaCards = () => {
   const [visas, setVisas] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
   useEffect(() => {
     const fetchVisas = async () => {
+      // Only show skeleton if fetch takes longer than 200ms
+      const timeoutId = setTimeout(() => setLoading(true), 200);
       try {
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         const res = await axios.get(`${apiUrl}/api/visas`);
@@ -38,13 +42,21 @@ const WorkingVisaCards = () => {
         if (formatted.length > 0) {
           setInitialSlide(Math.floor(Math.random() * formatted.length));
         }
+        clearTimeout(timeoutId);
+        setLoading(false);
       } catch (err) {
         console.error('Failed to load visas', err);
+        clearTimeout(timeoutId);
+        setLoading(false);
       }
     };
 
     fetchVisas();
   }, []);
+
+  if (loading) {
+    return <ToursSectionSkeleton title="Working Visa Packages" />;
+  }
 
   if (!visas || visas.length === 0) {
     return null; // Do not render the section if no visas

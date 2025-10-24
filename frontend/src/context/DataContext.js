@@ -37,14 +37,14 @@ export const DataProvider = ({ children }) => {
   // Shared state for the entire application
   const [tours, setTours] = useState([]);
   const [countries, setCountries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Temporarily disabled loading
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(Date.now());
 
   // Fetch all data on initial load and when lastUpdated changes
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      // setLoading(true); // Temporarily disabled
       setError(null);
 
       try {

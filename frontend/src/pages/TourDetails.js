@@ -9,6 +9,7 @@ import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock,
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
+import TourDetailsSkeleton from '../components/TourDetailsSkeleton';
 import './TourDetails.css';
 
 // Swiper for related tours
@@ -290,7 +291,7 @@ const TourDetails = () => {
   const navigate = useNavigate();
   const [tour, setTour] = useState(null);
   const [isVisa, setIsVisa] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showAllImages, setShowAllImages] = useState(false);
@@ -304,7 +305,8 @@ const TourDetails = () => {
   const fetchTourData = async () => {
     if (!id) return;
 
-    setLoading(true);
+    // Only show skeleton if fetch takes longer than 200ms
+    const timeoutId = setTimeout(() => setLoading(true), 200);
     setError(null);
 
     try {
@@ -357,6 +359,7 @@ const TourDetails = () => {
       console.error('Error fetching details:', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch details');
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -494,17 +497,9 @@ const TourDetails = () => {
     setShowBookingModal(true);
   };
 
-  if (loading) {
-    return (
-      <div className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
-        <div className="container">
-          <div className="loading-container">
-            <div className="loading-spinner"></div>
-            <p>Loading tour details...</p>
-          </div>
-        </div>
-      </div>
-    );
+  // Show skeleton while loading OR when tour is null and no error (initial state)
+  if (loading || (!tour && !error)) {
+    return <TourDetailsSkeleton />;
   }
 
   if (error) {
@@ -520,7 +515,6 @@ const TourDetails = () => {
       </div>
     );
   }
-
 
   if (!tour) {
     return (

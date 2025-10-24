@@ -29,13 +29,13 @@ const PrevArrow = (props) => {
 const HottestTours = () => {
   const [hottestTours, setHottestTours] = useState([]);
   const [initialSlide, setInitialSlide] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHottestTours = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         const response = await axios.get(`${apiUrl}/api/tours`);
         
@@ -92,13 +92,13 @@ const HottestTours = () => {
           console.log('No tours with valid destinations found');
         }
         
-        setLoading(false);
+        // setLoading(false);
       } catch (error) {
         console.error('Error fetching hottest tours:', error);
         
         setError('Failed to fetch hottest tours. Please try again later.');
         
-        setLoading(false);
+        // setLoading(false);
       }
     };
     

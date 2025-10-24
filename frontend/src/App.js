@@ -59,9 +59,10 @@ const AdminLayout = ({ children }) => (
 function App() {
   const { loading } = useAuth();
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  // Temporarily commented out loading screen
+  // if (loading) {
+  //   return <LoadingScreen />;
+  // }
 
   return (
     <div className="app">

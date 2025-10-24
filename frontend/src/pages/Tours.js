@@ -4,12 +4,13 @@ import { Link } from 'react-router-dom';
 import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire, FaPassport } from 'react-icons/fa';
 import { fetchAllTours } from '../services/tourService';
 import RegionalToursList from '../components/RegionalToursList';
+import TourCardSkeleton from '../components/TourCardSkeleton';
 import './Tours.css';
 
 const Tours = () => {
   const [tours, setTours] = useState([]);
   const [regionalTours, setRegionalTours] = useState({ regions: {}, countries: [] });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [rawSearch, setRawSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [country, setCountry] = useState('');  
@@ -107,8 +108,9 @@ const Tours = () => {
 
   useEffect(() => {
     const fetchTours = async () => {
+      // Only show skeleton if fetch takes longer than 200ms
+      const timeoutId = setTimeout(() => setLoading(true), 200);
       try {
-        setLoading(true);
         console.log('Starting to fetch tours...');
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000'; // Fallback to localhost:5000
         console.log('API URL:', apiUrl);
@@ -119,6 +121,11 @@ const Tours = () => {
         console.log('Regional tours data received:', regionalToursData);
         setRegionalTours(regionalToursData);
         setCountries(regionalToursData.countries);
+        
+        // Clear timeout early if we have regional data
+        if (regionalToursData && regionalToursData.countries && regionalToursData.countries.length > 0) {
+          clearTimeout(timeoutId);
+        }
         
         // First try to fetch tours from the Tour Management endpoint for the grid view
         try {
@@ -162,6 +169,7 @@ const Tours = () => {
               console.error('Failed to fetch visas:', e);
             }
             setTours(managementTours);
+            clearTimeout(timeoutId);
             setLoading(false);
             return; // Exit if we successfully got tours from management
           } else {
@@ -280,9 +288,11 @@ const Tours = () => {
           }
         }
         
+        clearTimeout(timeoutId);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tours:', error);
+        clearTimeout(timeoutId);
         setLoading(false);
         
         // If all else fails, use the tours from regionalTours
@@ -724,7 +734,9 @@ const Tours = () => {
         <div className="tours-content">
           {loading ? (
             <div className="tours-grid-view">
-              <div className="loading">Loading tours...</div>
+              {Array.from({ length: 9 }).map((_, index) => (
+                <TourCardSkeleton key={index} />
+              ))}
             </div>
           ) : (
             <>

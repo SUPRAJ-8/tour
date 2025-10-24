@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaStar, FaBolt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { BsCalendar3 } from 'react-icons/bs';
+import ToursSectionSkeleton from './ToursSectionSkeleton';
 import './PopularTours.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
@@ -12,15 +13,16 @@ import { Navigation, Pagination } from 'swiper/modules';
 
 const PopularTours = () => {
   const [popularTours, setPopularTours] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [initialSlide, setInitialSlide] = useState(0);
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
   useEffect(() => {
     const fetchPopularTours = async () => {
+      // Only show skeleton if fetch takes longer than 200ms
+      const timeoutId = setTimeout(() => setLoading(true), 200);
       try {
-        setLoading(true);
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
         const response = await axios.get(`${apiUrl}/api/tours`);
 
@@ -54,9 +56,11 @@ const PopularTours = () => {
         if (processed.length > 0) {
           setInitialSlide(Math.floor(Math.random() * processed.length));
         }
+        clearTimeout(timeoutId);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching popular tours:', error);
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
@@ -65,14 +69,7 @@ const PopularTours = () => {
   }, []);
 
   if (loading) {
-    return (
-      <section className="section popular-tours-section loading-section" role="status" aria-live="polite">
-        <div className="loading-overlay">
-          <div className="loading-spinner" />
-          <span className="loading-percent">Loading popular tours…</span>
-        </div>
-      </section>
-    );
+    return <ToursSectionSkeleton title="Most Popular Tours" />;
   }
 
   return (

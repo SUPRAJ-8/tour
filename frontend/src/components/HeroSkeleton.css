@@ -1,0 +1,114 @@
+.hero-skeleton {
+  width: 100%;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-slide {
+  display: flex !important;
+  gap: 2rem;
+  padding: 2rem;
+  min-height: 500px;
+}
+
+.skeleton-slide .tour-slide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.skeleton-badge {
+  width: 120px;
+  height: 28px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 20px;
+}
+
+.skeleton-hero-title {
+  width: 80%;
+  height: 48px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-hero-text {
+  width: 90%;
+  height: 20px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-hero-text.short {
+  width: 70%;
+}
+
+.tour-slide-info {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.skeleton-info-item {
+  width: 150px;
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-hero-button {
+  width: 140px;
+  height: 48px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.skeleton-hero-image {
+  flex: 1;
+  min-height: 400px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .skeleton-slide {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .skeleton-hero-image {
+    min-height: 250px;
+  }
+
+  .skeleton-hero-title {
+    width: 100%;
+    height: 36px;
+  }
+}
