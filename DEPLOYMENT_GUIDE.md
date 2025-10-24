@@ -85,7 +85,7 @@ Click **"Advanced"** → **"Add Environment Variable"** and add these:
 | `JWT_SECRET` | Random secret string (generate one) | `your-super-secret-jwt-key-12345` |
 | `JWT_EXPIRE` | `30d` | `30d` |
 | `PORT` | `5000` | `5000` |
-| `FRONTEND_URL` | Your Vercel URL (add after Step 3) | `https://your-app.vercel.app` |
+| `FRONTEND_URL` | Your domain URL | `http://zyphertours.com` or `https://zyphertours.com` |
 
 **To generate JWT_SECRET**, run this in terminal:
 ```bash
@@ -136,6 +136,7 @@ Click **"Environment Variables"** and add:
 1. Click **"Deploy"**
 2. Wait 2-3 minutes
 3. Copy your Vercel URL (e.g., `https://your-tour-app.vercel.app`)
+4. **Add Custom Domain**: In Vercel dashboard → Settings → Domains → Add `zyphertours.com`
 
 ---
 

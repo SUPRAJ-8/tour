@@ -81,6 +81,12 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 6. Click **"Deploy"**
 7. ✅ **Copy your frontend URL**: `https://your-app.vercel.app`
 
+8. **Add Custom Domain** (Optional):
+   - Go to **Settings** → **Domains**
+   - Add `zyphertours.com` and `www.zyphertours.com`
+   - Configure DNS records at your domain registrar
+   - See `CUSTOM_DOMAIN_SETUP.md` for detailed instructions
+
 ---
 
 ### 5️⃣ Update Backend with Frontend URL (1 minute)
@@ -90,9 +96,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 3. Go to **"Environment"** tab
 4. Add/Update:
    ```
-   FRONTEND_URL=<your-vercel-url>
+   FRONTEND_URL=<your-domain-or-vercel-url>
    ```
-   Example: `https://your-app.vercel.app`
+   Example: `https://zyphertours.com` or `https://your-app.vercel.app`
 5. Save → Render will auto-redeploy
 
 ---
