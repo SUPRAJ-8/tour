@@ -12,6 +12,7 @@ import ToursSectionSkeleton from '../components/ToursSectionSkeleton';
 import './Home.css';
 import './Categories.css';
 import { Helmet } from 'react-helmet';
+import StructuredData from '../components/StructuredData';
 
 
 
@@ -375,10 +376,12 @@ const Home = () => {
   return (
     <div className="home">
       <Helmet>
-        <title>Explore Tours | Home</title>
+        <title>Zypher Tours - Discover Amazing Travel Destinations & Tour Packages</title>
         <link rel="canonical" href="https://zyphertours.com/" />
-        <meta name="description" content="Discover hottest and popular tours around the world." />
+        <meta name="description" content="Explore the world with Zypher Tours. Book exclusive travel packages, guided tours, and unforgettable experiences across multiple countries. Best deals on adventure, cultural, and luxury tours." />
       </Helmet>
+      <StructuredData type="organization" />
+      <StructuredData type="website" />
       {/* Hottest Tours Section */}
       <HottestTours />
 
