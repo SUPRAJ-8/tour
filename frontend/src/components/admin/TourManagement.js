@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle, FaLink, FaUpload, FaCloudUploadAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../common/ConfirmationModal';
@@ -37,11 +37,9 @@ const TourManagement = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 10,
-    totalPages: 1
-  });
+  const [countryFilter, setCountryFilter] = useState('all');
+  const PAGE_SIZE = 5;
+  const [pagination, setPagination] = useState({ page: 1 });
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [tourToDelete, setTourToDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -76,6 +74,43 @@ const TourManagement = () => {
 
   const [formData, setFormData] = useState(initialFormState);
 
+  // Cover image input mode: 'link' | 'upload' | 'dragdrop'
+  const [coverImageTab, setCoverImageTab] = useState('link');
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [coverUploadError, setCoverUploadError] = useState('');
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  const handleCoverImageUpload = async (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setCoverUploadError('Please select an image file.');
+      return;
+    }
+
+    setCoverUploadError('');
+    setUploadingCover(true);
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const data = new FormData();
+      data.append('image', file);
+
+      const res = await axios.post(`${apiUrl}/api/upload`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setFormData(prev => ({ ...prev, coverImage: res.data.url }));
+      toast.success('Image uploaded successfully!');
+    } catch (err) {
+      console.error('Cover image upload failed:', err);
+      setCoverUploadError(err.response?.data?.message || 'Upload failed. Please try again.');
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
   // Delete handlers
   const handleDeleteClick = (tour) => {
     setTourToDelete(tour);
@@ -93,35 +128,32 @@ const TourManagement = () => {
     }
   }
 
-  const fetchTours = useCallback(async (page = pagination.page) => {
+  const fetchTours = useCallback(async () => {
     const timeoutId = setTimeout(() => setLoading(true), 200);
     try {
       setError(null);
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      
+
       if (!token) {
         setError('Please log in to view tours');
         setLoading(false);
         return;
       }
-      
+
+      // Admin view manages the full tour list client-side (search/status/country
+      // filtering and pagination all happen in the browser), so request a high
+      // limit here rather than relying on the API's default page size of 10.
       const response = await axios.get(`${apiUrl}/api/tours`, {
+        params: { limit: 1000 },
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.data && Array.isArray(response.data.data)) {
         const tours = response.data.data;
         setTours(tours);
-        
-        if (response.data.pagination) {
-          setPagination(prev => ({
-            ...prev,
-            ...response.data.pagination
-          }));
-        }
       } else {
         console.warn('Invalid API response format:', response.data);
         setTours([]);
@@ -135,7 +167,7 @@ const TourManagement = () => {
       clearTimeout(timeoutId);
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, token, logout]);
+  }, [token, logout]);
 
   useEffect(() => {
     const initializeTours = async () => {
@@ -193,22 +225,48 @@ const TourManagement = () => {
       return tour.status === 'active';
     });
 
+    // Apply country filter
+    if (countryFilter !== 'all') {
+      filtered = filtered.filter(tour => tour?.destination?.country === countryFilter);
+    }
+
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(tour => {
         if (!tour) return false;
-        
+
         const titleMatch = tour.title?.toLowerCase().includes(searchLower);
         const countryMatch = tour.destination?.country?.toLowerCase().includes(searchLower);
         const descriptionMatch = tour.description?.toLowerCase().includes(searchLower);
-        
+
         return titleMatch || countryMatch || descriptionMatch;
       });
     }
 
     return filtered;
-  }, [tours, statusFilter, searchTerm]);
+  }, [tours, statusFilter, countryFilter, searchTerm]);
+
+  // Reset back to page 1 whenever the filtered set changes, so we don't get
+  // stuck on a page that no longer has any rows.
+  useEffect(() => {
+    setPagination(prev => (prev.page === 1 ? prev : { ...prev, page: 1 }));
+  }, [statusFilter, countryFilter, searchTerm]);
+
+  const totalFilteredPages = Math.max(1, Math.ceil(filteredTours.length / PAGE_SIZE));
+
+  const paginatedTours = useMemo(() => {
+    const start = (pagination.page - 1) * PAGE_SIZE;
+    return filteredTours.slice(start, start + PAGE_SIZE);
+  }, [filteredTours, pagination.page]);
+
+  const tourCountryOptions = useMemo(() => {
+    const set = new Set();
+    tours.forEach(tour => {
+      if (tour?.destination?.country) set.add(tour.destination.country);
+    });
+    return Array.from(set).sort();
+  }, [tours]);
 
   const filteredCountries = Array.isArray(countries) 
     ? countries.filter(country => 
@@ -232,6 +290,12 @@ const TourManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.coverImage) {
+      toast.error('Please provide a main cover image (paste a link or upload one).');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -614,49 +678,73 @@ const TourManagement = () => {
 
   return (
     <div className="tour-management">
-      <div className="header-actions">
+      <div className="tour-mgmt-header">
         <h2>Tour Management</h2>
-        <div className="action-buttons-container">
-          <button 
-            className={`btn-secondary ${refreshing ? 'refreshing' : ''}`} 
-            onClick={handleRefresh} 
+        <div className="tour-mgmt-header-actions">
+          <button
+            className={`btn-icon-refresh ${refreshing ? 'refreshing' : ''}`}
+            onClick={handleRefresh}
             disabled={refreshing}
             title="Refresh tour data"
           >
-            <FaSyncAlt className={refreshing ? 'spin' : ''} /> {refreshing ? 'Refreshing...' : 'Refresh'}
+            <FaSyncAlt className={refreshing ? 'spin' : ''} />
           </button>
-          <button className="btn-primary" onClick={handleAddNewClick}>
-            <FaPlus /> Add New Tour
+          <button className="btn-create-tour" onClick={handleAddNewClick}>
+            <FaPlus /> Create New Tour
           </button>
         </div>
       </div>
 
-      <div className="search-filter-container">
-        <div className="search-filters">
-          <div className="filters-container">
-            <div className="search-box">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search tours..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
-            <div className="status-filter">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="status-select"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
+      <div className="tour-filter-bar">
+        <div className="tour-search-box">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search tours..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
+        <div className="tour-filter-group">
+          <span className="tour-filter-label">Status</span>
+          <div className="status-pill-group">
+            <button
+              type="button"
+              className={`status-pill ${statusFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('all')}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              className={`status-pill ${statusFilter === 'active' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('active')}
+            >
+              Active
+            </button>
+            <button
+              type="button"
+              className={`status-pill ${statusFilter === 'inactive' ? 'active' : ''}`}
+              onClick={() => setStatusFilter('inactive')}
+            >
+              Inactive
+            </button>
+          </div>
+        </div>
+
+        <div className="tour-filter-group">
+          <span className="tour-filter-label">Country</span>
+          <select
+            className="tour-country-select"
+            value={countryFilter}
+            onChange={(e) => setCountryFilter(e.target.value)}
+          >
+            <option value="all">All Countries</option>
+            {tourCountryOptions.map(country => (
+              <option key={country} value={country}>{country}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -665,20 +753,36 @@ const TourManagement = () => {
       ) : (
         <>
           <div className="table-responsive">
-            <table className="admin-table">
+            <table className="admin-table tour-mgmt-table">
               <thead>
                 <tr>
-                  <th>Title</th>
+                  <th className="col-index">#</th>
+                  <th>Tour Name</th>
                   <th>Country</th>
+                  <th>Duration</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredTours.map((tour) => (
+                {paginatedTours.map((tour, index) => (
                   <tr key={tour._id}>
-                    <td>{tour.title}</td>
+                    <td className="col-index">
+                      {(pagination.page - 1) * PAGE_SIZE + index + 1}
+                    </td>
+                    <td>
+                      <div className="tour-name-cell">
+                        <img
+                          src={tour.coverImage}
+                          alt=""
+                          className="tour-thumb"
+                          onError={(e) => { e.target.style.visibility = 'hidden'; }}
+                        />
+                        <span>{tour.title}</span>
+                      </div>
+                    </td>
                     <td>{tour.destination?.country || 'N/A'}</td>
+                    <td>{tour.days ? `${tour.days} Days` : (tour.duration || 'N/A')}</td>
                     <td>
                       <span className={`status-badge ${tour.status === 'inactive' ? 'inactive' : 'active'}`}>
                         {tour.status === 'inactive' ? 'Inactive' : 'Active'}
@@ -693,21 +797,21 @@ const TourManagement = () => {
                           }}
                           title="View tour details"
                         >
-                          <FaEye />
+                          <FaEye /> <span>View</span>
                         </button>
                         <button
                           className="btn-edit"
                           onClick={() => handleEditClick(tour)}
                           title="Edit tour"
                         >
-                          <FaEdit />
+                          <FaEdit /> <span>Edit</span>
                         </button>
                         <button
                           className="btn-delete"
                           onClick={() => handleDeleteClick(tour)}
                           title="Delete tour"
                         >
-                          <FaTrash />
+                          <FaTrash /> <span>Delete</span>
                         </button>
                       </div>
                     </td>
@@ -716,18 +820,18 @@ const TourManagement = () => {
               </tbody>
             </table>
           </div>
-          {pagination.totalPages > 1 && (
+          {totalFilteredPages > 1 && (
             <div className="pagination">
-              <button 
+              <button
                 disabled={pagination.page === 1}
-                onClick={() => fetchTours(pagination.page - 1)}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
               >
                 Previous
               </button>
-              <span>Page {pagination.page} of {pagination.totalPages}</span>
-              <button 
-                disabled={pagination.page === pagination.totalPages}
-                onClick={() => fetchTours(pagination.page + 1)}
+              <span>Page {pagination.page} of {totalFilteredPages}</span>
+              <button
+                disabled={pagination.page === totalFilteredPages}
+                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               >
                 Next
               </button>
@@ -801,25 +905,96 @@ const TourManagement = () => {
                     />
                   </div>
                   <div className="form-group half-width">
-                    <label>Main Cover Image URL</label>
-                    <input
-                      type="text"
-                      name="coverImage"
-                      value={formData.coverImage}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Enter main cover image URL"
-                    />
-                    {formData.coverImage && (
-                      <img 
-                        src={formData.coverImage} 
-                        alt="Cover preview" 
-                        className="image-preview"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    )}
+                    <label>Main Cover Image</label>
+
+                    <div className="cover-image-card">
+                      <div className="cover-image-tabs">
+                        <button
+                          type="button"
+                          className={`cover-tab ${coverImageTab === 'link' ? 'active' : ''}`}
+                          onClick={() => setCoverImageTab('link')}
+                        >
+                          <FaLink /> Paste Link
+                        </button>
+                        <button
+                          type="button"
+                          className={`cover-tab upload-tab ${coverImageTab === 'upload' ? 'active' : ''}`}
+                          onClick={() => setCoverImageTab('upload')}
+                        >
+                          <FaUpload /> Browse Files
+                        </button>
+                      </div>
+
+                      {coverImageTab === 'link' ? (
+                        <>
+                          <input
+                            type="text"
+                            name="coverImage"
+                            value={formData.coverImage}
+                            onChange={handleInputChange}
+                            placeholder="Paste an image URL"
+                          />
+                          {formData.coverImage && (
+                            <img
+                              src={formData.coverImage}
+                              alt="Cover preview"
+                              className="image-preview"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          )}
+                        </>
+                      ) : (
+                        <div
+                          className={`cover-dropzone ${isDragActive ? 'active' : ''} ${uploadingCover ? 'uploading' : ''} ${formData.coverImage ? 'has-image' : ''}`}
+                          onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
+                          onDragLeave={() => setIsDragActive(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDragActive(false);
+                            const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                            if (file) handleCoverImageUpload(file);
+                          }}
+                        >
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            id="cover-image-file-input"
+                            className="visually-hidden-file-input"
+                            onChange={(e) => handleCoverImageUpload(e.target.files[0])}
+                            disabled={uploadingCover}
+                          />
+                          {formData.coverImage ? (
+                            <label htmlFor="cover-image-file-input" className="cover-dropzone-preview-wrap">
+                              <img
+                                src={formData.coverImage}
+                                alt="Cover preview"
+                                className="cover-dropzone-preview"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                              <span className="cover-dropzone-replace-hint">
+                                {uploadingCover ? 'Uploading...' : 'Click or drag to replace'}
+                              </span>
+                            </label>
+                          ) : (
+                            <>
+                              <FaCloudUploadAlt className="cover-dropzone-icon" />
+                              <label htmlFor="cover-image-file-input" className="btn btn-primary cover-browse-btn">
+                                {uploadingCover ? 'Uploading...' : 'Browse Files'}
+                              </label>
+                              <span className="cover-dropzone-hint">or drag &amp; drop an image here</span>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {coverUploadError && <p className="cover-upload-error">{coverUploadError}</p>}
+
+                      <p className="cover-image-hint">Recommended: 1920×1200px in .jpg file</p>
+                    </div>
                   </div>
                 </div>
                 

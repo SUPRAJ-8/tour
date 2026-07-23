@@ -4,6 +4,270 @@
   padding: 20px;
 }
 
+/* ---- Redesigned header ---- */
+.tour-mgmt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tour-mgmt-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tour-mgmt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon-refresh {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-refresh:hover {
+  background-color: #f1f5f9;
+  color: #2563eb;
+}
+
+.btn-icon-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-create-tour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-create-tour:hover {
+  background-color: #1d4ed8;
+}
+
+/* ---- Redesigned filter bar ---- */
+.tour-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  background-color: #fff;
+  border: 1px solid #eef1f5;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.tour-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+
+.tour-search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.tour-search-box input {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.tour-search-box input:focus {
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.tour-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tour-filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.status-pill-group {
+  display: flex;
+  gap: 4px;
+  background-color: #f1f5f9;
+  border-radius: 20px;
+  padding: 3px;
+}
+
+.status-pill {
+  border: none;
+  background: none;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-pill.active {
+  background-color: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.15);
+}
+
+.tour-country-select {
+  padding: 8px 30px 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  outline: none;
+}
+
+.tour-country-select:focus {
+  border-color: #2563eb;
+}
+
+/* ---- Table: row number column ---- */
+.tour-mgmt-table .col-index {
+  width: 40px;
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ---- Table: thumbnail + name cell ---- */
+.tour-mgmt-table .tour-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tour-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-color: #f1f5f9;
+}
+
+/* ---- Scoped overrides so these don't bleed into other admin tabs ---- */
+.tour-management .status-badge {
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.tour-management .status-badge.active {
+  background-color: #dcfce7;
+  color: #16a34a;
+  border: none;
+}
+
+.tour-management .status-badge.inactive {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: none;
+}
+
+.tour-management .tour-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.tour-management .tour-actions .btn-view,
+.tour-management .tour-actions .btn-edit,
+.tour-management .tour-actions .btn-delete {
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ---- Table card: white background + border ---- */
+.tour-management .table-responsive {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.tour-management .admin-table {
+  margin: 0;
+}
+
+.tour-management .admin-table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tour-management .admin-table td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.tour-management .admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tour-management .admin-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.tour-management .col-index {
+  width: 40px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
 .header-actions {
   display: flex;
   justify-content: space-between;
@@ -622,6 +886,167 @@
   margin-top: 10px;
   border-radius: 4px;
   border: 1px solid #ddd;
+}
+
+/* Cover image card (Paste Link / Browse Files + Drag & Drop merged) */
+.cover-image-card {
+  background-color: #f8fafc;
+  border: 1px dashed #dbe3ee;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.cover-image-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.cover-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cover-tab:hover {
+  background-color: #f1f5f9;
+}
+
+.cover-tab.upload-tab.active {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+}
+
+.cover-tab.active {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  color: #fff;
+}
+
+.visually-hidden-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cover-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 15px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.cover-dropzone-icon {
+  font-size: 30px;
+  color: #94a3b8;
+}
+
+.cover-browse-btn {
+  display: inline-block;
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 8px 20px;
+}
+
+.cover-dropzone-hint {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.cover-dropzone.active {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+}
+
+.cover-dropzone.active .cover-dropzone-icon {
+  color: #16a34a;
+}
+
+.cover-dropzone.uploading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.cover-dropzone.has-image {
+  padding: 10px;
+  border-style: solid;
+}
+
+.cover-dropzone-preview-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cover-dropzone-preview {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cover-dropzone-replace-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.65));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cover-dropzone-preview-wrap:hover .cover-dropzone-replace-hint {
+  opacity: 1;
+}
+
+.cover-upload-error {
+  color: #dc3545;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+
+.cover-image-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
 }
 
 .image-preview-small {

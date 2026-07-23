@@ -18,6 +18,7 @@ const bookingRoutes = require('./routes/bookings');
 const countryRoutes = require('./routes/countries');
 const adminRoutes = require('./routes/admin');
 const visaRoutes = require('./routes/visaRoutes');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/countries', countryRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/visas', visaRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -127,8 +129,9 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ 
-    message: 'Something went wrong!',
+  const statusCode = err.statusCode || (err.code === 'LIMIT_FILE_SIZE' ? 400 : 500);
+  res.status(statusCode).json({
+    message: statusCode < 500 ? err.message : 'Something went wrong!',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });

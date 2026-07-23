@@ -343,6 +343,12 @@
   overflow-x: auto;
 }
 
+.admin-tab-content .table-responsive {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;

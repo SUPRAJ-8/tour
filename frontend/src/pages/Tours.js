@@ -800,10 +800,9 @@ const Tours = () => {
                             </div>
                           )}
                           <div className="tour-image">
-                            <img 
-                              src={tourImage} 
-                              alt={tourName} 
-                              style={{ width: '304.39px', height: '189px', objectFit: 'cover' }}
+                            <img
+                              src={tourImage}
+                              alt={tourName}
                             />
                           </div>
                           <div className="tour-info">

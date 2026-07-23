@@ -6,6 +6,9 @@
 # Dependencies
 node_modules/
 
+# User-uploaded images (local disk storage, not committed)
+backend/uploads/
+
 # Environment files (keep these secret!)
 .env
 .env.local
