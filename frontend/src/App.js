@@ -87,7 +87,7 @@ function App() {
           </PrivateRoute>
         } />
         <Route path="/dashboard" element={
-          <PrivateRoute>
+          <PrivateRoute redirectTo="/login">
             {({ user }) => (
               <AdminLayout>
                 <Dashboard />

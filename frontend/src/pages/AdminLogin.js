@@ -18,7 +18,7 @@ const AdminLogin = () => {
   const [resetEmail, setResetEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -57,6 +57,7 @@ const AdminLogin = () => {
       const userData = await login(email, password);
       
       if (userData && userData.role !== 'admin') {
+        logout();
         setError('Access denied. Admin privileges required.');
         setIsSubmitting(false);
         return;

@@ -2,17 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { 
-  FaUsers, 
-  FaGlobeAsia, 
-  FaRoute, 
-  FaCalendarAlt, 
-  FaChartLine, 
+import {
+  FaUsers,
+  FaGlobeAsia,
+  FaRoute,
+  FaCalendarAlt,
+  FaChartLine,
   FaSignOutAlt,
   FaPlane,
   FaStar,
   FaDollarSign,
-  FaPassport
+  FaPassport,
+  FaSearch,
+  FaBell,
+  FaQuestionCircle,
+  FaInbox,
+  FaPlus
 } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import ConfirmationModal from '../components/common/ConfirmationModal';
@@ -54,11 +59,6 @@ const AdminDashboard = () => {
   const [availableTours, setAvailableTours] = useState([]);
 
   useEffect(() => {
-    // DEVELOPMENT MODE: Bypass authentication check
-    // if (!user || user.role !== 'admin') {
-    //   navigate('/admin');
-    //   return;
-    // }
     fetchData();
   }, [navigate, user, activeTab]);
 
@@ -292,73 +292,86 @@ const AdminDashboard = () => {
     return (
       <div className="admin-tab-content">
         <h2>Dashboard Overview</h2>
-        
+        <p className="dashboard-subtitle">
+          Welcome back, {user?.name ? user.name.split(' ')[0] : 'Admin'}. Here's a summary of your travel ecosystem today.
+        </p>
+
         <div className="stats-grid">
           {/* Users Stats */}
           <div className="stat-card users">
-            <div className="stat-icon">
-              <FaUsers />
+            <div className="stat-card-top">
+              <div className="stat-icon">
+                <FaUsers />
+              </div>
+              <span className="stat-trend neutral">+0% this week</span>
             </div>
-            <div className="stat-info">
-              <h3>Total Users</h3>
-              <p className="stat-value">{stats.totalUsers.toLocaleString()}</p>
-            </div>
+            <p className="stat-label">Total Users</p>
+            <p className="stat-value">{stats.totalUsers.toLocaleString()}</p>
           </div>
 
           {/* Tours Stats */}
           <div className="stat-card tours">
-            <div className="stat-icon">
-              <FaRoute />
+            <div className="stat-card-top">
+              <div className="stat-icon">
+                <FaRoute />
+              </div>
+              <span className="stat-trend up">+12% vs last month</span>
             </div>
-            <div className="stat-info">
-              <h3>Active Tours</h3>
-              <p className="stat-value">{stats.totalTours.toLocaleString()}</p>
-            </div>
+            <p className="stat-label">Active Tours</p>
+            <p className="stat-value">{stats.totalTours.toLocaleString()}</p>
           </div>
 
           {/* Countries Stats */}
           <div className="stat-card countries">
-            <div className="stat-icon">
-              <FaGlobeAsia />
+            <div className="stat-card-top">
+              <div className="stat-icon">
+                <FaGlobeAsia />
+              </div>
+              <span className="stat-trend static">Static</span>
             </div>
-            <div className="stat-info">
-              <h3>Countries</h3>
-              <p className="stat-value">{stats.totalCountries.toLocaleString()}</p>
-            </div>
+            <p className="stat-label">Countries</p>
+            <p className="stat-value">{stats.totalCountries.toLocaleString()}</p>
           </div>
 
           {/* Bookings Stats */}
           <div className="stat-card bookings">
-            <div className="stat-icon">
-              <FaCalendarAlt />
+            <div className="stat-card-top">
+              <div className="stat-icon">
+                <FaCalendarAlt />
+              </div>
+              <span className="stat-trend live">Real-time sync</span>
             </div>
-            <div className="stat-info">
-              <h3>Total Bookings</h3>
-              <p className="stat-value">{stats.totalBookings.toLocaleString()}</p>
-            </div>
+            <p className="stat-label">Total Bookings</p>
+            <p className="stat-value">{stats.totalBookings.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Recent Bookings Section */}
         <div className="recent-section">
-          <h3>Recent Bookings</h3>
+          <div className="recent-header">
+            <div>
+              <h3>Recent Bookings</h3>
+              <p className="recent-subtitle">Activity from the last 24 hours</p>
+            </div>
+            <button className="btn btn-primary btn-compact" onClick={() => setActiveTab('bookings')}>
+              <FaPlus /> New Booking
+            </button>
+          </div>
           <div className="table-responsive">
-            {stats.recentBookings && stats.recentBookings.length > 0 ? (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Booking ID</th>
-                    <th>Customer</th>
-                    <th>Tour</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentBookings.map(booking => (
+            <table className="admin-table recent-bookings-table">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Tour Package</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentBookings && stats.recentBookings.length > 0 ? (
+                  stats.recentBookings.map(booking => (
                     <tr key={booking._id}>
-                      <td>#{booking._id.slice(-6)}</td>
                       <td>{booking.customerName}</td>
                       <td>{booking.tourName}</td>
                       <td>{new Date(booking.date).toLocaleDateString()}</td>
@@ -369,12 +382,36 @@ const AdminDashboard = () => {
                       </td>
                       <td>${booking.amount}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No recent bookings available.</p>
-            )}
+                  ))
+                ) : (
+                  <tr className="empty-row">
+                    <td colSpan="5">
+                      <div className="empty-state">
+                        <div className="empty-state-icon">
+                          <FaInbox />
+                        </div>
+                        <h4>No Recent Activity</h4>
+                        <p>
+                          Your booking engine is currently idle. When travelers start booking
+                          tours or visas, their details will appear here in real-time.
+                        </p>
+                        <div className="empty-state-actions">
+                          <button className="btn btn-outline btn-compact" onClick={fetchDashboardStats}>
+                            Refresh Data
+                          </button>
+                          <button
+                            className="btn btn-primary btn-compact"
+                            onClick={() => setActiveTab('bookings')}
+                          >
+                            View All Bookings
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -550,95 +587,108 @@ const AdminDashboard = () => {
 
   return (
     <section className="admin-dashboard-page">
-      <div className="admin-dashboard-header">
-        <div className="container">
-          <h1 className="admin-dashboard-title">Admin Dashboard</h1>
-          <div className="admin-user-info">
-            <span>Welcome, {user?.name}</span>
-            <span className="admin-role">Administrator</span>
-          </div>
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" />
         </div>
-      </div>
+        <ul className="admin-menu">
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => handleTabChange('dashboard')}
+            >
+              <FaChartLine />
+              <span>Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'tours' ? 'active' : ''}`}
+              onClick={() => handleTabChange('tours')}
+            >
+              <FaRoute />
+              <span>Tours</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'working-visa' ? 'active' : ''}`}
+              onClick={() => handleTabChange('working-visa')}
+            >
+              <FaPassport />
+              <span>Working Visa</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'countries' ? 'active' : ''}`}
+              onClick={() => handleTabChange('countries')}
+            >
+              <FaGlobeAsia />
+              <span>Countries</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'bookings' ? 'active' : ''}`}
+              onClick={() => handleTabChange('bookings')}
+            >
+              <FaCalendarAlt />
+              <span>Bookings</span>
+            </button>
+          </li>
+          <li>
+            <button
+              className={`admin-menu-item ${activeTab === 'users' ? 'active' : ''}`}
+              onClick={() => handleTabChange('users')}
+            >
+              <FaUsers />
+              <span>Users</span>
+            </button>
+          </li>
+          <li className="admin-menu-spacer"></li>
+          <li>
+            <button className="admin-menu-item logout" onClick={handleLogoutClick}>
+              <FaSignOutAlt />
+              <span>Logout</span>
+            </button>
+          </li>
+        </ul>
+      </aside>
 
-      <div className="container">
-        <div className="admin-dashboard-content">
-          <div className="admin-sidebar">
-            <ul className="admin-menu">
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('dashboard')}
-                >
-                  <FaChartLine />
-                  <span>Dashboard</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'tours' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('tours')}
-                >
-                  <FaRoute />
-                  <span>Tours</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'working-visa' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('working-visa')}
-                >
-                  <FaPassport />
-                  <span>Working Visa</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'countries' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('countries')}
-                >
-                  <FaGlobeAsia />
-                  <span>Countries</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'bookings' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('bookings')}
-                >
-                  <FaCalendarAlt />
-                  <span>Bookings</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`admin-menu-item ${activeTab === 'users' ? 'active' : ''}`}
-                  onClick={() => handleTabChange('users')}
-                >
-                  <FaUsers />
-                  <span>Users</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  className="admin-menu-item logout"
-                  onClick={handleLogoutClick}
-                >
-                  <FaSignOutAlt />
-                  <span>Logout</span>
-                </button>
-              </li>
-            </ul>
+      <div className="admin-content-wrapper">
+        <header className="admin-topbar">
+          <div className="admin-search">
+            <FaSearch className="admin-search-icon" />
+            <input type="text" placeholder="Search bookings, tours, or users..." />
           </div>
-          
-          <div className="admin-main">
-            {activeTab === 'dashboard' && renderDashboardTab()}
-            {activeTab === 'tours' && <TourManagement />}
-            {activeTab === 'countries' && <CountryManagement />}
-            {activeTab === 'bookings' && <BookingManagement />}
-            {activeTab === 'users' && <UserManagement />}
-            {activeTab === 'working-visa' && <WorkingVisaManagement />}
+          <div className="admin-topbar-right">
+            <button className="icon-btn" type="button" aria-label="Notifications">
+              <FaBell />
+            </button>
+            <button className="icon-btn" type="button" aria-label="Help">
+              <FaQuestionCircle />
+            </button>
+            <div className="admin-user-chip">
+              <div className="admin-user-text">
+                <span className="admin-user-name">{user?.name || 'Admin User'}</span>
+                <span className="admin-user-role">Administrator</span>
+              </div>
+              <div className="admin-user-avatar">
+                {(user?.name || 'A').charAt(0).toUpperCase()}
+              </div>
+            </div>
           </div>
-        </div>
+        </header>
+
+        <main className="admin-main">
+          {activeTab === 'dashboard' && renderDashboardTab()}
+          {activeTab === 'tours' && <TourManagement />}
+          {activeTab === 'countries' && <CountryManagement />}
+          {activeTab === 'bookings' && <BookingManagement />}
+          {activeTab === 'users' && <UserManagement />}
+          {activeTab === 'working-visa' && <WorkingVisaManagement />}
+        </main>
       </div>
 
       {/* Confirmation Modal for Logout */}

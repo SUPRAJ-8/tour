@@ -5,7 +5,7 @@ import './assets/css/phone-link.css';
 import './assets/css/email-link.css';
 import './assets/css/location-link.css';
 import App from './App';
-import { BrowserRouter, HashRouter, createHashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 // Import router configuration with future flags
 import { routerFutureConfig } from './router-config';
@@ -15,10 +15,10 @@ import './services/axiosConfig';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <HashRouter future={routerFutureConfig}>
+    <BrowserRouter future={routerFutureConfig}>
       <AuthProvider>
         <App />
       </AuthProvider>
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>
 );

@@ -4,59 +4,58 @@ import './AdminSkeleton.css';
 export const DashboardSkeleton = () => {
   return (
     <section className="admin-dashboard-page">
-      {/* Header Skeleton */}
-      <div className="admin-dashboard-header">
-        <div className="container">
-          <div className="skeleton-header-title"></div>
+      {/* Sidebar Skeleton */}
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-logo">
+          <div className="skeleton-logo"></div>
+        </div>
+        <ul className="admin-menu">
+          {Array.from({ length: 7 }).map((_, index) => (
+            <li key={index}>
+              <div className="skeleton-menu-item">
+                <div className="skeleton-menu-icon"></div>
+                <div className="skeleton-menu-text"></div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <div className="admin-content-wrapper">
+        {/* Topbar Skeleton */}
+        <div className="admin-topbar">
+          <div className="skeleton-topbar-search"></div>
           <div className="skeleton-user-info">
             <div className="skeleton-user-name"></div>
-            <div className="skeleton-user-role"></div>
+            <div className="skeleton-user-avatar"></div>
           </div>
         </div>
-      </div>
 
-      <div className="container">
-        <div className="admin-dashboard-content">
-          {/* Sidebar Skeleton */}
-          <div className="admin-sidebar">
-            <ul className="admin-menu">
-              {Array.from({ length: 7 }).map((_, index) => (
-                <li key={index}>
-                  <div className="skeleton-menu-item">
-                    <div className="skeleton-menu-icon"></div>
-                    <div className="skeleton-menu-text"></div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Main Content Skeleton */}
+        <div className="admin-main">
+          <div className="admin-skeleton">
+            {/* Stats Cards */}
+            <div className="skeleton-stats-grid">
+              <div className="skeleton-stat-card"></div>
+              <div className="skeleton-stat-card"></div>
+              <div className="skeleton-stat-card"></div>
+              <div className="skeleton-stat-card"></div>
+            </div>
 
-          {/* Main Content Skeleton */}
-          <div className="admin-main">
-            <div className="admin-skeleton">
-              {/* Stats Cards */}
-              <div className="skeleton-stats-grid">
-                <div className="skeleton-stat-card"></div>
-                <div className="skeleton-stat-card"></div>
-                <div className="skeleton-stat-card"></div>
-                <div className="skeleton-stat-card"></div>
+            {/* Charts/Tables Section */}
+            <div className="skeleton-content-grid">
+              <div className="skeleton-content-card">
+                <div className="skeleton-card-header"></div>
+                <div className="skeleton-table-row"></div>
+                <div className="skeleton-table-row"></div>
+                <div className="skeleton-table-row"></div>
+                <div className="skeleton-table-row"></div>
               </div>
-
-              {/* Charts/Tables Section */}
-              <div className="skeleton-content-grid">
-                <div className="skeleton-content-card">
-                  <div className="skeleton-card-header"></div>
-                  <div className="skeleton-table-row"></div>
-                  <div className="skeleton-table-row"></div>
-                  <div className="skeleton-table-row"></div>
-                  <div className="skeleton-table-row"></div>
-                </div>
-                <div className="skeleton-content-card">
-                  <div className="skeleton-card-header"></div>
-                  <div className="skeleton-table-row"></div>
-                  <div className="skeleton-table-row"></div>
-                  <div className="skeleton-table-row"></div>
-                </div>
+              <div className="skeleton-content-card">
+                <div className="skeleton-card-header"></div>
+                <div className="skeleton-table-row"></div>
+                <div className="skeleton-table-row"></div>
+                <div className="skeleton-table-row"></div>
               </div>
             </div>
           </div>
