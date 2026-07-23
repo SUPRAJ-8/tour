@@ -1,6 +1,7 @@
 /* Tours Page Layout */
 .tours-page {
   max-width: 2000px;
+  margin: 0 auto;
   padding: 2rem 5rem;
   background-color: white;
 }
@@ -416,7 +417,7 @@
   flex: auto;
 }
 
-.tour-card {
+.tours-grid-view .tour-card {
   display: flex;
   flex-direction: column;
   border-radius: 12px;
@@ -430,12 +431,12 @@
   width: 100%;
 }
 
-.tour-card:hover {
+.tours-grid-view .tour-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
 }
 
-.tour-image {
+.tours-grid-view .tour-image {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
@@ -608,6 +609,7 @@
 
 .pagination {
   display: flex;
+  flex-wrap: wrap;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -655,93 +657,80 @@
   color: #0095ff;
 }
 
+/* Large desktop stays as-is; scale padding down as the viewport shrinks */
+@media (max-width: 1200px) {
+  .tours-page {
+    padding: 2rem 3rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .tours-page {
+    padding: 2rem;
+  }
+
+  .filters-wrapper {
+    width: 240px;
+  }
+
+  .tours-grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* Tablet: stack filters above content instead of a side rail */
+@media (max-width: 768px) {
+  .tours-page {
+    padding: 1.5rem;
+  }
+
+  .tours-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .filters-wrapper {
+    width: 100%;
+    height: auto;
+  }
+
+  .tours-title {
+    font-size: 2rem;
+  }
+}
+
 @media (max-width: 480px) {
   .tours-grid-view {
     gap: 15px;
   }
 }
 
-@media (max-width: 768px) {
-  .tours-container {
-    flex-direction: column;
-  }
-  
-  .filters-container {
-    flex: none;
-    width: 100%;
-  }
-  
-  .filters-container.hide {
-    width: 100%;
-    height: 60px;
-  }
-  
-  .view-text {
-    display: none;
-  }
-  
-  .view-toggle-btn {
-    padding: 0.6rem 0.8rem;
-  }
-  
-  .view-toggle-btn .view-icon {
-    font-size: 1.2rem;
-  }
-}
-
-/* Hide filter sidebar on phones */
+/* Phones: compact spacing, single-column grid, no sidebar quirks */
 @media (max-width: 576px) {
-  .filters-wrapper {
-    display: none;
-  }
-}
-
-/* Extra small devices tweaks */
-@media (max-width: 576px) {
-  /* Show only search box */
-  .filters-wrapper {
-    background: transparent;
-    padding: 0;
-  }
-  .filters-wrapper .filter-title,
-  .filters-wrapper .filter-item,
-  .filters-wrapper .reset-filters-btn {
-    display: none !important;
-  }
-  .filters-wrapper .search-box {
-    margin-bottom: 1rem;
-  }
-
-  /* Compact page padding */
   .tours-page {
-    max-width: 100%;
     padding: 1rem;
   }
 
-  /* Show filters on top instead of hiding */
-  .filters-wrapper {
-    display: block;
-    width: 100%;
-    margin-bottom: 0;
-    margin-left: 23px;
-  }
-
-  /* Adjust title size */
-  .tours-title {
-    font-size: 1.8rem;
-    margin-left: 23px;
-    text-align: center;
-  }
-
-  /* One-column flexible grid */
-  .tours-grid-view {
-    display: grid;
-    grid-template-columns: 1fr;
+  .tours-container {
     gap: 1rem;
   }
 
-  .tours-page {
-    margin: 0 1rem;
+  .filters-wrapper {
+    padding: 1rem;
+  }
+
+  .tours-title {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .tours-subtitle {
+    text-align: center;
+  }
+
+  .tours-grid-view {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 

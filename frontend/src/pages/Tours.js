@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Fuse from 'fuse.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, FaList, FaGlobeAmericas, FaMapMarkedAlt, FaTh, FaStar, FaRegStar, FaHeart, FaRegHeart, FaBolt, FaCalendarAlt, FaMapMarkerAlt, FaChevronRight, FaFire, FaPassport } from 'react-icons/fa';
 import { fetchAllTours } from '../services/tourService';
 import RegionalToursList from '../components/RegionalToursList';
@@ -8,12 +8,13 @@ import TourCardSkeleton from '../components/TourCardSkeleton';
 import './Tours.css';
 
 const Tours = () => {
+  const [searchParams] = useSearchParams();
   const [tours, setTours] = useState([]);
   const [regionalTours, setRegionalTours] = useState({ regions: {}, countries: [] });
   const [loading, setLoading] = useState(false);
   const [rawSearch, setRawSearch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [country, setCountry] = useState('');  
+  const [country, setCountry] = useState(searchParams.get('country') || '');
   const [travelWith, setTravelWith] = useState('');  
   const [showTravelOptions, setShowTravelOptions] = useState(false);
   const [showCountryOptions, setShowCountryOptions] = useState(true);
@@ -53,8 +54,28 @@ const Tours = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, country, travelWith, duration]);
-  const toursPerPage = 9; // 3 rows of 3 cards
-  
+  const toursPerPage = 10;
+
+  // The country filter list must be derived from the same tour+visa data
+  // actually shown in the grid — deriving it separately (e.g. from a
+  // differently-paginated fetch) lets it drift out of sync, so a country
+  // can have visible results but no way to select it in the filter.
+  const deriveCountries = (list) => {
+    const set = new Set();
+    (list || []).forEach(t => {
+      const c = (t.destination && (t.destination.country || t.destination.name)) || t.country || t.countryName;
+      if (c) set.add(c);
+    });
+    return Array.from(set).sort();
+  };
+
+  // Some country names are stored in ALL CAPS (e.g. "JAPAN"). Title-case them
+  // for display only — filtering still matches on the raw value.
+  const displayCountryName = (name) => {
+    if (!name || name !== name.toUpperCase()) return name;
+    return name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   // Generate star rating display
   const renderStars = (rating) => {
     const stars = [];
@@ -169,6 +190,7 @@ const Tours = () => {
               console.error('Failed to fetch visas:', e);
             }
             setTours(managementTours);
+            setCountries(deriveCountries(managementTours));
             clearTimeout(timeoutId);
             setLoading(false);
             return; // Exit if we successfully got tours from management
@@ -233,6 +255,7 @@ const Tours = () => {
             console.error('Failed to fetch visas:', e);
           }
           setTours(toursData);
+          setCountries(deriveCountries(toursData));
         } catch (regularApiError) {
           console.log('Regular API failed, trying fallback endpoint');
           try {
@@ -278,6 +301,7 @@ const Tours = () => {
             console.error('Failed to fetch visas:', e);
           }
           setTours(toursData);
+          setCountries(deriveCountries(toursData));
           } catch (fallbackError) {
             console.log('All API endpoints failed:', fallbackError);
             
@@ -588,7 +612,7 @@ const Tours = () => {
                       checked={country === countryName}
                       onChange={() => setCountry(countryName)} 
                     />
-                    <label htmlFor={`country-${countryName}`}>{countryName}</label>
+                    <label htmlFor={`country-${countryName}`}>{displayCountryName(countryName)}</label>
                   </div>
                 ))}
               </div>
@@ -819,7 +843,7 @@ const Tours = () => {
                             <h3 className="tour-name">{tourName}</h3>
                             <div className="tour-location">
                               <FaMapMarkerAlt />
-                              <span>{countryName}</span>
+                              <span>{displayCountryName(countryName)}</span>
                             </div>
                             <div className="tour-duration-info">
                               <FaCalendarAlt />

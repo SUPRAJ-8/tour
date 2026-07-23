@@ -2,7 +2,12 @@
   background-color: white;
 }
 
-.container {
+/* Scoped under .tour-details-page: plain `.container` is also defined
+   globally (Countries.css) with max-width:90% at the same specificity, so
+   without this the winner depends on unpredictable bundle load order —
+   which was letting the 90% version stretch this page's content on wide
+   screens instead of capping it at a readable, centered 1440px. */
+.tour-details-page .container {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0;  /* Remove all padding */
@@ -74,14 +79,15 @@
   transform: rotate(180deg);
 }
 
-/* Make the hero section take full width */
+/* This element's parent is the full-width top-level <section> with no side
+   padding to break out of, so the "100vw breakout" hack that used to live
+   here was solving a non-existent problem — and since percentage-based left
+   offsets are relative to the *parent's* width, not the viewport, it broke
+   in different ways depending on parent width. A plain centered max-width
+   block works correctly at every screen size with no vw math at all. */
 .tour-details-page .tour-gallery-container {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  width: 100%;
+  margin: 0 auto 2rem;
 }
 
 .tour-details-page .gallery-grid {
@@ -356,6 +362,14 @@
   border-top: 1px solid #E5E7EB;
   margin-left: 0;
   max-width: 864px;
+}
+
+/* Above 1200px .booking-sidebar becomes position:absolute at right:40px
+   width:380px — reserve that space so the meta grid doesn't run under it. */
+@media (min-width: 1201px) {
+  .tour-meta-grid {
+    max-width: calc(100% - 420px);
+  }
 }
 
 /* Switch to 2×2 grid layout on small screens */
@@ -1181,7 +1195,7 @@
   display: none; /* hidden by default */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
   .mobile-book-btn {
     display: block;
     position: fixed;
@@ -1542,6 +1556,12 @@
 /* ------------ Hover behaviour (image only) ------------- */
 /* Prevent card-level hover effects for related tour cards */
 .related-tours-section .tour-card {
+  /* .tour-card is also defined elsewhere (unscoped) as a row-direction flex
+     card — that was winning here depending on bundle load order, squeezing
+     .tour-image down to 0 width so .tour-info's un-wrapped text could keep
+     its full ~418px demand. This card is meant to stack image over info. */
+  display: flex;
+  flex-direction: column;
   transition: none; /* inherit default without extra translate */
 }
 .related-tours-section .tour-card:hover {
@@ -1563,9 +1583,26 @@
 
 .related-tours-section {
   max-width: 1440px;
-  margin: 2rem;
-  margin-left: 4rem;
+  margin: 2rem auto;
   padding: 0 1rem;
+}
+
+/* .custom-nav-btn is a shared class (PopularTours.css) styled with
+   right:-60px/left:-60px assuming a wide wrapper with margin to spare.
+   .related-swiper-wrapper had no `position`, so those buttons anchored to
+   the viewport itself instead of this section, overflowing the page by a
+   fixed 60px on every screen size. Give it a positioning context and pull
+   the buttons back inside the row instead of outside it. */
+.related-swiper-wrapper {
+  position: relative;
+}
+
+.related-swiper-wrapper .custom-nav-btn.prev {
+  left: 10px;
+}
+
+.related-swiper-wrapper .custom-nav-btn.next {
+  right: 10px;
 }
 
 .related-title {

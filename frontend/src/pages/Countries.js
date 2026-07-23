@@ -1,173 +1,116 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaGlobeAsia, FaGlobeEurope, FaMapMarkedAlt, FaPlane, FaPassport } from 'react-icons/fa';
+import axios from 'axios';
+import { FaSuitcaseRolling, FaChevronRight } from 'react-icons/fa';
+import { useData } from '../context/DataContext';
 import './Countries.css';
 
-const Categories = () => {
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
-  
-  // Hero section background images
-  const heroBackgrounds = [
-    'https://images.unsplash.com/photo-1526392060635-9d6019884377?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80', // World map
-    'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80', // Airplane view
-    'https://images.unsplash.com/photo-1504150558240-0b4fd8946624?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80'  // Passport and map
-  ];
-  
-  // Stats for the hero section
-  const travelStats = [
-    { icon: <FaGlobeAsia />, value: '20+', label: 'Asian Countries' },
-    { icon: <FaGlobeEurope />, value: '25+', label: 'European Countries' },
-    { icon: <FaMapMarkedAlt />, value: '100+', label: 'Destinations' },
-    { icon: <FaPlane />, value: '500+', label: 'Tours Available' }
-  ];
-  
-  // Main categories data
-  const categories = [
-    {
-      id: 'asia',
-      name: 'Asia',
-      description: 'Explore the diverse cultures, ancient temples, and stunning landscapes of Asia. From the bustling streets of Tokyo to the serene beaches of Thailand, Asia offers a rich tapestry of experiences for every traveler.',
-      image: 'https://images.unsplash.com/photo-1535139262971-c51845709a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-      icon: <FaGlobeAsia />,
-      countries: 'Japan, China, India, Thailand, Vietnam, Singapore, Malaysia, and more',
-      featuredDestinations: 'Tokyo, Bali, Bangkok, Great Wall of China, Taj Mahal',
-      color: '#e74c3c'
-    },
-    {
-      id: 'europe',
-      name: 'Europe',
-      description: 'Discover historic cities, charming villages, and breathtaking scenery across Europe. From the romantic streets of Paris to the ancient ruins of Rome, Europe is a treasure trove of cultural and historical wonders.',
-      image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
-      icon: <FaGlobeEurope />,
-      countries: 'France, Italy, Spain, Germany, UK, Switzerland, Greece, Portugal, and more',
-      featuredDestinations: 'Paris, Rome, Barcelona, Santorini, Swiss Alps',
-      color: '#3498db'
-    }
-  ];
-  
-  // Change hero background every 5 seconds
-  useEffect(() => {
-    setIsLoaded(true);
-    
-    const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroBackgrounds.length);
-    }, 5000);
-    
-    return () => clearInterval(interval);
-  }, [heroBackgrounds.length]);
+// Neutral gray placeholder, inline so it can never 404 like a missing/broken file would.
+const PLACEHOLDER_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23ccc'/%3E%3C/svg%3E";
 
+const Categories = () => {
+  const { countries } = useData();
+  const [allTours, setAllTours] = useState([]);
+
+  // useData().tours isn't usable here: DataContext runs it through
+  // processSampleTours(), which ignores its argument and returns mock
+  // {regions, countries} data instead of the real tour list. Fetch directly.
+  // The Tours page also folds working-visa packages into its "Packages" count
+  // (they show up in the same grid), so fetch and merge those too for parity.
+  useEffect(() => {
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    Promise.all([
+      axios.get(`${apiUrl}/api/tours?limit=1000`).then(res => res.data?.data || []).catch(() => []),
+      axios.get(`${apiUrl}/api/visas`).then(res => res.data?.data?.data || res.data?.data || []).catch(() => []),
+    ]).then(([tours, visas]) => setAllTours([...tours, ...visas]));
+  }, []);
+
+  // Count tours+visas per country. Regular tours link to a country by name via
+  // `destination` (an object, from a separate model than `Country`); visas use
+  // a flat `destination` string. Neither links by id, so match on name.
+  const countryTourCount = (country) => {
+    const name = country.name?.toLowerCase();
+    return allTours.filter(item => {
+      const dest = item.destination;
+      const destName = typeof dest === 'string' ? dest : (dest?.name || dest?.country || '');
+      return destName.toLowerCase() === name;
+    }).length;
+  };
+
+  // Some country records have junk image data (Google "imgres" search-result
+  // links instead of direct image URLs, or short placeholder strings like "sd").
+  // Filter those out up front instead of relying solely on onError round-trips.
+  const isUsableImage = (url) =>
+    typeof url === 'string' && url.length > 20 && !url.includes('google.com/imgres');
+
+  const countryImage = (country) => {
+    // Prefer the admin "Hero Image Path" field; fall back to the main image.
+    if (isUsableImage(country.heroImage)) return country.heroImage;
+    if (isUsableImage(country.image)) return country.image;
+    return PLACEHOLDER_IMAGE;
+  };
+
+  // Some country names are stored in ALL CAPS (e.g. "JAPAN"). Title-case them
+  // for display only — the raw name is still used for the /tours filter link,
+  // which matches tour data case-sensitively.
+  const displayName = (name) => {
+    if (!name || name !== name.toUpperCase()) return name;
+    return name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
+  // Show every country — countryImage() already falls back to a placeholder
+  // for the handful with broken image data, so there's no need to hide them.
+  const popularCountries = Array.isArray(countries)
+    ? [...countries].sort((a, b) => displayName(a.name).localeCompare(displayName(b.name)))
+    : [];
+  
   return (
     <div className="countries-page">
-      {/* Hero Section */}
-      <div className="countries-hero">
-        {heroBackgrounds.map((bg, index) => (
-          <div 
-            key={index} 
-            className={`hero-slide ${activeSlide === index ? 'active' : ''}`}
-            style={{ backgroundImage: `url(${bg})` }}
-          ></div>
-        ))}
-        <div className="hero-overlay"></div>
-        
-        <div className="hero-content">
-          <h1 className={`hero-title ${isLoaded ? 'loaded' : ''}`}>Discover the World</h1>
-          <p className={`hero-subtitle ${isLoaded ? 'loaded' : ''}`}>
-            Explore amazing destinations across continents and create unforgettable memories
-          </p>
-          
-          <div className={`hero-stats ${isLoaded ? 'loaded' : ''}`}>
-            {travelStats.map((stat, index) => (
-              <div key={index} className="stat-item">
-                <div className="stat-icon">{stat.icon}</div>
-                <div className="stat-value">{stat.value}</div>
-                <div className="stat-label">{stat.label}</div>
-              </div>
+      {/* Popular Destinations Section (countries only, no cities) */}
+      {popularCountries.length > 0 && (
+        <div className="popular-destinations-section">
+          <div className="popular-destinations-header">
+            <span className="pd-eyebrow">Global Collection</span>
+            <h2>Popular Destinations</h2>
+            <p>Discover our most sought-after countries, hand-picked for their unique culture, breathtaking landscapes, and unparalleled hospitality.</p>
+          </div>
+          <div className="popular-destinations-grid">
+            {popularCountries.map((country) => (
+              <Link
+                to={`/tours?country=${encodeURIComponent(country.name)}`}
+                className="pd-card"
+                key={country._id}
+              >
+                <img
+                  src={countryImage(country)}
+                  alt={displayName(country.name)}
+                  onError={(e) => {
+                    if (e.target.src !== PLACEHOLDER_IMAGE) {
+                      e.target.onerror = null;
+                      e.target.src = PLACEHOLDER_IMAGE;
+                    }
+                  }}
+                />
+                <div className="pd-badge">
+                  <FaSuitcaseRolling /> {countryTourCount(country)} Package{countryTourCount(country) === 1 ? '' : 's'}
+                </div>
+                <div className="pd-hover">
+                  <span>Explore Packages <FaChevronRight /></span>
+                </div>
+                <div className="pd-overlay">
+                  <h3>{displayName(country.name)}</h3>
+                </div>
+              </Link>
             ))}
           </div>
-          
-          <div className={`hero-cta ${isLoaded ? 'loaded' : ''}`}>
-            <Link to="/tours" className="cta-button primary">Browse All Tours</Link>
-            <Link to="/contact" className="cta-button secondary">Contact Us</Link>
-          </div>
         </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="categories-container">
-        <div className="categories-header">
-          <h2>Explore By Continent</h2>
-          <p>Begin your journey by choosing a continent to explore</p>
-        </div>
+      )}
 
-        <div className="categories-grid">
-          {categories.map((category) => (
-            <div className="category-card" key={category.id}>
-              <div className="category-image">
-                <img src={category.image} alt={category.name} />
-                <div className="category-overlay">
-                  <div className="category-icon" style={{ backgroundColor: category.color }}>
-                    {category.icon}
-                  </div>
-                  <h2>{category.name}</h2>
-                </div>
-              </div>
-              <div className="category-content">
-                <p>{category.description}</p>
-                
-                <div className="category-details">
-                  <div className="detail-section">
-                    <h3>Featured Countries</h3>
-                    <p>{category.countries}</p>
-                  </div>
-                  
-                  <div className="detail-section">
-                    <h3>Top Destinations</h3>
-                    <p>{category.featuredDestinations}</p>
-                  </div>
-                </div>
-                
-                <Link to={`/countries/${category.id}`} className="explore-button" style={{ backgroundColor: category.color }}>
-                  Explore {category.name}
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Why Choose Us Section */}
-      <div className="why-choose-us">
-        <div className="container">
-          <h2>Why Travel With Us</h2>
-          <p className="section-subtitle">We provide unforgettable experiences with premium service</p>
-          
-          <div className="features-grid">
-            <div className="feature-item">
-              <div className="feature-icon">
-                <FaPassport />
-              </div>
-              <h3>Expert Guides</h3>
-              <p>Our experienced local guides provide insider knowledge and authentic experiences</p>
-            </div>
-            
-            <div className="feature-item">
-              <div className="feature-icon">
-                <FaMapMarkedAlt />
-              </div>
-              <h3>Curated Itineraries</h3>
-              <p>Carefully planned routes that balance must-see attractions with hidden gems</p>
-            </div>
-            
-            <div className="feature-item">
-              <div className="feature-icon">
-                <FaPlane />
-              </div>
-              <h3>Hassle-Free Travel</h3>
-              <p>We handle all the logistics so you can focus on enjoying your journey</p>
-            </div>
-          </div>
-        </div>
+      {/* Bottom CTA Section */}
+      <div className="custom-journey-cta">
+        <h2>Can't find your perfect journey?</h2>
+        <p>Our travel designers are experts in creating bespoke itineraries tailored specifically to your preferences and pace.</p>
+        <Link to="/contact" className="cta-button primary">Contact for New Package</Link>
       </div>
     </div>
   );

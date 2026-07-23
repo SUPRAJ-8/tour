@@ -399,6 +399,7 @@
 
 .popular-tour-content {
   padding: 16px 24px 0px 24px;
+  background-color: #f6f6f6;
 }
 
 .popular-tour-title {
@@ -819,12 +820,14 @@
   }
 }
 
-/* Hide Categories explore-by-continent section */
-.categories-container,
-.categories-section,
-.section.categories-section,
-.categories-container + .container,
-.categories-container ~ * {
+/* Hide Categories explore-by-continent section (Home page only — these
+   selectors are unscoped classes that also exist on the Countries page,
+   so without the .home prefix this hides content there too). */
+.home .categories-container,
+.home .categories-section,
+.home .section.categories-section,
+.home .categories-container + .container,
+.home .categories-container ~ * {
   /* hide container and prevent extra spacing */
   display: none !important;
 }
@@ -911,13 +914,13 @@
   }
 
   /* stack category cards vertically */
-  .categories-container {
+  .home .categories-container {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
 
-  .category-card {
+  .home .category-card {
     flex: 1 1 100%;
   }
 }

@@ -19,7 +19,7 @@
 .popular-tours-section.loading-section .container,
 .working-visa-section .container ,
 .why-choose-us-section .container{
-  margin: 0 50px;         
+  margin: 0 auto;
   padding-bottom:20px;
 }
 
@@ -185,7 +185,7 @@
   font-size: 14px;
   justify-content: flex-start;
   padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #d2d2d2;
 }
 
 .info-item:last-child {
