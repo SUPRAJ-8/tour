@@ -131,7 +131,7 @@ const Tours = () => {
         try {
           // Try to fetch from the Tour Management API
           console.log('Trying primary tours endpoint...');
-          const managementResponse = await fetch(`${apiUrl}/api/tours`);
+          const managementResponse = await fetch(`${apiUrl}/api/tours?limit=1000`);
           const managementData = await managementResponse.json();
           console.log('Tour Management API Response:', managementData);
           
@@ -182,7 +182,7 @@ const Tours = () => {
         // If management tours failed, try other possible endpoints
         try {
           console.log('Trying regular API endpoint...');
-          const response = await fetch(`${apiUrl}/api/tours`);
+          const response = await fetch(`${apiUrl}/api/tours?limit=1000`);
           const data = await response.json();
           console.log('Regular API Response:', data);
           
@@ -535,18 +535,17 @@ const Tours = () => {
 
   return (
     <div className="tours-page">
-      <div className="tours-header">
-        <h1 className="tours-title">Explore Our Tours</h1>
-      </div>
-      
       <div className="tours-container">
         <div className="filters-wrapper">
           {/* Filter Header */}
           <div className="filter-title">
-            <span className="filter-title-icon"></span>
-            <h3>Filter</h3>
+            <span className="filter-title-icon"><FaFilter /></span>
+            <div>
+              <h3>Filters</h3>
+              <p className="filter-subtitle">Refine your journey</p>
+            </div>
           </div>
-          
+
           {/* Search Section */}
           <div className="search-box">
             <FaSearch className="search-icon" />
@@ -732,6 +731,11 @@ const Tours = () => {
         
         {/* Tours Content */}
         <div className="tours-content">
+          <div className="tours-header">
+            <h1 className="tours-title">Explore Our Tours</h1>
+            <p className="tours-subtitle">Discover handpicked experiences tailored for the elite traveler.</p>
+          </div>
+
           {loading ? (
             <div className="tours-grid-view">
               {Array.from({ length: 9 }).map((_, index) => (

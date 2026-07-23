@@ -143,8 +143,9 @@ const TourManagement = () => {
       // Admin view manages the full tour list client-side (search/status/country
       // filtering and pagination all happen in the browser), so request a high
       // limit here rather than relying on the API's default page size of 10.
+      // includeInactive so drafts/inactive tours are visible and manageable here too.
       const response = await axios.get(`${apiUrl}/api/tours`, {
-        params: { limit: 1000 },
+        params: { limit: 1000, includeInactive: true },
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

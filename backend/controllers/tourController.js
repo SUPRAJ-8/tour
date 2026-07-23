@@ -20,7 +20,7 @@ exports.getTours = async (req, res) => {
 
     // Build query
     const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    const excludedFields = ['page', 'sort', 'limit', 'fields', 'includeInactive'];
     excludedFields.forEach(el => delete queryObj[el]);
 
     // Handle tour status filtering
