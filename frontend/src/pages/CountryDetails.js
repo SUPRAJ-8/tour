@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaArrowLeft, FaMapMarkerAlt, FaClock, FaLanguage, FaMoneyBillWave, FaCalendarAlt, FaLightbulb, FaSuitcase } from 'react-icons/fa';
+import SEO from '../components/SEO';
 import './CountryDetails.css';
 
 const CountryDetails = () => {
@@ -113,11 +114,21 @@ const CountryDetails = () => {
   }
 
   if (!country) {
-    return <div className="not-found">Country not found</div>;
+    return (
+      <>
+        <SEO title="Country Not Found" canonical={`https://goldenhopetravels.com/countries/${continent}/${countryName}`} noIndex />
+        <div className="not-found">Country not found</div>
+      </>
+    );
   }
 
   return (
     <div className="country-details">
+      <SEO
+        title={`${country.name} Travel Guide`}
+        description={(country.description && country.description.slice(0, 155)) || `Explore ${country.name} with Golden Hope Travels — tour packages, travel tips, and destination info.`}
+        canonical={`https://goldenhopetravels.com/countries/${continent}/${countryName}`}
+      />
       <div className="country-header">
         <button className="btn-back" onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back

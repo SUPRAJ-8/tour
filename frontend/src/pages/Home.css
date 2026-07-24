@@ -751,48 +751,89 @@
   color: #999;
 }
 
-/* Features Section */
+/* Why Choose Us Section */
+.why-choose-section {
+  background-color: #d9f1ef;
+  background-image:
+    radial-gradient(circle at 12% 20%, rgba(255, 255, 255, 0.5) 0, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+    radial-gradient(circle at 68% 65%, rgba(255, 255, 255, 0.4) 0, rgba(255, 255, 255, 0.4) 1px, transparent 1px),
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0, rgba(255, 255, 255, 0.15) 1px, transparent 1px, transparent 42px);
+  background-size: 140px 140px, 180px 180px, 84px 84px;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.why-choose-section .section-title,
+.why-choose-section .section-subtitle {
+  text-align: left;
+}
+
+.why-choose-section .section-title {
+  color: #1e3a5f;
+}
+
+.why-choose-section .section-subtitle {
+  margin-bottom: 3rem;
+}
+
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem 2rem;
 }
 
 .feature-card {
-  background-color: #f6f8ff;
-  border-radius: 10px;
-  padding: 2rem;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  text-align: center;
+  position: relative;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 10px 25px rgba(20, 50, 60, 0.1);
+  text-align: left;
   transition: transform 0.3s ease;
+  z-index: 1;
+}
+
+/* Second sheet peeking out behind the card for a stacked-paper look */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: #fff;
+  border-radius: inherit;
+  box-shadow: 0 6px 16px rgba(20, 50, 60, 0.08);
+  transform: translate(8px, 8px);
+  z-index: -1;
 }
 
 .feature-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-6px);
 }
 
 .feature-icon {
-  width: 70px;
-  height: 70px;
-  background-color: rgba(255, 107, 107, 0.1);
+  width: 60px;
+  height: 60px;
+  background-color: rgba(242, 153, 74, 0.12);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 1.8rem;
-  color: #ff6b6b;
+  margin-bottom: 1.25rem;
+  font-size: 1.6rem;
+  color: #f2994a;
 }
 
 .feature-title {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  color: #1e3a5f;
+  font-weight: 700;
 }
 
-.feature-description {
-  color: #666;
-  margin-bottom: 1.5rem;
+.feature-text {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 @media (max-width: 992px) {
@@ -802,6 +843,10 @@
 }
 
 @media (max-width: 576px) {
+  .why-choose-section .section-title,
+  .why-choose-section .section-subtitle {
+    text-align: center;
+  }
   .features-grid {
     grid-template-columns: 1fr;
   }
@@ -866,8 +911,10 @@
     left: 20px;
   }
 
-  /* hide right arrow on mobile */
-  .custom-nav-btn.next {
+  /* hide right arrow on mobile (Home page only — unscoped .custom-nav-btn.next
+     was also hiding the "next" arrow on other pages' carousels, e.g. the
+     Similar Tours carousel on TourDetails, while leaving "prev" visible). */
+  .home .custom-nav-btn.next {
     display: none !important;
   }
 

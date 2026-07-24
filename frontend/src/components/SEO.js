@@ -7,22 +7,23 @@ import { Helmet } from 'react-helmet';
  *   <SEO 
  *     title="Page Title" 
  *     description="Page description" 
- *     canonical="https://zyphertours.com/page"
- *     image="https://zyphertours.com/images/page-image.jpg"
+ *     canonical="https://goldenhopetravels.com/page"
+ *     image="https://goldenhopetravels.com/images/page-image.jpg"
  *     type="website"
  *     keywords="keyword1, keyword2"
  *   />
  */
-const SEO = ({ 
-  title = 'Zypher Tours - Discover Amazing Travel Destinations', 
-  description = 'Explore the world with Zypher Tours. Book exclusive travel packages, guided tours, and unforgettable experiences across multiple countries.',
-  canonical = 'https://zyphertours.com/',
-  image = 'https://zyphertours.com/images/logo.png',
+const SEO = ({
+  title = 'Golden Hope Travels - Discover Amazing Travel Destinations',
+  description = 'Explore the world with Golden Hope Travels. Book exclusive travel packages, guided tours, and unforgettable experiences across multiple countries.',
+  canonical = 'https://goldenhopetravels.com/',
+  image = 'https://goldenhopetravels.com/images/logo.png',
   type = 'website',
-  keywords = 'travel tours, tour packages, vacation packages, travel destinations, guided tours'
+  keywords = 'travel tours, tour packages, vacation packages, travel destinations, guided tours',
+  noIndex = false
 }) => {
-  const siteTitle = title.includes('Zypher Tours') ? title : `${title} | Zypher Tours`;
-  
+  const siteTitle = title.includes('Golden Hope Travels') ? title : `${title} | Golden Hope Travels`;
+
   return (
     <Helmet>
       {/* Primary Meta Tags */}
@@ -30,7 +31,7 @@ const SEO = ({
       <meta name="title" content={siteTitle} />
       <meta name="description" content={description} />
       {keywords && <meta name="keywords" content={keywords} />}
-      <meta name="robots" content="index, follow" />
+      <meta name="robots" content={noIndex ? 'noindex, follow' : 'index, follow'} />
       <link rel="canonical" href={canonical} />
       
       {/* Open Graph / Facebook */}
@@ -39,7 +40,7 @@ const SEO = ({
       <meta property="og:title" content={siteTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
-      <meta property="og:site_name" content="Zypher Tours" />
+      <meta property="og:site_name" content="Golden Hope Travels" />
       
       {/* Twitter */}
       <meta property="twitter:card" content="summary_large_image" />

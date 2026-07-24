@@ -12,13 +12,13 @@ const StructuredData = ({ type = 'organization', data = {} }) => {
         return {
           "@context": "https://schema.org",
           "@type": "TravelAgency",
-          "name": "Zypher Tours",
-          "description": "Discover amazing travel destinations and tour packages with Zypher Tours. We offer exclusive deals on adventure, cultural, and luxury tours worldwide.",
-          "url": "https://zyphertours.com",
-          "logo": "https://zyphertours.com/images/logo.png",
-          "image": "https://zyphertours.com/images/logo.png",
+          "name": "Golden Hope Travels",
+          "description": "Discover amazing travel destinations and tour packages with Golden Hope Travels. We offer exclusive deals on adventure, cultural, and luxury tours worldwide.",
+          "url": "https://goldenhopetravels.com",
+          "logo": "https://goldenhopetravels.com/images/logo.png",
+          "image": "https://goldenhopetravels.com/images/logo.png",
           "telephone": data.telephone || "",
-          "email": data.email || "info@zyphertours.com",
+          "email": data.email || "goldenhopetoursandtravels@gmail.com",
           "address": {
             "@type": "PostalAddress",
             "addressCountry": data.country || "US"
@@ -58,8 +58,8 @@ const StructuredData = ({ type = 'organization', data = {} }) => {
           },
           "provider": {
             "@type": "TravelAgency",
-            "name": "Zypher Tours",
-            "url": "https://zyphertours.com"
+            "name": "Golden Hope Travels",
+            "url": "https://goldenhopetravels.com"
           }
         };
 
@@ -79,11 +79,11 @@ const StructuredData = ({ type = 'organization', data = {} }) => {
         return {
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "Zypher Tours",
-          "url": "https://zyphertours.com",
+          "name": "Golden Hope Travels",
+          "url": "https://goldenhopetravels.com",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://zyphertours.com/tours?search={search_term_string}",
+            "target": "https://goldenhopetravels.com/tours?search={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         };

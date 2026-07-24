@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 import './Auth.css';
 
 const Register = () => {
@@ -83,6 +84,11 @@ const Register = () => {
 
   return (
     <section className="auth-section">
+      <SEO
+        title="Create Account"
+        description="Create a free Golden Hope Travels account to book tours, save favorites, and manage your travel plans."
+        canonical="https://goldenhopetravels.com/register"
+      />
       <div className="container">
         <div className="auth-container">
           <div className="auth-image">

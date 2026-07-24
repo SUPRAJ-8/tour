@@ -1556,13 +1556,15 @@
 /* ------------ Hover behaviour (image only) ------------- */
 /* Prevent card-level hover effects for related tour cards */
 .related-tours-section .tour-card {
-  /* .tour-card is also defined elsewhere (unscoped) as a row-direction flex
-     card — that was winning here depending on bundle load order, squeezing
-     .tour-image down to 0 width so .tour-info's un-wrapped text could keep
-     its full ~418px demand. This card is meant to stack image over info. */
+  transition: none; /* inherit default without extra translate */
+  /* .tour-card is a shared, unscoped class — a leaked rule from
+     components/admin/AdminComponents.css sets display:flex with no
+     flex-direction (defaults to row), squeezing the image to 0 width
+     and cramming the text beside it instead of below it. */
   display: flex;
   flex-direction: column;
-  transition: none; /* inherit default without extra translate */
+  width: 100%;
+  height: auto;
 }
 .related-tours-section .tour-card:hover {
   transform: none;
@@ -1583,6 +1585,9 @@
 
 .related-tours-section {
   max-width: 1440px;
+  /* margin-left:4rem (with no matching right margin) pinned this near the
+     left edge on wide screens instead of centering it like the rest of the
+     page. margin:auto centers the capped box the same way .container does. */
   margin: 2rem auto;
   padding: 0 1rem;
 }
@@ -1595,6 +1600,10 @@
    the buttons back inside the row instead of outside it. */
 .related-swiper-wrapper {
   position: relative;
+  /* Reserve a gutter for the nav buttons so they sit beside the card row
+     instead of overlapping the first/last card's text (10px offset + 40px
+     button = 50px). */
+  padding: 0 50px;
 }
 
 .related-swiper-wrapper .custom-nav-btn.prev {
@@ -1935,7 +1944,7 @@
   border-radius: 8px;
 }
 
-.confusion-section h3 {
+.confusion-section .confusion-title {
   font-size: 1.25rem;
   color: #111827;
   margin-bottom: 0.5rem;

@@ -25,6 +25,26 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// ---------------------- Canonical domain redirect ----------------------
+// Enforce a single canonical host+scheme (https, non-www) so search engines
+// don't index duplicate content served across http/https and www/non-www.
+// Gated on the request's actual Host header (not NODE_ENV) so local/dev
+// requests to localhost are never redirected, regardless of how NODE_ENV
+// is set in that environment.
+const CANONICAL_HOST = 'goldenhopetravels.com';
+app.set('trust proxy', 1);
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase();
+  if (host !== CANONICAL_HOST && host !== `www.${CANONICAL_HOST}`) {
+    return next();
+  }
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  if (host === `www.${CANONICAL_HOST}` || proto !== 'https') {
+    return res.redirect(301, `https://${CANONICAL_HOST}${req.originalUrl}`);
+  }
+  next();
+});
+
 // Middleware
 app.use(express.json());
 // ----- Extra header for Chrome Private Network Access (CORS-RFC1918) -----
@@ -52,10 +72,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL && process.env.FRONTEND_URL.replace(/\/+$/, ''),
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'http://zyphertours.com',
-  'https://zyphertours.com',
-  'http://www.zyphertours.com',
-  'https://www.zyphertours.com'
+  `https://${CANONICAL_HOST}`
 ].filter(Boolean);
 
 app.use(cors({
@@ -100,30 +117,66 @@ app.get('/', (req, res) => {
   });
 });
 
-// --------------- Frontend fallback ---------------
-// For any non-API routes, send back React's index.html so client-side routing works
-app.get('*', (req, res, next) => {
-  // Skip if the request is clearly for our API or assets
-  if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads') || req.originalUrl.startsWith('/images')) {
-    return next();
-  }
-  return res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
-});
-
-// Health check route (root)
+// Health check routes (must be registered before the frontend catch-all
+// below, otherwise it intercepts GET /health first and shadows this route).
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
+  res.status(200).json({
+    status: 'ok',
     message: 'Server is running'
   });
 });
 
 // Health check route under /api to satisfy frontend checks
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'ok', 
+  res.status(200).json({
+    status: 'ok',
     message: 'Server is running'
   });
+});
+
+// --------------- Frontend fallback ---------------
+// Paths matching the client-side route table (see frontend/src/App.js) get a 200 —
+// React Router owns rendering from there. Anything else is a genuine 404: still
+// serve the SPA shell (so NotFound.js renders), but with a real 404 status so
+// crawlers don't index broken/typo'd URLs as valid pages.
+const KNOWN_ROUTE_PATTERNS = [
+  /^\/$/,
+  /^\/tours$/,
+  /^\/tours\/[^/]+$/,
+  /^\/working-visa\/[^/]+$/,
+  /^\/countries$/,
+  /^\/countries\/asia$/,
+  /^\/countries\/europe$/,
+  /^\/countries\/asia\/[^/]+$/,
+  /^\/countries\/europe\/[^/]+$/,
+  /^\/countries\/asia\/[^/]+\/tours\/[^/]+$/,
+  /^\/countries\/europe\/[^/]+\/tours\/[^/]+$/,
+  /^\/countries\/[^/]+\/[^/]+\/tour\/[^/]+$/,
+  /^\/countries\/[^/]+\/[^/]+$/,
+  /^\/about$/,
+  /^\/contact$/,
+  /^\/login$/,
+  /^\/register$/,
+  /^\/book\/[^/]+$/,
+  /^\/admin$/,
+  /^\/admin-dashboard$/,
+  /^\/dashboard$/
+];
+
+app.get('*', (req, res, next) => {
+  // Skip if the request is clearly for our API or assets
+  if (req.originalUrl.startsWith('/api/') || req.originalUrl.startsWith('/uploads') || req.originalUrl.startsWith('/images')) {
+    return next();
+  }
+  const isKnownRoute = KNOWN_ROUTE_PATTERNS.some((pattern) => pattern.test(req.path));
+  res.status(isKnownRoute ? 200 : 404).sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+});
+
+// Any /api/* request that fell through the routers and health checks above
+// is a real 404, not the SPA shell — return JSON so API clients and crawlers
+// get a clean signal instead of an HTML page.
+app.use('/api', (req, res) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
 });
 
 // Error handling middleware

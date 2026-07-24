@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useData } from '../context/DataContext';
 import { getSampleTours } from '../services/tourService';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaSyncAlt, FaChevronRight } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarCheck, FaUsers, FaCompass, FaStar, FaSyncAlt, FaChevronRight } from 'react-icons/fa';
 import PopularTours from '../components/PopularTours';
 import HottestTours from '../components/HottestTours';
 import FeaturedTours from '../components/FeaturedTours';
@@ -11,7 +11,7 @@ import WorkingVisaCards from '../components/WorkingVisaCards';
 import ToursSectionSkeleton from '../components/ToursSectionSkeleton';
 import './Home.css';
 import './Categories.css';
-import { Helmet } from 'react-helmet';
+import SEO from '../components/SEO';
 import StructuredData from '../components/StructuredData';
 
 
@@ -145,9 +145,13 @@ const Home = () => {
     const loadTourData = async () => {
       // Only show skeleton if fetch takes longer than 200ms
       const timeoutId = setTimeout(() => setLoading(true), 200);
+      // Clear any error from a previous attempt so a stale failure doesn't
+      // permanently block the page once a later fetch (this one, or the
+      // context's own) succeeds — the error UI takes precedence in render.
+      setError(null);
       try {
         console.log('Loading tour data, lastRefresh:', lastRefresh);
-        
+
         let toursToUse = [];
         
         // Try to get data from API first
@@ -345,11 +349,11 @@ const Home = () => {
   if (loading) {
     return (
       <div className="home">
-        <Helmet>
-          <title>Explore Tours | Home</title>
-          <link rel="canonical" href="https://zyphertours.com/" />
-          <meta name="description" content="Discover hottest and popular tours around the world." />
-        </Helmet>
+        <SEO
+          title="Explore Tours | Home"
+          description="Discover hottest and popular tours around the world."
+          canonical="https://goldenhopetravels.com/"
+        />
         {/* Hottest Tours will load independently */}
         <HottestTours />
         
@@ -375,11 +379,11 @@ const Home = () => {
 
   return (
     <div className="home">
-      <Helmet>
-        <title>Zypher Tours - Discover Amazing Travel Destinations & Tour Packages</title>
-        <link rel="canonical" href="https://zyphertours.com/" />
-        <meta name="description" content="Explore the world with Zypher Tours. Book exclusive travel packages, guided tours, and unforgettable experiences across multiple countries. Best deals on adventure, cultural, and luxury tours." />
-      </Helmet>
+      <SEO
+        title="Golden Hope Travels - Discover Amazing Travel Destinations & Tour Packages"
+        description="Explore the world with Golden Hope Travels. Book exclusive travel packages, guided tours, and unforgettable experiences across multiple countries. Best deals on adventure, cultural, and luxury tours."
+        canonical="https://goldenhopetravels.com/"
+      />
       <StructuredData type="organization" />
       <StructuredData type="website" />
       {/* Hottest Tours Section */}
@@ -411,7 +415,7 @@ const Home = () => {
             {/* Asia Category */}
             <Link to="/countries/asia" className="category-card">
               <div className="category-image">
-                <img src={`${process.env.PUBLIC_URL}/images/categories/asia.jpg`} alt="Asia Tours" />
+                <img src={`${process.env.PUBLIC_URL}/images/categories/asia.jpg`} alt="Asia Tours" loading="lazy" decoding="async" />
                 <div className="category-overlay"></div>
               </div>
               <div className="category-content">
@@ -423,7 +427,7 @@ const Home = () => {
             {/* Europe Category */}
             <Link to="/countries/europe" className="category-card">
               <div className="category-image">
-                <img src={`${process.env.PUBLIC_URL}/images/categories/europe.jpg`} alt="Europe Tours" />
+                <img src={`${process.env.PUBLIC_URL}/images/categories/europe.jpg`} alt="Europe Tours" loading="lazy" decoding="async" />
                 <div className="category-overlay"></div>
               </div>
               <div className="category-content">
@@ -436,47 +440,47 @@ const Home = () => {
       </section>
 
       {/* Why Choose Us Section */}
-      <section className="section">
+      <section className="section why-choose-section">
         <div className="container">
           <h2 className="section-title">Why Choose Us</h2>
           <p className="section-subtitle">We offer the best experience for your journey</p>
-          
+
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">
-                <FaStar />
+                <FaCompass />
               </div>
-              <h3 className="feature-title">Handpicked Tours</h3>
+              <h3 className="feature-title">Handpicked Tours:</h3>
               <p className="feature-text">
                 Our travel experts personally select the best tours and experiences for you.
               </p>
             </div>
-            
+
             <div className="feature-card">
               <div className="feature-icon">
                 <FaUsers />
               </div>
-              <h3 className="feature-title">Small Groups</h3>
+              <h3 className="feature-title">Small Groups:</h3>
               <p className="feature-text">
                 Travel in small groups for a more personalized and intimate experience.
               </p>
             </div>
-            
+
             <div className="feature-card">
               <div className="feature-icon">
                 <FaMapMarkerAlt />
               </div>
-              <h3 className="feature-title">Local Experiences</h3>
+              <h3 className="feature-title">Local Experiences:</h3>
               <p className="feature-text">
                 Immerse yourself in local cultures with authentic experiences.
               </p>
             </div>
-            
+
             <div className="feature-card">
               <div className="feature-icon">
-                <FaCalendarAlt />
+                <FaCalendarCheck />
               </div>
-              <h3 className="feature-title">Flexible Booking</h3>
+              <h3 className="feature-title">Flexible Booking:</h3>
               <p className="feature-text">
                 Change your travel dates or cancel your booking with flexible policies.
               </p>

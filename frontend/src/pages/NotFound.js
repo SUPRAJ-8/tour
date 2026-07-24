@@ -1,10 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import './NotFound.css';
 
 const NotFound = () => {
   return (
     <section className="not-found-page">
+      <SEO
+        title="Page Not Found"
+        description="The page you're looking for doesn't exist or has been moved. Return to Golden Hope Travels home or explore our tours."
+        canonical="https://goldenhopetravels.com/404"
+        noIndex
+      />
       <div className="container">
         <div className="not-found-content">
           <h1 className="not-found-title">404</h1>

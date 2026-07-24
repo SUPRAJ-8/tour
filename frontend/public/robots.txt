@@ -1,4 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
-Sitemap: https://zyphertours.com/sitemap.xml
+Disallow: /admin
+Disallow: /admin-dashboard
+Disallow: /dashboard
+Disallow: /book/
+Sitemap: https://goldenhopetravels.com/sitemap.xml

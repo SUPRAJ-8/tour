@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaSuitcaseRolling, FaChevronRight } from 'react-icons/fa';
 import { useData } from '../context/DataContext';
+import SEO from '../components/SEO';
 import './Countries.css';
 
 // Neutral gray placeholder, inline so it can never 404 like a missing/broken file would.
@@ -66,6 +67,11 @@ const Categories = () => {
   
   return (
     <div className="countries-page">
+      <SEO
+        title="Explore Countries"
+        description="Discover every destination Golden Hope Travels covers, from bustling Asian capitals to iconic European landmarks, and find tour packages by country."
+        canonical="https://goldenhopetravels.com/countries"
+      />
       {/* Popular Destinations Section (countries only, no cities) */}
       {popularCountries.length > 0 && (
         <div className="popular-destinations-section">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ScrollToTop from './components/routing/ScrollToTop';
 import './assets/css/App.css';
@@ -11,36 +11,35 @@ import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 
-// Pages
-import Home from './pages/Home';
-import Tours from './pages/Tours';
-import TourDetails from './pages/TourDetails';
-import WorkingVisaDetails from './pages/WorkingVisaDetails';
-
-import TourDetail from './pages/TourDetail';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AdminLogin from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
-import Dashboard from './pages/Dashboard';
-import BookingForm from './pages/BookingForm';
-import NotFound from './pages/NotFound';
-import Countries from './pages/Countries';
-import AsianCountries from './pages/AsianCountries';
-import EuropeanCountries from './pages/EuropeanCountries';
-import CountryDetail from './pages/CountryDetail';
-import CountryDetails from './pages/CountryDetails';
-
 // Protected Route Component
 import PrivateRoute from './components/routing/PrivateRoute';
 
 // Context
-import { useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
-import LoadingScreen from './components/LoadingScreen';
 import WhatsAppButton from './components/WhatsAppButton';
+
+// Pages — lazy-loaded so each route ships its own JS chunk instead of
+// bundling every page (including admin) into one multi-hundred-KB file.
+const Home = lazy(() => import('./pages/Home'));
+const Tours = lazy(() => import('./pages/Tours'));
+const TourDetails = lazy(() => import('./pages/TourDetails'));
+const WorkingVisaDetails = lazy(() => import('./pages/WorkingVisaDetails'));
+
+const TourDetail = lazy(() => import('./pages/TourDetail'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const BookingForm = lazy(() => import('./pages/BookingForm'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Countries = lazy(() => import('./pages/Countries'));
+const AsianCountries = lazy(() => import('./pages/AsianCountries'));
+const EuropeanCountries = lazy(() => import('./pages/EuropeanCountries'));
+const CountryDetail = lazy(() => import('./pages/CountryDetail'));
+const CountryDetails = lazy(() => import('./pages/CountryDetails'));
 
 // Layout wrapper component to conditionally render navbar and footer
 const MainLayout = ({ children }) => (
@@ -57,18 +56,15 @@ const AdminLayout = ({ children }) => (
 );
 
 function App() {
-  const { loading } = useAuth();
-
-  // Temporarily commented out loading screen
-  // if (loading) {
-  //   return <LoadingScreen />;
-  // }
-
   return (
     <div className="app">
       <DataProvider>
         {/* Reset scroll position on each route change */}
         <ScrollToTop />
+        {/* No fallback here — each page already renders its own skeleton
+            loading state once mounted, so a competing spinner would just
+            flash before the page's own skeleton takes over. */}
+        <Suspense fallback={null}>
         <Routes>
         {/* Admin routes without navbar and footer */}
         <Route path="/admin" element={
@@ -119,6 +115,7 @@ function App() {
         <Route path="/countries/:continent/:countryName" element={<MainLayout><CountryDetails /></MainLayout>} />
         <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
         </Routes>
+        </Suspense>
         <WhatsAppButton />
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       </DataProvider>

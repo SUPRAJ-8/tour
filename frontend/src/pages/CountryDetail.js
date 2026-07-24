@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { FaMapMarkerAlt, FaCalendarAlt, FaStar, FaRegStar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import SEO from '../components/SEO';
 import './CountryDetail.css';
 
 // Static tour images
@@ -393,6 +394,7 @@ const CountryDetail = ({ category }) => {
   if (!country) {
     return (
       <div className="loading-container">
+        <SEO title="Country Not Found" canonical={`https://goldenhopetravels.com/countries/${category}/${countryId}`} noIndex />
         <div className="loader"></div>
         <p>Country information not available. Please try again later.</p>
         <button onClick={forceRefresh} className="refresh-button">Retry</button>
@@ -402,6 +404,11 @@ const CountryDetail = ({ category }) => {
 
   return (
     <div className="country-detail-container">
+      <SEO
+        title={`${country.name} Tours`}
+        description={(country.description && country.description.slice(0, 155)) || `Discover tour packages in ${country.name} with Golden Hope Travels.`}
+        canonical={`https://goldenhopetravels.com/countries/${category}/${countryId}`}
+      />
       {/* Hero Section */}
       <div 
         className="country-hero" 

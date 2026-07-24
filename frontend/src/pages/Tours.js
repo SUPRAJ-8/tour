@@ -5,6 +5,7 @@ import { FaSearch, FaUsers, FaClock, FaGlobe, FaChevronDown, FaFilter, FaCog, Fa
 import { fetchAllTours } from '../services/tourService';
 import RegionalToursList from '../components/RegionalToursList';
 import TourCardSkeleton from '../components/TourCardSkeleton';
+import SEO from '../components/SEO';
 import './Tours.css';
 
 const Tours = () => {
@@ -559,6 +560,11 @@ const Tours = () => {
 
   return (
     <div className="tours-page">
+      <SEO
+        title="Explore Our Tours"
+        description="Browse Golden Hope Travels' full collection of guided tours and travel packages across Asia, Europe, and beyond. Filter by country, duration, and travel style."
+        canonical="https://goldenhopetravels.com/tours"
+      />
       <div className="tours-container">
         <div className="filters-wrapper">
           {/* Filter Header */}
@@ -831,6 +837,8 @@ const Tours = () => {
                             <img
                               src={tourImage}
                               alt={tourName}
+                              loading="lazy"
+                              decoding="async"
                             />
                           </div>
                           <div className="tour-info">

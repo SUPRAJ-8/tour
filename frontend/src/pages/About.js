@@ -1,11 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaUsers, FaGlobe, FaHandshake, FaLeaf } from 'react-icons/fa';
+import SEO from '../components/SEO';
 import './About.css';
 
 const About = () => {
   return (
     <section className="about-page">
+      <SEO
+        title="About Us"
+        description="Learn about Golden Hope Travels' story, mission, and values — the tour operator helping travelers explore the world sustainably since 2023."
+        canonical="https://goldenhopetravels.com/about"
+      />
       <div className="about-header">
         <div className="container">
           <h1 className="about-title">About Us</h1>
@@ -15,13 +21,13 @@ const About = () => {
       <div className="container">
         <div className="about-content">
           <div className="about-image">
-            <img src="/images/logo.png" alt="About Zypher Tour And Travel" />
+            <img src="/images/logo.png" alt="About Golden Hope Travels" />
           </div>
           
           <div className="about-text">
             <h2>Our Story</h2>
             <p>
-              <b>Zypher Tour And Travel</b> was founded in <b>2023</b> with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
+              <b>Golden Hope Travels</b> was founded in <b>2023</b> with a simple mission: to help people explore the world in a meaningful and sustainable way. What started as a small team of passionate travelers has grown into a leading tour operator with a global presence.
             </p>
             <p>
               We believe that travel has the power to transform lives, broaden perspectives, and create lasting connections between people and cultures. Our carefully curated tours are designed to provide authentic experiences that go beyond typical tourist attractions.

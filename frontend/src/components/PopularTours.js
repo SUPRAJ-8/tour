@@ -78,7 +78,7 @@ const PopularTours = () => {
         <div className="section-header">
           <div>
             <h2 className="section-title">Most Popular Tours</h2>
-            <h1 className="section-subtitle">Discover Top International Tour Packages:<br/>Your Adventure Awaits!</h1>
+            <p className="section-subtitle">Discover Top International Tour Packages:<br/>Your Adventure Awaits!</p>
           </div>
           <Link to="/tours" className="view-all-tours-button">
             View All Tours <FaChevronRight className="view-all-icon" />
@@ -109,7 +109,7 @@ const PopularTours = () => {
               <SwiperSlide key={tour._id || tour.id}>
                 <Link to={`/tours/${tour._id||tour.id}`} className="popular-tour-card">
                   <div className="popular-tour-image">
-                    <img src={tour.coverImage||tour.imageCover} alt={tour.title||tour.name} />
+                    <img src={tour.coverImage||tour.imageCover} alt={tour.title||tour.name} loading="lazy" decoding="async" />
                     <div className="popular-tour-badge"><FaBolt/> Most Popular</div>
                   </div>
                   <div className="popular-tour-content">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaStar, FaClock, FaMoneyBillWave, 
   FaCheck, FaTimes, FaInfoCircle, FaPassport, FaUmbrellaBeach, FaDownload, FaShare, FaHeart, FaExpand } from 'react-icons/fa';
+import SEO from '../components/SEO';
 import './TourDetail.css';
 import { getAsianCountries, getEuropeanCountries } from '../utils/countryData';
 
@@ -216,6 +217,11 @@ const TourDetail = () => {
 
   return (
     <section className="tour-details-page">
+      <SEO
+        title={tour.title}
+        description={tour.overview && tour.overview.slice(0, 155)}
+        canonical={`https://goldenhopetravels.com/countries/${tour.category}/${countryId}/tours/${tourId}`}
+      />
       {/* Image Gallery */}
       <div className="tour-gallery-container">
         <div className="gallery-grid">
@@ -278,48 +284,48 @@ const TourDetail = () => {
                   <FaMapMarkerAlt />
                 </div>
                 <div className="info-content">
-                  <h4>Country</h4>
+                  <p className="info-label">Country</p>
                   <p>{country.name}</p>
                 </div>
               </div>
-              
+
               <div className="info-item">
                 <div className="info-icon calendar-icon">
                   <FaCalendarAlt />
                 </div>
                 <div className="info-content">
-                  <h4>Best Season</h4>
+                  <p className="info-label">Best Season</p>
                   <p>Jan-Jun, Sept-Nov</p>
                 </div>
               </div>
-              
+
               <div className="info-item">
                 <div className="info-icon duration-icon">
                   <FaClock />
                 </div>
                 <div className="info-content">
-                  <h4>Duration</h4>
+                  <p className="info-label">Duration</p>
                   <p>4N/5D</p>
                 </div>
               </div>
-              
+
               <div className="info-item">
                 <div className="info-icon group-icon">
                   <FaUsers />
                 </div>
                 <div className="info-content">
-                  <h4>Group Size</h4>
+                  <p className="info-label">Group Size</p>
                   <p>15-30 travelers</p>
                 </div>
               </div>
             </div>
-            
+
             <hr className="tour-divider" />
-            
+
             {/* Discount Banner */}
             <div className="discount-banner">
               <div className="discount-text">
-                <h3>20% OFF</h3>
+                <p className="discount-amount-text">20% OFF</p>
                 <p>on all packages</p>
               </div>
               <div className="service-features">
@@ -541,7 +547,7 @@ const TourDetail = () => {
               <div className="booking-contact">
                 <p>Need help? Contact us:</p>
                 <a href="tel:015925842" className="contact-phone">+9779765198757</a>
-                <a href="mailto:zyphertourandtravel@gmail.com" className="contact-email">zyphertourandtravel@gmail.com</a>
+                <a href="mailto:goldenhopetoursandtravels@gmail.com" className="contact-email">goldenhopetoursandtravels@gmail.com</a>
               </div>
             </div>
           </div>

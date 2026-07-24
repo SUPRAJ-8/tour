@@ -27,6 +27,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
+import SEO from '../components/SEO';
 import './BookingForm.css';
 
 const BookingForm = () => {
@@ -650,6 +651,12 @@ const BookingForm = () => {
 
   return (
     <section className="booking-page">
+      <SEO
+        title={`Book ${tour.title}`}
+        description={`Complete your booking for ${tour.title} with Golden Hope Travels.`}
+        canonical={`https://goldenhopetravels.com/book/${tourId}`}
+        noIndex
+      />
       <div className="container">
         <div className="booking-header">
           <Link to={`/tours/${tourId}`} className="back-link">

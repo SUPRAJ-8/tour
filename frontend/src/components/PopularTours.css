@@ -14,13 +14,20 @@
   display: none;
 }
 
-/* Remove default bootstrap/container margins for these sections */
+/* Remove default bootstrap/container margins for these sections.
+   max-width is bumped to 1284px (matching .popular-tours-swiper-container's
+   own max-width below) — the base .container class caps at 1200px, which is
+   84px short of what 3 × 414.4px cards + 2 × 20px gaps actually need. That
+   shortfall desynced Swiper's internal slide-position math (computed from
+   slidesPerView against the available width) from the CSS-forced slide
+   width, which is what let adjacent slides bleed into view at the edges. */
 .popular-tours-section .container,
 .popular-tours-section.loading-section .container,
 .working-visa-section .container ,
 .why-choose-us-section .container{
   margin: 0 auto;
   padding-bottom:20px;
+  max-width: 100%;
 }
 
 /* Why Choose Us container – no outer margin */
@@ -298,6 +305,14 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  /* Match .popular-tours-swiper-container's max-width so the title/subtitle
+     and "View All" button sit directly above the card row instead of
+     stretching edge-to-edge across the (much wider) section container on
+     large screens, which left the title and button feeling disconnected
+     from the cards between them. */
+  max-width: 1284px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .view-all-tours-button {
@@ -521,7 +536,7 @@
   color: #0095ff;
 }
 
-.custom-nav-btn svg:hover {
+.custom-nav-btn:hover svg {
   color: white;
 }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 import './Auth.css';
 
 const Login = () => {
@@ -63,6 +64,11 @@ const Login = () => {
 
   return (
     <section className="auth-section">
+      <SEO
+        title="Login"
+        description="Sign in to your Golden Hope Travels account to manage bookings and view your travel history."
+        canonical="https://goldenhopetravels.com/login"
+      />
       <div className="container">
         <div className="auth-container">
           <div className="auth-image">

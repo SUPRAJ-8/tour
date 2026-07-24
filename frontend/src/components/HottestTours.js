@@ -152,7 +152,7 @@ const HottestTours = () => {
               {/* Flex container - content left, image right */}
                 <div className="tour-slide-content">
                   <div className="tour-card-badge hottest-tour"><FaFire style={{ marginRight: '5px', color: 'white' }} /> Hottest Tour</div>
-                  <h1 className="tour-slide-title">{tour.title || tour.name}</h1>
+                  <h3 className="tour-slide-title">{tour.title || tour.name}</h3>
                   <p className="tour-slide-description">{(tour.description?.replace(/<[^>]*>/g, '') || 'Experience an unforgettable journey with our expertly crafted tour package').substring(0, 120)}...</p>
                   <div className="tour-slide-info">
                     <div className="slide-info-item">

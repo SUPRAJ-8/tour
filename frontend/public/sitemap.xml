@@ -1,69 +1,237 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Homepage -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://zyphertours.com/</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Main Pages -->
   <url>
-    <loc>https://zyphertours.com/about</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/about</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://zyphertours.com/contact</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/contact</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Tours Section -->
   <url>
-    <loc>https://zyphertours.com/tours</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/tours</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Countries/Destinations -->
   <url>
-    <loc>https://zyphertours.com/countries</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/countries</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Authentication Pages -->
   <url>
-    <loc>https://zyphertours.com/login</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/countries/asia</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/europe</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/login</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://zyphertours.com/register</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/register</loc>
+    <lastmod>2026-07-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
-  
-  <!-- Note: Add individual tour pages dynamically via backend or sitemap generator -->
-  <!-- Example tour page structure:
   <url>
-    <loc>https://zyphertours.com/tours/tour-id</loc>
-    <lastmod>2024-01-01</lastmod>
+    <loc>https://goldenhopetravels.com/tours/682618ead4022b798aa642b1</loc>
+    <lastmod>2025-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <image:image>
-      <image:loc>https://zyphertours.com/images/tour-image.jpg</image:loc>
-      <image:title>Tour Title</image:title>
-    </image:image>
   </url>
-  -->
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684afd6e0732fcbc6c031d0b</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/682a1890a5025616097ad286</loc>
+    <lastmod>2025-05-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/68637f053f6134df91087bb8</loc>
+    <lastmod>2025-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/6848ebacac6027eb5be45a96</loc>
+    <lastmod>2025-06-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/685d04e2ce7ebc20a89ac00e</loc>
+    <lastmod>2025-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684affb50732fcbc6c031d82</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/686404013f6134df91088737</loc>
+    <lastmod>2025-06-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684af9a10732fcbc6c031cf7</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684af7d20732fcbc6c031cc7</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684aff1a0732fcbc6c031d73</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684b091d0732fcbc6c0322b8</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684b0c320732fcbc6c032618</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/685644e2b828d0fedaefefb0</loc>
+    <lastmod>2025-06-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684b019b0732fcbc6c031d95</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/684b0ac30732fcbc6c03242e</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/tours/6848f1a6fc7025bfcdb10c82</loc>
+    <lastmod>2025-06-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/working-visa/686aaa6e7df67e84fb03c95a</loc>
+    <lastmod>2025-07-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/working-visa/686aaf247df67e84fb03d5b6</loc>
+    <lastmod>2025-07-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/sri%20lanka</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/japan</loc>
+    <lastmod>2025-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/singapore</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/maldives</loc>
+    <lastmod>2025-06-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/china</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/indonesia</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/italy</loc>
+    <lastmod>2025-07-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/europe/kenya</loc>
+    <lastmod>2025-06-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/malaysia</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/thiland</loc>
+    <lastmod>2025-05-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://goldenhopetravels.com/countries/asia/vietnam</loc>
+    <lastmod>2025-07-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

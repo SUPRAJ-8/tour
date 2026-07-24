@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import SEO from '../components/SEO';
 import './EuropeanCountries.css';
 
 const EuropeanCountries = () => {
@@ -60,6 +61,11 @@ const EuropeanCountries = () => {
 
   return (
     <div className="european-countries-container">
+      <SEO
+        title="European Countries & Tours"
+        description="Explore Golden Hope Travels' European destinations — discover tour packages across Western, Eastern, Northern, and Southern Europe."
+        canonical="https://goldenhopetravels.com/countries/europe"
+      />
       <div className="hero-section">
         <div className="hero-content">
           <h1>Explore European Countries</h1>

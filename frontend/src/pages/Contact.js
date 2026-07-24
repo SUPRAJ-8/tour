@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaUser, FaTag, FaComment } from 'react-icons/fa';
+import SEO from '../components/SEO';
 import './Contact.css';
 
 const Contact = () => {
@@ -68,6 +69,11 @@ const Contact = () => {
 
   return (
     <section className="contact-page">
+      <SEO
+        title="Contact Us"
+        description="Get in touch with Golden Hope Travels for tour inquiries, bookings, and support. Find our location, phone number, email, and working hours."
+        canonical="https://goldenhopetravels.com/contact"
+      />
       <div className="contact-header">
         <div className="container">
           <h1 className="contact-title">Contact Us</h1>
@@ -109,7 +115,7 @@ const Contact = () => {
                 </div>
                 <div className="info-content">
                   <h3>Email Address</h3>
-                  <a href="mailto:zyphertourandtravel@gmail.com" className="email-link">zyphertourandtravel@gmail.com</a>
+                  <a href="mailto:goldenhopetoursandtravels@gmail.com" className="email-link">goldenhopetoursandtravels@gmail.com</a>
                 </div>
               </div>
               

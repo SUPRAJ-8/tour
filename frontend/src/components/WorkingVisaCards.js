@@ -68,7 +68,7 @@ const WorkingVisaCards = () => {
         <div className="section-header">
           <div>
             <h2 className="section-title">Working Visa</h2>
-            <h1 className="section-subtitle">Explore global opportunities to work abroad</h1>
+            <p className="section-subtitle">Explore global opportunities to work abroad</p>
           </div>
           {/* Add link to generic visa listing or tours */}
           <Link to="/tours" className="view-all-tours-button">
@@ -100,7 +100,7 @@ const WorkingVisaCards = () => {
               <SwiperSlide key={visa._id || visa.id}>
                 <Link to={`/tours/${visa._id || visa.id}`} className="popular-tour-card">
                   <div className="popular-tour-image">
-                    <img src={visa.coverImage || '/images/placeholder.jpg'} alt={visa.title} />
+                    <img src={visa.coverImage || '/images/placeholder.jpg'} alt={visa.title} loading="lazy" decoding="async" />
                     <div className="tour-popular-badge working-visa-badge"><FaPassport /> Working Visa</div>
                   </div>
                   <div className="popular-tour-content">

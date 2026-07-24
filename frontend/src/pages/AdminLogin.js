@@ -183,7 +183,7 @@ const AdminLogin = () => {
             </form>
             
             <div className="back-link">
-              <Link to="/" className="back-button">Back to Main</Link>
+              <Link to="/" className="back-button"><FaArrowLeft /> Back to Main</Link>
             </div>
           </>
         ) : (

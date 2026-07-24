@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FaUser, FaCalendarAlt, FaCreditCard, FaSignOutAlt, FaEdit } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import SEO from '../components/SEO';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -273,6 +274,12 @@ const Dashboard = () => {
 
   return (
     <section className="dashboard-page">
+      <SEO
+        title="My Dashboard"
+        description="Manage your Golden Hope Travels profile, bookings, and account settings."
+        canonical="https://goldenhopetravels.com/dashboard"
+        noIndex
+      />
       <div className="dashboard-header">
         <div className="container">
           <h1 className="dashboard-title">My Dashboard</h1>

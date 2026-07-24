@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import SEO from '../components/SEO';
 import './AsianCountries.css';
 
 const AsianCountries = () => {
@@ -60,6 +61,11 @@ const AsianCountries = () => {
 
   return (
     <div className="asian-countries-container">
+      <SEO
+        title="Asian Countries & Tours"
+        description="Explore Golden Hope Travels' Asian destinations — discover tour packages across East, Southeast, South, and Central Asia."
+        canonical="https://goldenhopetravels.com/countries/asia"
+      />
       <div className="hero-section">
         <div className="hero-content">
           <h1>Explore Asian Countries</h1>

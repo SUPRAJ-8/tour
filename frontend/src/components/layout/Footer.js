@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="container">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">TravelTour</h3>
+            <p className="footer-title">TravelTour</p>
             <p className="footer-text">
               Discover the world with our premium travel experiences. We offer the best tours and travel packages to destinations worldwide.
             </p>
@@ -32,7 +32,7 @@ const Footer = () => {
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-title">Quick Links</h3>
+            <p className="footer-title">Quick Links</p>
             <ul className="footer-links">
               <li>
                 <Link to="/">Home</Link>
@@ -53,7 +53,7 @@ const Footer = () => {
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-title">Top Continents</h3>
+            <p className="footer-title">Top Continents</p>
             <ul className="footer-links">
               <li>
                 <Link to="/countries/asia">Asia</Link>
@@ -65,7 +65,7 @@ const Footer = () => {
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-title">Contact Us</h3>
+            <p className="footer-title">Contact Us</p>
             <ul className="footer-contact">
               <li>
                 <FaMapMarkerAlt />
@@ -77,14 +77,14 @@ const Footer = () => {
               </li>
               <li>
                 <FaEnvelope />
-                <a href="mailto:Zyphertourandtravel@gmail.com" className="email-link">Zyphertourandtravel@gmail.com</a>
+                <a href="mailto:goldenhopetoursandtravels@gmail.com" className="email-link">goldenhopetoursandtravels@gmail.com</a>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {currentYear} Zypher. All rights reserved.</p>
+          <p>&copy; {currentYear} Golden Hope Travels. All rights reserved.</p>
           <p> Made with ❤️ by Supraj Shrestha.</p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>

@@ -10,6 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { toast } from 'react-toastify';
 import TourDetailsSkeleton from '../components/TourDetailsSkeleton';
+import SEO from '../components/SEO';
 import './TourDetails.css';
 
 // Swiper for related tours
@@ -519,6 +520,7 @@ const TourDetails = () => {
   if (!tour) {
     return (
       <div className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
+        <SEO title="Tour Not Found" canonical={`https://goldenhopetravels.com/tours/${id}`} noIndex />
         <div className="container">
           <div className="error-container">
             <h2>Tour Not Found</h2>
@@ -529,12 +531,21 @@ const TourDetails = () => {
       </div>
     );
   }
-  
+
   // Debug output
   console.log('Rendering tour:', tour);
 
   return (
     <section className={`tour-details-page ${isVisa ? 'visa-details-page' : ''}`}>
+      <SEO
+        title={tour.title}
+        description={
+          (tour.summary && tour.summary.slice(0, 155)) ||
+          (tour.description && tour.description.replace(/<[^>]*>/g, '').slice(0, 155)) ||
+          `Book ${tour.title} with Golden Hope Travels — ${tour.destination?.country || tour.country || ''} tour package.`
+        }
+        canonical={`https://goldenhopetravels.com/${isVisa ? 'working-visa' : 'tours'}/${tour._id || id}`}
+      />
       {/* Image Gallery */}
       <div className="tour-gallery-container">
         <div className="gallery-grid">
@@ -675,7 +686,7 @@ const TourDetails = () => {
 
                 {/* Confusion Section */}
                 <div className="confusion-section">
-                  <h3>Have confusion?</h3>
+                  <p className="confusion-title">Have confusion?</p>
                   <p>Feel free to call us with any questions or uncertainties.</p>
                   <a href="https://wa.me/+9779765198757" className="whatsapp-link">
                     <FaWhatsapp /> +9779765198757

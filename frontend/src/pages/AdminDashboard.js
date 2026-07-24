@@ -31,7 +31,7 @@ import { DashboardSkeleton } from '../components/admin/AdminSkeleton';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,10 @@ const AdminDashboard = () => {
     totalCountries: 0,
     totalBookings: 0,
     recentBookings: [],
-    topTours: []
+    topTours: [],
+    newUsersThisWeek: 0,
+    newToursThisMonth: 0,
+    newBookingsThisWeek: 0
   });
 
   const [newBookingForm, setNewBookingForm] = useState({
@@ -100,7 +103,7 @@ const AdminDashboard = () => {
   const fetchDashboardStats = async () => {
     try {
       // Fetch all necessary data in parallel for the dashboard
-      const [users, tours, countries, destinations, bookings] = await Promise.all([
+      const [users, tours, countries, bookings] = await Promise.all([
         fetchUsers(),
         fetchTours(),
         fetchCountries(),
@@ -112,7 +115,26 @@ const AdminDashboard = () => {
       const totalTours = Array.isArray(tours) ? tours.length : 0;
       const totalCountries = Array.isArray(countries) ? countries.length : 0;
       const totalBookings = Array.isArray(bookings) ? bookings.length : 0;
-      
+
+      // Real trend counts (based on each record's createdAt), replacing the
+      // previously hardcoded "+12% vs last month" style placeholder badges.
+      const now = Date.now();
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+      const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+      const createdAfter = (item, cutoff) => {
+        const created = new Date(item.createdAt).getTime();
+        return !isNaN(created) && created >= cutoff;
+      };
+      const newUsersThisWeek = Array.isArray(users)
+        ? users.filter(u => createdAfter(u, sevenDaysAgo)).length
+        : 0;
+      const newToursThisMonth = Array.isArray(tours)
+        ? tours.filter(t => createdAfter(t, thirtyDaysAgo)).length
+        : 0;
+      const newBookingsThisWeek = Array.isArray(bookings)
+        ? bookings.filter(b => createdAfter(b, sevenDaysAgo)).length
+        : 0;
+
       // Get recent bookings (latest 5)
       const recentBookings = Array.isArray(bookings) 
         ? bookings
@@ -120,7 +142,7 @@ const AdminDashboard = () => {
             .slice(0, 5)
             .map(booking => ({
               _id: booking._id,
-              customerName: booking.user?.name || booking.customerName || 'Unknown',
+              customerName: booking.user?.name || booking.guestInfo?.name || booking.customerName || 'Unknown',
               tourName: booking.tour?.title || booking.tourName || 'Unknown Tour',
               date: booking.date || booking.createdAt || new Date(),
               status: booking.status || 'Pending',
@@ -159,17 +181,18 @@ const AdminDashboard = () => {
       }
       
       // Add ratings data if available in tours
+      // (Tour documents store this as `ratingsAverage`, not `rating`.)
       if (Array.isArray(tours)) {
         tours.forEach(tour => {
-          if (tour._id && tour.rating) {
+          if (tour._id && tour.ratingsAverage) {
             if (!tourRatings[tour._id]) {
               tourRatings[tour._id] = {
                 title: tour.title,
-                totalRating: tour.rating,
+                totalRating: tour.ratingsAverage,
                 count: 1
               };
             } else {
-              tourRatings[tour._id].totalRating += tour.rating;
+              tourRatings[tour._id].totalRating += tour.ratingsAverage;
               tourRatings[tour._id].count += 1;
             }
           }
@@ -195,7 +218,10 @@ const AdminDashboard = () => {
         totalCountries,
         totalBookings,
         recentBookings,
-        topTours
+        topTours,
+        newUsersThisWeek,
+        newToursThisMonth,
+        newBookingsThisWeek
       });
       
       // Set available tours for the new booking form
@@ -260,8 +286,14 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
+      // /api/users doesn't exist (404) — the real route is /api/admin/users,
+      // and it's admin-only, so it needs the Bearer token (see
+      // UserManagement.js for the same pattern). Without this, Total Users
+      // silently always showed 0.
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-      const response = await axios.get(`${apiUrl}/api/users`);
+      const response = await axios.get(`${apiUrl}/api/admin/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const usersData = response.data?.data || response.data || [];
       return Array.isArray(usersData) ? usersData : [];
     } catch (error) {
@@ -303,7 +335,9 @@ const AdminDashboard = () => {
               <div className="stat-icon">
                 <FaUsers />
               </div>
-              <span className="stat-trend neutral">+0% this week</span>
+              <span className={`stat-trend ${stats.newUsersThisWeek > 0 ? 'up' : 'neutral'}`}>
+                +{stats.newUsersThisWeek} this week
+              </span>
             </div>
             <p className="stat-label">Total Users</p>
             <p className="stat-value">{stats.totalUsers.toLocaleString()}</p>
@@ -315,7 +349,9 @@ const AdminDashboard = () => {
               <div className="stat-icon">
                 <FaRoute />
               </div>
-              <span className="stat-trend up">+12% vs last month</span>
+              <span className={`stat-trend ${stats.newToursThisMonth > 0 ? 'up' : 'neutral'}`}>
+                +{stats.newToursThisMonth} this month
+              </span>
             </div>
             <p className="stat-label">Active Tours</p>
             <p className="stat-value">{stats.totalTours.toLocaleString()}</p>
@@ -339,7 +375,9 @@ const AdminDashboard = () => {
               <div className="stat-icon">
                 <FaCalendarAlt />
               </div>
-              <span className="stat-trend live">Real-time sync</span>
+              <span className={`stat-trend ${stats.newBookingsThisWeek > 0 ? 'up' : 'neutral'}`}>
+                +{stats.newBookingsThisWeek} this week
+              </span>
             </div>
             <p className="stat-label">Total Bookings</p>
             <p className="stat-value">{stats.totalBookings.toLocaleString()}</p>
