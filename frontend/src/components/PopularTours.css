@@ -10,6 +10,14 @@
   margin-top: -80px; /* Ensure no gap with the hero section */
 }
 
+/* Only PopularTours sits directly under the hero and needs its
+   -80px margin-top offset above compensated inside the header —
+   FeaturedTours/WorkingVisaCards reuse .section-header without that
+   negative margin, so they must NOT inherit this extra top padding. */
+.popular-tours-hero-offset .section-header {
+  padding-top: 80px;
+}
+
 .swiper-pagination-fraction, .swiper-pagination-custom, .swiper-horizontal > .swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal{
   display: none;
 }
@@ -300,7 +308,6 @@
 /* Section header with View All Tours button */
 .section-header {
   display: flex;
-  padding-top: 80px;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
@@ -635,11 +642,13 @@ body.blurred {
   .popular-tours-section .section-title {
     font-size: 1.3rem;
     text-align: left;
+    padding-top: 1rem;
   }
   .popular-tours-section .section-subtitle {
     padding-left: 0;
     font-size: 1rem;
     text-align: left;
+    margin-bottom: 0.5rem;
   }
   /* force heading container left-aligned */
   .popular-tours-section .section-header > div {

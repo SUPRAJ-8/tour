@@ -21,6 +21,7 @@ const Tours = () => {
   const [showCountryOptions, setShowCountryOptions] = useState(true);
   const [showDurationOptions, setShowDurationOptions] = useState(false);
   const [duration, setDuration] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Set up Fuse.js for fuzzy searching across multiple fields
   const fuse = useMemo(() => new Fuse(tours, {
@@ -566,28 +567,37 @@ const Tours = () => {
         canonical="https://goldenhopetravels.com/tours"
       />
       <div className="tours-container">
-        <div className="filters-wrapper">
-          {/* Filter Header */}
-          <div className="filter-title">
+        <div className={`filters-wrapper ${filtersOpen ? '' : 'filters-collapsed'}`}>
+          {/* Filter Header — the whole box toggles the panel, not just the arrow */}
+          <button
+            type="button"
+            className="filter-title"
+            onClick={() => setFiltersOpen(!filtersOpen)}
+            aria-expanded={filtersOpen}
+            aria-label={filtersOpen ? 'Fold in filters' : 'Expand filters'}
+          >
             <span className="filter-title-icon"><FaFilter /></span>
             <div>
               <h3>Filters</h3>
               <p className="filter-subtitle">Refine your journey</p>
             </div>
-          </div>
+            <FaChevronDown className={`dropdown-arrow filter-fold-arrow ${filtersOpen ? 'open' : ''}`} />
+          </button>
 
+          {filtersOpen && (
+          <>
           {/* Search Section */}
           <div className="search-box">
             <FaSearch className="search-icon" />
             <span className="filter-label">Search</span>
-            <input 
-              type="text" 
-              placeholder="Enter any keyword" 
+            <input
+              type="text"
+              placeholder="Enter any keyword"
               value={rawSearch}
               onChange={(e) => setRawSearch(e.target.value)}
             />
           </div>
-          
+
           {/* Countries Filter */}
           <div className="filter-item">
             <div className="filter-header" onClick={() => setShowCountryOptions(!showCountryOptions)}>
@@ -598,25 +608,25 @@ const Tours = () => {
             {showCountryOptions && (
               <div className="filter-dropdown">
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="country-all" 
-                    name="country" 
-                    value="" 
+                  <input
+                    type="radio"
+                    id="country-all"
+                    name="country"
+                    value=""
                     checked={country === ''}
-                    onChange={() => setCountry('')} 
+                    onChange={() => setCountry('')}
                   />
                   <label htmlFor="country-all">All Countries</label>
                 </div>
                 {countries.map(countryName => (
                   <div className="radio-option" key={countryName}>
-                    <input 
-                      type="radio" 
-                      id={`country-${countryName}`} 
-                      name="country" 
-                      value={countryName} 
+                    <input
+                      type="radio"
+                      id={`country-${countryName}`}
+                      name="country"
+                      value={countryName}
                       checked={country === countryName}
-                      onChange={() => setCountry(countryName)} 
+                      onChange={() => setCountry(countryName)}
                     />
                     <label htmlFor={`country-${countryName}`}>{displayCountryName(countryName)}</label>
                   </div>
@@ -624,7 +634,7 @@ const Tours = () => {
               </div>
             )}
           </div>
-          
+
           {/* Travel With Filter */}
           <div className="filter-item">
             <div className="filter-header" onClick={() => setShowTravelOptions(!showTravelOptions)}>
@@ -632,52 +642,52 @@ const Tours = () => {
               <span className="filter-label">Travel With</span>
               <FaChevronDown className={`dropdown-arrow ${showTravelOptions ? 'open' : ''}`} />
             </div>
-            
+
             {/* Travel With Options */}
             {showTravelOptions && (
               <div className="filter-dropdown">
                 <div className="travel-options-grid">
                   <div className="radio-option">
-                    <input 
-                      type="radio" 
-                      id="travel-couple" 
-                      name="travelWith" 
-                      value="couple" 
+                    <input
+                      type="radio"
+                      id="travel-couple"
+                      name="travelWith"
+                      value="couple"
                       checked={travelWith === 'couple'}
-                      onChange={() => setTravelWith('couple')} 
+                      onChange={() => setTravelWith('couple')}
                     />
                     <label htmlFor="travel-couple">Couple</label>
                   </div>
                   <div className="radio-option">
-                    <input 
-                      type="radio" 
-                      id="travel-family" 
-                      name="travelWith" 
-                      value="family" 
+                    <input
+                      type="radio"
+                      id="travel-family"
+                      name="travelWith"
+                      value="family"
                       checked={travelWith === 'family'}
-                      onChange={() => setTravelWith('family')} 
+                      onChange={() => setTravelWith('family')}
                     />
                     <label htmlFor="travel-family">Family</label>
                   </div>
                   <div className="radio-option">
-                    <input 
-                      type="radio" 
-                      id="travel-friends" 
-                      name="travelWith" 
-                      value="friends" 
+                    <input
+                      type="radio"
+                      id="travel-friends"
+                      name="travelWith"
+                      value="friends"
                       checked={travelWith === 'friends'}
-                      onChange={() => setTravelWith('friends')} 
+                      onChange={() => setTravelWith('friends')}
                     />
                     <label htmlFor="travel-friends">Friends</label>
                   </div>
                   <div className="radio-option">
-                    <input 
-                      type="radio" 
-                      id="travel-single" 
-                      name="travelWith" 
-                      value="solo" 
+                    <input
+                      type="radio"
+                      id="travel-single"
+                      name="travelWith"
+                      value="solo"
                       checked={travelWith === 'solo'}
-                      onChange={() => setTravelWith('solo')} 
+                      onChange={() => setTravelWith('solo')}
                     />
                     <label htmlFor="travel-single">Single</label>
                   </div>
@@ -685,7 +695,7 @@ const Tours = () => {
               </div>
             )}
           </div>
-          
+
           {/* Duration Filter */}
           <div className="filter-item">
             <div className="filter-header" onClick={() => setShowDurationOptions(!showDurationOptions)}>
@@ -696,67 +706,69 @@ const Tours = () => {
             {showDurationOptions && (
               <div className="filter-dropdown">
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="duration-all" 
-                    name="duration" 
-                    value="" 
+                  <input
+                    type="radio"
+                    id="duration-all"
+                    name="duration"
+                    value=""
                     checked={duration === ''}
-                    onChange={() => setDuration('')} 
+                    onChange={() => setDuration('')}
                   />
                   <label htmlFor="duration-all">All</label>
                 </div>
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="duration-1-3" 
-                    name="duration" 
-                    value="1-3" 
+                  <input
+                    type="radio"
+                    id="duration-1-3"
+                    name="duration"
+                    value="1-3"
                     checked={duration === '1-3'}
-                    onChange={() => setDuration('1-3')} 
+                    onChange={() => setDuration('1-3')}
                   />
                   <label htmlFor="duration-1-3">1-3 Days</label>
                 </div>
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="duration-4-7" 
-                    name="duration" 
-                    value="4-7" 
+                  <input
+                    type="radio"
+                    id="duration-4-7"
+                    name="duration"
+                    value="4-7"
                     checked={duration === '4-7'}
-                    onChange={() => setDuration('4-7')} 
+                    onChange={() => setDuration('4-7')}
                   />
                   <label htmlFor="duration-4-7">4-7 Days</label>
                 </div>
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="duration-8-14" 
-                    name="duration" 
-                    value="8-14" 
+                  <input
+                    type="radio"
+                    id="duration-8-14"
+                    name="duration"
+                    value="8-14"
                     checked={duration === '8-14'}
-                    onChange={() => setDuration('8-14')} 
+                    onChange={() => setDuration('8-14')}
                   />
                   <label htmlFor="duration-8-14">8-14 Days</label>
                 </div>
                 <div className="radio-option">
-                  <input 
-                    type="radio" 
-                    id="duration-15+" 
-                    name="duration" 
-                    value="15+" 
+                  <input
+                    type="radio"
+                    id="duration-15+"
+                    name="duration"
+                    value="15+"
                     checked={duration === '15+'}
-                    onChange={() => setDuration('15+')} 
+                    onChange={() => setDuration('15+')}
                   />
                   <label htmlFor="duration-15+">15+ Days</label>
                 </div>
               </div>
             )}
           </div>
-          
+
           <button className="reset-filters-btn" onClick={resetFilters}>
             Reset Filters
           </button>
+          </>
+          )}
         </div>
         
         {/* Tours Content */}

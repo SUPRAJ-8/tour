@@ -97,13 +97,31 @@
   background-color: #f6f8ff;
   border-radius: 8px;
   padding: 1.5rem;
+  transition: padding 0.2s ease;
 }
 
-/* Filter Title */
+/* Collapsed: shrink the box down to just the header row */
+.filters-wrapper.filters-collapsed {
+  height: auto;
+  padding: 0.75rem 1rem;
+}
+
+/* Filter Title — the whole header is a <button> that toggles the panel */
 .filter-title {
   display: flex;
   align-items: center;
+  width: 100%;
   margin-bottom: 1.5rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filters-collapsed .filter-title {
+  margin-bottom: 0;
 }
 
 .filter-title-icon {
@@ -133,6 +151,12 @@
   color: #888;
 }
 
+/* Fold/collapse arrow at the end of the filter header button */
+.filter-fold-arrow {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
 /* Search Box */
 .search-box {
   position: relative;
@@ -144,8 +168,12 @@
   font-size: 1.1rem;
   position: absolute;
   left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 0;
+  height: 45px; /* matches .search-box input's height so the icon is
+                   vertically centered against the input, not the whole
+                   box (which also includes the "Search" label above it) */
+  display: flex;
+  align-items: center;
   pointer-events: none;
 }
 

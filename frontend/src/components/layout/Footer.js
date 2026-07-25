@@ -69,7 +69,7 @@ const Footer = () => {
             <ul className="footer-contact">
               <li>
                 <FaMapMarkerAlt />
-                <a href="https://www.google.com/maps?q=Budhanilkantha+Sadak,+bansbari,+Kathmandu,+Nepal" target="_blank" rel="noopener noreferrer" className="location-link">Budhanilkantha Sadak, bansbari, Kathmandu, Nepal</a>
+                <a href="https://www.google.com/maps?q=Imadol+Krishna+Mandir+Rd,+Near+NMB+Bank,+Lalitpur+44700" target="_blank" rel="noopener noreferrer" className="location-link">Imadol Krishna Mandir Rd, Near NMB Bank, Lalitpur 44700</a>
               </li>
               <li>
                 <FaPhone />

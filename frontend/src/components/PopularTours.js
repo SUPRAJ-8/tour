@@ -73,7 +73,7 @@ const PopularTours = () => {
   }
 
   return (
-    <section className="section popular-tours-section">
+    <section className="section popular-tours-section popular-tours-hero-offset">
       <div className="container">
         <div className="section-header">
           <div>
