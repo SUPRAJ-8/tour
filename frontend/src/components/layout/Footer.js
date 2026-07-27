@@ -85,7 +85,6 @@ const Footer = () => {
 
         <div className="footer-bottom">
           <p>&copy; {currentYear} Golden Hope Travels. All rights reserved.</p>
-          <p> Made with ❤️ by Supraj Shrestha.</p>
           <div className="footer-bottom-links">
             <Link to="/privacy-policy">Privacy Policy</Link>
             <Link to="/terms-of-service">Terms of Service</Link>
