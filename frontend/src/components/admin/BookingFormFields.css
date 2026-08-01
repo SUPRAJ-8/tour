@@ -32,13 +32,17 @@
   flex: 1;
 }
 
-/* ---- Header ---- */
+/* ---- Header ----
+   Absolute-positioned close button rather than a flex row: the title is
+   dynamic (tour name, often long enough to wrap to 2+ lines) and a flex
+   row's cross-axis centering pushes a wrapped multi-line title's sibling
+   button to an awkward middle/below position instead of staying pinned
+   to the corner. Pinning it via position:absolute keeps it in the same
+   spot regardless of how many lines the title wraps to. */
 .booking-form-modal .booking-form-header {
+  position: relative;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 28px;
+  padding: 18px 56px 18px 28px;
   border-bottom: 1px solid #f1f2f5;
   background-color: #fff;
 }
@@ -53,9 +57,13 @@
 }
 
 .booking-form-modal .modal-close {
-  position: static;
+  position: absolute;
+  top: 14px;
+  right: 18px;
   width: 34px;
   height: 34px;
+  border: none;
+  background: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -63,7 +71,8 @@
   font-size: 1.4rem;
   line-height: 1;
   color: #9ca3af;
-  flex-shrink: 0;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .booking-form-modal .modal-close:hover {

@@ -1797,6 +1797,11 @@
 }
 
 .booking-modal-header {
+  /* position:relative anchors the close button to this header specifically
+     (not the whole two-column .booking-modal), so it stays pinned to this
+     row's corner regardless of how many lines the tour-title h2 wraps to. */
+  position: relative;
+  padding: 0px 28px 10px 24px;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -1806,27 +1811,40 @@
   margin: 0;
 }
 
-.close-button {
+.booking-modal-header .close-button {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #6b7280;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
+}
+
+.booking-modal-header {
+  color: #111827;
 }
 
 .close-button:hover {
-  color: #111827;
+  border-radius: 15%;
+    color: #ffffff;
+  background-color: #ff2323;
 }
 
 .booking-form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0rem 1.5rem;
+  padding: 10px 0 0 0;
 }
 
 .form-group {
@@ -2162,6 +2180,14 @@
   flex-shrink: 0;
   filter: invert(31%) sepia(93%) saturate(1954%) hue-rotate(202deg) brightness(97%) contrast(98%);
   /* This filter creates #2563eb blue color */
+}
+
+/* weather.svg (Best Season) is a multi-color icon (orange sun / teal cloud
+   fills), unlike globe/calendar/group.svg which are plain black — the
+   blue-recolor filter above is calibrated for those and mangles this one's
+   actual colors instead of producing a clean blue icon. Show it as-is. */
+.modal-tour-info .detail-icon[src*="weather"] {
+  filter: none;
 }
 
 .highlight-icon-head{

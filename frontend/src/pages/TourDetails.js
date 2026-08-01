@@ -102,17 +102,17 @@ const BookingFormModal = ({ isOpen, onClose, tour }) => {
                     <span>{tour.destination?.country || tour.country}</span>
                   </div>
                   <div className="detail-item">
-                    <img src="images/icons/calendar.svg" alt="" className="detail-icon" />
+                    <img src="/images/icons/calendar.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Duration:</span>
                     <span>{tour.type === 'visa' ? (tour.duration || '') : `${tour.nights} Nights - ${tour.days} Days`}</span>
                   </div>
                   <div className="detail-item">
-                    <img src="images/icons/weather.svg" alt="" className="detail-icon" />
+                    <img src="/images/icons/weather.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Best Season:</span>
                     <span>{tour.bestSeason || tour.bestTimeToVisit}</span>
                   </div>
                   <div className="detail-item">
-                    <img src="images/icons/group.svg" alt="" className="detail-icon" />
+                    <img src="/images/icons/group.svg" alt="" className="detail-icon" />
                     <span className="detail-label">Group Size:</span>
                     <span>{tour.groupSize} </span>
                   </div>
