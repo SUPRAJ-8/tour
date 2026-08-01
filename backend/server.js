@@ -82,8 +82,8 @@ app.use(cors({
 } // <-- close production CORS block
 
 // Static files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), { maxAge: '1y', immutable: true }));
+app.use('/images', express.static(path.join(__dirname, 'public/images'), { maxAge: '1y', immutable: true }));
 
 // -------------------- Serve React Frontend --------------------
 // Serve static files from the React app build directory

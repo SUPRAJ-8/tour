@@ -11,6 +11,7 @@ import { AuthProvider } from './context/AuthContext';
 import { routerFutureConfig } from './router-config';
 // Import axios config to set up interceptors for GitHub Pages
 import './services/axiosConfig';
+import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -22,3 +23,12 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
+
+// Dev: log every metric to the console as it's measured.
+// Prod: structured so it's a one-line swap to send to an analytics endpoint later,
+// e.g. navigator.sendBeacon('/api/vitals', JSON.stringify(metric)).
+if (process.env.NODE_ENV === 'production') {
+  reportWebVitals(() => {});
+} else {
+  reportWebVitals(console.log);
+}

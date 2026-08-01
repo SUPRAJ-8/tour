@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
-import { getSampleTours, processSampleTours } from "../services/tourService";
+import { getSampleTours } from "../services/tourService";
 import { useAuth } from './AuthContext';
 
 // API base URL - change this to your actual backend URL when deploying
@@ -102,9 +102,7 @@ export const DataProvider = ({ children }) => {
           }
           
           console.log('Final processed tours data:', toursData);
-          // Convert array into regions/countries structure expected by UI
-          const processed = processSampleTours(toursData);
-          setTours(processed);
+          setTours(toursData);
         } else {
           console.error("Error fetching tours:", toursRes.reason);
           // Set empty array if request fails to prevent undefined errors

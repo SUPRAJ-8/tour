@@ -7,15 +7,6 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    cb(null, unique);
-  }
-});
-
 const allowedExt = /\.(jpe?g|png|webp|gif)$/i;
 const allowedMime = /^image\/(jpeg|png|webp|gif)$/;
 
@@ -27,9 +18,9 @@ const fileFilter = (req, file, cb) => {
 };
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB — cap on the ORIGINAL upload before processing
 });
 
-module.exports = upload;
+module.exports = { upload, uploadDir };

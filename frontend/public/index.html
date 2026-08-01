@@ -60,6 +60,15 @@
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.onload=null;this.removeAttribute('media');">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+
+    <!-- Preload the specific woff2 actually used by the hero title (largest above-the-fold text) -->
+    <link rel="preload" as="font" type="font/woff2"
+          href="https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2" crossorigin>
+
+    <!-- API origin — CRA's InterpolateHtmlPlugin substitutes %REACT_APP_API_URL% at build time -->
+    <link rel="preconnect" href="%REACT_APP_API_URL%" crossorigin>
+    <link rel="dns-prefetch" href="%REACT_APP_API_URL%">
+
     <title>Golden Hope Travels</title>
   </head>
   <body>
