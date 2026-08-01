@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import axios from 'axios';
-import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle, FaLink, FaUpload, FaCloudUploadAlt } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaSearch, FaPlus, FaSyncAlt, FaStar, FaMapMarkerAlt, FaCamera, FaMountain, FaTree, FaUtensils, FaBed, FaCar, FaUsers, FaHeart, FaPlane, FaBus, FaTicketAlt, FaPassport, FaWifi, FaUmbrellaBeach, FaCheck, FaTimes, FaInfoCircle, FaLink, FaUpload, FaCloudUploadAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../common/ConfirmationModal';
@@ -824,17 +824,21 @@ const TourManagement = () => {
           {totalFilteredPages > 1 && (
             <div className="pagination">
               <button
+                type="button"
+                className="pagination-btn"
                 disabled={pagination.page === 1}
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
               >
-                Previous
+                <FaChevronLeft /> Previous
               </button>
-              <span>Page {pagination.page} of {totalFilteredPages}</span>
+              <span className="pagination-page-info">Page {pagination.page} of {totalFilteredPages}</span>
               <button
+                type="button"
+                className="pagination-btn"
                 disabled={pagination.page === totalFilteredPages}
                 onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
               >
-                Next
+                Next <FaChevronRight />
               </button>
             </div>
           )}

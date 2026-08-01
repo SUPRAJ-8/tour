@@ -25,7 +25,7 @@
 }
 
 .tour-description {
-  padding: 0;  /* Remove any padding from description */
+  padding: 16px 20px 0 31px;    
 }
 
 /* Gallery Styles */
@@ -261,12 +261,10 @@
   border-radius: 4px;
   color: #6c757d;
   font-size: 0.875rem;
-  margin-bottom: 1rem;
-
 }
 
 .duration-badge .duration-icon {
-  width: 16px;
+  width: 30px;
   height: 16px;
   color: #0d6efd;
 }

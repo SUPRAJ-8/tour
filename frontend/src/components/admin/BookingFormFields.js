@@ -2,6 +2,7 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaUser, FaEnvelope, FaPhone, FaUsers, FaCalendarAlt, FaComments, FaFlag, FaExclamationCircle } from 'react-icons/fa';
+import './BookingFormFields.css';
 
 const nationalities = [
   'Nepal', 'India', 'USA', 'UK', 'China', 'Japan', 'Australia', 'France', 'Germany', 'Other'
@@ -19,11 +20,14 @@ const BookingFormFields = ({
   tourTitle = '',
 }) => {
   return (
-    <form onSubmit={onSubmit} className="form-section">
-      <h2 className="form-title">{mode === 'edit' ? `Edit Booking for ${tourTitle}` : `Book for ${tourTitle}`}</h2>
-      {onClose && (
-        <button type="button" className="modal-close" onClick={onClose}>×</button>
-      )}
+    <div className="booking-form-shell">
+      <div className="booking-form-header">
+        <h2 className="form-title">{mode === 'edit' ? `Edit Booking for ${tourTitle}` : `Book for ${tourTitle}`}</h2>
+        {onClose && (
+          <button type="button" className="modal-close" onClick={onClose}>×</button>
+        )}
+      </div>
+      <form onSubmit={onSubmit} className="booking-form-body">
       <div className="form-grid">
         <div className="form-group">
           <label className="form-label">
@@ -144,17 +148,18 @@ const BookingFormFields = ({
         </div>
       </div>
       <div className="form-actions">
-        <button type="submit" className="btn btn-primary">
-          {mode === 'edit' ? 'Update Booking' : 'Add Booking'}
-        </button>
         {onClose && (
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Cancel
           </button>
         )}
+        <button type="submit" className="btn btn-primary">
+          {mode === 'edit' ? 'Update Booking' : 'Add Booking'}
+        </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 };
 
-export default BookingFormFields; 
+export default BookingFormFields;

@@ -15,47 +15,7 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import "./AdminComponents.css";
-
-const styles = {
-  adminComponentHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '2rem',
-  },
-  headerActions: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  continentLinks: {
-    display: 'flex',
-    gap: '0.5rem',
-    marginRight: '1rem',
-  },
-  continentBtn: {
-    padding: '0.6rem 1.2rem',
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    fontWeight: '500',
-    textDecoration: 'none',
-    transition: 'all 0.3s ease',
-    color: 'white',
-    display: 'inline-block',
-  },
-  asiaBtnStyle: {
-    backgroundColor: '#4CAF50',
-    '&:hover': {
-      backgroundColor: '#45a049',
-    },
-  },
-  europeBtnStyle: {
-    backgroundColor: '#2196F3',
-    '&:hover': {
-      backgroundColor: '#1e88e5',
-    },
-  },
-};
+import "./CountryManagement.css";
 
 // Function to get flag URL based on country name
 const getCountryFlagUrl = (countryName) => {
@@ -345,21 +305,15 @@ const CountryManagement = () => {
   };
 
   return (
-    <div className="admin-container">
-      <div style={styles.adminComponentHeader}>
+    <div className="admin-container country-management">
+      <div className="country-mgmt-header">
         <h2>Country Management</h2>
-        <div style={styles.headerActions}>
-          <div style={styles.continentLinks}>
-            <Link 
-              to="/countries/asia" 
-              style={{...styles.continentBtn, ...styles.asiaBtnStyle}}
-            >
+        <div className="country-mgmt-header-actions">
+          <div className="country-continent-links">
+            <Link to="/countries/asia" className="continent-link-btn asia">
               Asia
             </Link>
-            <Link 
-              to="/countries/europe" 
-              style={{...styles.continentBtn, ...styles.europeBtnStyle}}
-            >
+            <Link to="/countries/europe" className="continent-link-btn europe">
               Europe
             </Link>
           </div>
@@ -402,6 +356,7 @@ const CountryManagement = () => {
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="col-index">#</th>
                 <th>Flag</th>
                 <th>Name</th>
                 <th>Continent</th>
@@ -411,8 +366,9 @@ const CountryManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredCountries.map((country) => (
+              {filteredCountries.map((country, index) => (
                 <tr key={country._id}>
+                  <td className="col-index">{index + 1}</td>
                   <td>
                     <FlagImage countryName={country.name} flagImageUrl={country.flagImage} />
                   </td>
@@ -435,21 +391,21 @@ const CountryManagement = () => {
                         title="View Country"
                         onClick={() => handleView(country)}
                       >
-                        <FaEye />
+                        <FaEye /> <span>View</span>
                       </button>
                       <button
                         className="btn-action btn-edit"
                         title="Edit Country"
                         onClick={() => handleEdit(country)}
                       >
-                        <FaEdit />
+                        <FaEdit /> <span>Edit</span>
                       </button>
                       <button
                         className="btn-action btn-delete"
                         title="Delete Country"
                         onClick={() => handleDeleteClick(country)}
                       >
-                        <FaTrash />
+                        <FaTrash /> <span>Delete</span>
                       </button>
                     </div>
                   </td>
@@ -462,7 +418,7 @@ const CountryManagement = () => {
 
       {showModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content country-form-modal">
             <div className="modal-header">
               <h2>{currentCountry ? "Edit Country" : "Add New Country"}</h2>
               <button className="modal-close" onClick={() => setShowModal(false)}>

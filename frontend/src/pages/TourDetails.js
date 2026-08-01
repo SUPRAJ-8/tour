@@ -599,7 +599,7 @@ const TourDetails = () => {
 
           <div className="duration-badge">
             <FaCalendarAlt className="duration-icon" />
-            <span>Duration</span>
+            <span>Duration :</span>
             <span className="duration-value">
               {isVisa ? (tour.duration || '') : `${tour.nights} Nights - ${tour.days} Days`}
             </span>

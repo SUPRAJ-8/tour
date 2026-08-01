@@ -1,0 +1,357 @@
+/* UserManagement.css
+   Mirrors the Tour / Country / Booking Management redesign (soft
+   pill filters, rounded table card, icon+label action buttons, blue
+   primary action). Scoped under .user-management / .user-form-modal
+   so it never bleeds into the other admin tabs — or, more
+   importantly here, into public pages: .modal-container / .modal-form
+   / .modal-actions / .btn-outline are reused across Home, Dashboard,
+   About, BookingForm and more via AdminComponents.css / index.css. */
+
+.user-management {
+  padding: 20px;
+}
+
+/* ---- Header ---- */
+.user-mgmt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.user-mgmt-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.user-mgmt-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-management .btn-icon-refresh {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-management .btn-icon-refresh:hover {
+  background-color: #f1f5f9;
+  color: #2563eb;
+}
+
+.user-management .btn-icon-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Search / filter bar ---- */
+.user-management .admin-filters {
+  background-color: #fff;
+  border: 1px solid #eef1f5;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.user-management .search-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: none;
+  padding: 9px 12px;
+}
+
+.user-management .search-box:focus-within {
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.user-management .search-box svg {
+  color: #94a3b8;
+}
+
+.user-management .search-box input {
+  color: #0f172a;
+  font-size: 0.875rem;
+}
+
+.user-management .filter-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.user-management .filter-box svg {
+  color: #94a3b8;
+}
+
+.user-management .filter-box select {
+  color: #334155;
+  font-size: 0.85rem;
+}
+
+/* ---- Table ---- */
+.user-management .admin-table-container {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.user-management .admin-table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-management .admin-table td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.user-management .admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.user-management .admin-table tr:hover td {
+  background-color: #f8fafc;
+}
+
+.user-management .col-index {
+  width: 40px;
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.user-management .role-badge,
+.user-management .status-badge {
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.user-management .user-email {
+  font-weight: 500;
+}
+
+.user-management .action-buttons {
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.user-management .btn-action {
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.user-management .btn-action span {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   Edit User modal
+   ========================================================= */
+
+.modal-overlay:has(.user-form-modal) {
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal-container.user-form-modal {
+  width: 92%;
+  max-width: 480px;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+  animation: userModalIn 0.2s ease-out;
+}
+
+@keyframes userModalIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.user-form-modal .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 18px 28px;
+  background-color: #fff;
+  border-bottom: 1px solid #f1f2f5;
+}
+
+.user-form-modal .modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.user-form-modal .close-modal {
+  background: none;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-form-modal .close-modal:hover {
+  background-color: #f1f2f5;
+  color: #111827;
+}
+
+.user-form-modal .modal-form {
+  padding: 24px 28px;
+  gap: 20px;
+}
+
+.user-form-modal .form-group label {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.user-form-modal .form-group input[type="text"],
+.user-form-modal .form-group input[type="email"],
+.user-form-modal .form-group select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background-color: #f1f2f5;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #111827;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.user-form-modal .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 40px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+}
+
+.user-form-modal .form-group input:focus,
+.user-form-modal .form-group select:focus {
+  border-color: #2563eb;
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.user-form-modal .checkbox-group {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f1f2f5;
+  border-radius: 14px;
+}
+
+.user-form-modal .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+}
+
+.user-form-modal .checkbox-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.user-form-modal .modal-actions {
+  position: sticky;
+  bottom: 0;
+  margin: 4px -28px -24px;
+  padding: 16px 28px;
+  background-color: #fff;
+  border-top: 1px solid #f1f2f5;
+  box-shadow: 0 -8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.user-form-modal .modal-actions .btn {
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.user-form-modal .modal-actions .btn-primary {
+  background-color: #2563eb;
+  border: none;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.user-form-modal .modal-actions .btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.user-form-modal .modal-actions .btn-outline {
+  background-color: transparent;
+  color: #6b7280;
+  border: none;
+}
+
+.user-form-modal .modal-actions .btn-outline:hover {
+  background-color: #f1f2f5;
+  color: #111827;
+}
+
+@media (max-width: 560px) {
+  .modal-container.user-form-modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}

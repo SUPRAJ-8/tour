@@ -16,6 +16,7 @@ import {
   FaPlus
 } from 'react-icons/fa';
 import './AdminComponents.css';
+import './BookingManagement.css';
 import BookingFormFields from './BookingFormFields';
 import { useAuth } from '../../context/AuthContext';
 import { TableSkeleton } from './AdminSkeleton';
@@ -280,20 +281,19 @@ const BookingManagement = () => {
   }
   
   return (
-    <div className="admin-tab-content">
-      <div className="admin-content-header" style={{ display: 'flex', alignItems: 'center' }}>
+    <div className="admin-tab-content booking-management">
+      <div className="booking-mgmt-header">
         <h2>Booking Management</h2>
-        <div style={{ display: 'flex', gap: '0.5rem', marginLeft: 'auto' }}>
-          <button className="btn btn-secondary" title="Refresh Bookings" onClick={fetchBookings}>
+        <div className="booking-mgmt-header-actions">
+          <button className="btn-icon-refresh" title="Refresh Bookings" onClick={fetchBookings}>
             <FaSync />
           </button>
-          <button className="btn btn-primary" onClick={handleAddBooking}>
-            Add New Booking
+          <button className="btn-create-booking" onClick={handleAddBooking}>
+            <FaPlus /> Add New Booking
           </button>
         </div>
       </div>
 
-      
       <div className="admin-filters">
         <div className="search-box">
           <FaSearch />
@@ -304,7 +304,7 @@ const BookingManagement = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        
+
         <div className="filter-group">
           <div className="filter-box">
             <FaFilter />
@@ -321,12 +321,13 @@ const BookingManagement = () => {
           </div>
         </div>
       </div>
-      
+
       {filteredBookings.length > 0 ? (
         <div className="admin-table-container">
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="col-index">#</th>
                 <th>Booking ID</th>
                 <th>Tour</th>
                 <th>Customer</th>
@@ -337,9 +338,10 @@ const BookingManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredBookings.map(booking => (
+              {filteredBookings.map((booking, index) => (
                 <tr key={booking._id}>
-                  <td>{booking._id}</td>
+                  <td className="col-index">{index + 1}</td>
+                  <td><span className="booking-id">{booking._id}</span></td>
                   <td>{booking.tour?.title || 'Deleted Tour'}</td>
                   <td>{booking.user?.name || booking.guestInfo?.name || 'Unknown User'}</td>
                   <td>{formatDate(booking.startDate)}</td>
@@ -355,26 +357,26 @@ const BookingManagement = () => {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button 
-                        className="btn-action btn-view" 
+                      <button
+                        className="btn-action btn-view"
                         title="View Details"
                         onClick={() => handleViewBooking(booking)}
                       >
-                        <FaEye />
+                        <FaEye /> <span>View</span>
                       </button>
                       <button
                         className="btn-action btn-edit"
                         title="Edit Booking"
                         onClick={() => handleEditBooking(booking)}
                       >
-                        <FaEdit />
+                        <FaEdit /> <span>Edit</span>
                       </button>
                       <button
                         className="btn-action btn-delete"
                         title="Delete Booking"
                         onClick={() => handleDeleteBooking(booking._id)}
                       >
-                        <FaTrash />
+                        <FaTrash /> <span>Delete</span>
                       </button>
                     </div>
                   </td>
@@ -390,7 +392,7 @@ const BookingManagement = () => {
       )}
       {showBookingModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content booking-form-modal">
             <BookingFormFields
               bookingData={bookingFormData}
               formErrors={bookingFormErrors}
@@ -407,18 +409,27 @@ const BookingManagement = () => {
       )}
       {showDetailsModal && selectedBooking && (
         <div className="modal-overlay">
-          <div className="modal-content details-modal">
-            <h3>Booking Details</h3>
-            <div><strong>Booking ID:</strong> {selectedBooking._id}</div>
-            <div><strong>Tour:</strong> {selectedBooking.tour?.title || 'Deleted Tour'}</div>
-            <div><strong>Date:</strong> {new Date(selectedBooking.startDate).toLocaleDateString()}</div>
-            <div><strong>People:</strong> {selectedBooking.numberOfPeople}</div>
-            <div><strong>Status:</strong> {selectedBooking.status}</div>
-            <div><strong>Name:</strong> {selectedBooking.user?.name || selectedBooking.guestInfo?.name || ''}</div>
-            <div><strong>Email:</strong> {selectedBooking.user?.email || selectedBooking.guestInfo?.email || ''}</div>
-            <div><strong>Phone:</strong> {selectedBooking.user?.phone || selectedBooking.guestInfo?.phone || ''}</div>
-            <div><strong>Requests:</strong> {selectedBooking.specialRequests || 'None'}</div>
-            <button className="btn btn-secondary" onClick={handleCloseDetails}>Close</button>
+          <div className="modal-content details-modal booking-details-modal">
+            <div className="booking-details-header">
+              <h3>Booking Details</h3>
+              <button className="modal-close" onClick={handleCloseDetails}>
+                <FaTimesCircle />
+              </button>
+            </div>
+            <div className="booking-details-body">
+              <div className="info-item"><span className="info-label">Booking ID</span><span className="info-value">{selectedBooking._id}</span></div>
+              <div className="info-item"><span className="info-label">Tour</span><span className="info-value">{selectedBooking.tour?.title || 'Deleted Tour'}</span></div>
+              <div className="info-item"><span className="info-label">Date</span><span className="info-value">{new Date(selectedBooking.startDate).toLocaleDateString()}</span></div>
+              <div className="info-item"><span className="info-label">People</span><span className="info-value">{selectedBooking.numberOfPeople}</span></div>
+              <div className="info-item"><span className="info-label">Status</span><span className="info-value"><span className={`status-badge ${selectedBooking.status}`}>{selectedBooking.status}</span></span></div>
+              <div className="info-item"><span className="info-label">Name</span><span className="info-value">{selectedBooking.user?.name || selectedBooking.guestInfo?.name || ''}</span></div>
+              <div className="info-item"><span className="info-label">Email</span><span className="info-value">{selectedBooking.user?.email || selectedBooking.guestInfo?.email || ''}</span></div>
+              <div className="info-item"><span className="info-label">Phone</span><span className="info-value">{selectedBooking.user?.phone || selectedBooking.guestInfo?.phone || ''}</span></div>
+              <div className="info-item"><span className="info-label">Requests</span><span className="info-value">{selectedBooking.specialRequests || 'None'}</span></div>
+            </div>
+            <div className="form-actions">
+              <button className="btn btn-secondary" onClick={handleCloseDetails}>Close</button>
+            </div>
           </div>
         </div>
       )}

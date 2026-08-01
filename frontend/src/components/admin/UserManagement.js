@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import ConfirmationModal from '../common/ConfirmationModal';
 import { useAuth } from '../../context/AuthContext';
-import { 
+import {
   FaSearch,
   FaFilter,
   FaUserEdit,
@@ -12,16 +12,19 @@ import {
   FaUserCog,
   FaEnvelope,
   FaCalendarAlt,
-  FaShieldAlt
+  FaShieldAlt,
+  FaSyncAlt
 } from 'react-icons/fa';
 import { TableSkeleton } from './AdminSkeleton';
 import './AdminComponents.css';
+import './UserManagement.css';
 
 const UserManagement = () => {
   const { token } = useAuth();
   const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -133,6 +136,18 @@ const UserManagement = () => {
     setShowEditModal(false);
     setCurrentUser(null);
   };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchUsers();
+      toast.success('User data refreshed successfully!');
+    } catch (error) {
+      toast.error('Failed to refresh users. Please try again.');
+    } finally {
+      setRefreshing(false);
+    }
+  };
   
   const filteredUsers = users.filter(user => {
     const matchesSearch = 
@@ -160,11 +175,21 @@ const UserManagement = () => {
   }
   
   return (
-    <div className="admin-tab-content">
-      <div className="admin-content-header">
+    <div className="admin-tab-content user-management">
+      <div className="user-mgmt-header">
         <h2>User Management</h2>
+        <div className="user-mgmt-header-actions">
+          <button
+            className={`btn-icon-refresh ${refreshing ? 'refreshing' : ''}`}
+            onClick={handleRefresh}
+            disabled={refreshing}
+            title="Refresh user data"
+          >
+            <FaSyncAlt className={refreshing ? 'spin' : ''} />
+          </button>
+        </div>
       </div>
-      
+
       <div className="admin-filters">
         <div className="search-box">
           <FaSearch />
@@ -208,6 +233,7 @@ const UserManagement = () => {
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="col-index">#</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
@@ -218,8 +244,9 @@ const UserManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map(user => (
+              {filteredUsers.map((user, index) => (
                 <tr key={user._id}>
+                  <td className="col-index">{index + 1}</td>
                   <td>{user.name}</td>
                   <td>
                     <a href={`mailto:${user.email}`} className="user-email">
@@ -245,19 +272,20 @@ const UserManagement = () => {
                   <td>{user.bookingsCount || 0}</td>
                   <td>
                     <div className="action-buttons">
-                      <button 
-                        className="btn-action btn-edit" 
+                      <button
+                        className="btn-action btn-edit"
                         title="Edit User"
                         onClick={() => handleEditUser(user)}
                       >
-                        <FaUserEdit />
+                        <FaUserEdit /> <span>Edit</span>
                       </button>
-                      <button 
+                      <button
                         className={`btn-action ${user.isActive ? 'btn-delete' : 'btn-view'}`}
                         title={user.isActive ? 'Deactivate User' : 'Activate User'}
                         onClick={() => handleToggleStatusClick(user)}
                       >
                         {user.isActive ? <FaUserSlash /> : <FaUserCheck />}
+                        <span>{user.isActive ? 'Deactivate' : 'Activate'}</span>
                       </button>
                     </div>
                   </td>
@@ -275,12 +303,12 @@ const UserManagement = () => {
       {/* Edit User Modal */}
       {showEditModal && (
         <div className="modal-overlay">
-          <div className="modal-container">
+          <div className="modal-container user-form-modal">
             <div className="modal-header">
               <h3>Edit User</h3>
               <button className="close-modal" onClick={closeModal}>×</button>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
                 <label>Name</label>
@@ -292,7 +320,7 @@ const UserManagement = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Email</label>
                 <input
@@ -303,7 +331,7 @@ const UserManagement = () => {
                   required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Role</label>
                 <select
@@ -316,7 +344,7 @@ const UserManagement = () => {
                   <option value="admin">Admin</option>
                 </select>
               </div>
-              
+
               <div className="form-group checkbox-group">
                 <label>
                   <input
@@ -328,7 +356,7 @@ const UserManagement = () => {
                   Active Account
                 </label>
               </div>
-              
+
               <div className="modal-actions">
                 <button type="button" className="btn btn-outline" onClick={closeModal}>
                   Cancel

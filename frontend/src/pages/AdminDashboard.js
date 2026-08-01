@@ -10,7 +10,6 @@ import {
   FaChartLine,
   FaSignOutAlt,
   FaPlane,
-  FaStar,
   FaDollarSign,
   FaPassport,
   FaSearch,
@@ -42,24 +41,10 @@ const AdminDashboard = () => {
     totalCountries: 0,
     totalBookings: 0,
     recentBookings: [],
-    topTours: [],
     newUsersThisWeek: 0,
     newToursThisMonth: 0,
     newBookingsThisWeek: 0
   });
-
-  const [newBookingForm, setNewBookingForm] = useState({
-    customerName: '',
-    email: '',
-    phone: '',
-    tourId: '',
-    tourName: '',
-    date: '',
-    numberOfPeople: 1,
-    specialRequests: ''
-  });
-  
-  const [availableTours, setAvailableTours] = useState([]);
 
   useEffect(() => {
     fetchData();
@@ -143,74 +128,13 @@ const AdminDashboard = () => {
             .map(booking => ({
               _id: booking._id,
               customerName: booking.user?.name || booking.guestInfo?.name || booking.customerName || 'Unknown',
+              phone: booking.user?.phone || booking.guestInfo?.phone || booking.phone || 'N/A',
               tourName: booking.tour?.title || booking.tourName || 'Unknown Tour',
               date: booking.date || booking.createdAt || new Date(),
-              status: booking.status || 'Pending',
-              amount: booking.totalAmount || booking.amount || 0
+              status: booking.status || 'Pending'
             }))
         : [];
-      
-      // Calculate top tours based on bookings
-      const tourBookingCount = {};
-      const tourRatings = {};
-      const tourRevenue = {};
-      
-      if (Array.isArray(bookings)) {
-        bookings.forEach(booking => {
-          const tourId = booking.tour?._id || booking.tourId;
-          const tourName = booking.tour?.title || booking.tourName;
-          const amount = booking.totalAmount || booking.amount || 0;
-          
-          if (tourId && tourName) {
-            // Count bookings per tour
-            tourBookingCount[tourId] = (tourBookingCount[tourId] || 0) + 1;
-            
-            // Sum revenue per tour
-            tourRevenue[tourId] = (tourRevenue[tourId] || 0) + amount;
-            
-            // Store tour name for later use
-            if (!tourRatings[tourId]) {
-              tourRatings[tourId] = {
-                title: tourName,
-                totalRating: 0,
-                count: 0
-              };
-            }
-          }
-        });
-      }
-      
-      // Add ratings data if available in tours
-      // (Tour documents store this as `ratingsAverage`, not `rating`.)
-      if (Array.isArray(tours)) {
-        tours.forEach(tour => {
-          if (tour._id && tour.ratingsAverage) {
-            if (!tourRatings[tour._id]) {
-              tourRatings[tour._id] = {
-                title: tour.title,
-                totalRating: tour.ratingsAverage,
-                count: 1
-              };
-            } else {
-              tourRatings[tour._id].totalRating += tour.ratingsAverage;
-              tourRatings[tour._id].count += 1;
-            }
-          }
-        });
-      }
-      
-      // Create top tours array
-      const topTours = Object.keys(tourBookingCount)
-        .map(tourId => ({
-          _id: tourId,
-          title: tourRatings[tourId]?.title || 'Unknown Tour',
-          bookingsCount: tourBookingCount[tourId] || 0,
-          rating: tourRatings[tourId] ? (tourRatings[tourId].totalRating / tourRatings[tourId].count) : 0,
-          revenue: tourRevenue[tourId] || 0
-        }))
-        .sort((a, b) => b.bookingsCount - a.bookingsCount)
-        .slice(0, 5);
-      
+
       // Set the calculated stats
       setStats({
         totalUsers,
@@ -218,14 +142,10 @@ const AdminDashboard = () => {
         totalCountries,
         totalBookings,
         recentBookings,
-        topTours,
         newUsersThisWeek,
         newToursThisMonth,
         newBookingsThisWeek
       });
-      
-      // Set available tours for the new booking form
-      setAvailableTours(Array.isArray(tours) ? tours : []);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       toast.error('Failed to fetch dashboard statistics');
@@ -322,7 +242,7 @@ const AdminDashboard = () => {
     }
 
     return (
-      <div className="admin-tab-content">
+      <div className="admin-tab-content admin-dashboard-overview">
         <h2>Dashboard Overview</h2>
         <p className="dashboard-subtitle">
           Welcome back, {user?.name ? user.name.split(' ')[0] : 'Admin'}. Here's a summary of your travel ecosystem today.
@@ -399,18 +319,21 @@ const AdminDashboard = () => {
             <table className="admin-table recent-bookings-table">
               <thead>
                 <tr>
+                  <th>#</th>
                   <th>Customer</th>
+                  <th>Contact Number</th>
                   <th>Tour Package</th>
                   <th>Date</th>
                   <th>Status</th>
-                  <th>Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.recentBookings && stats.recentBookings.length > 0 ? (
-                  stats.recentBookings.map(booking => (
+                  stats.recentBookings.map((booking, index) => (
                     <tr key={booking._id}>
+                      <td>{index + 1}</td>
                       <td>{booking.customerName}</td>
+                      <td>{booking.phone}</td>
                       <td>{booking.tourName}</td>
                       <td>{new Date(booking.date).toLocaleDateString()}</td>
                       <td>
@@ -418,12 +341,11 @@ const AdminDashboard = () => {
                           {booking.status}
                         </span>
                       </td>
-                      <td>${booking.amount}</td>
                     </tr>
                   ))
                 ) : (
                   <tr className="empty-row">
-                    <td colSpan="5">
+                    <td colSpan="6">
                       <div className="empty-state">
                         <div className="empty-state-icon">
                           <FaInbox />
@@ -450,173 +372,6 @@ const AdminDashboard = () => {
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Popular Tours Section */}
-        <div className="recent-section">
-          <h3>Popular Tours</h3>
-          <div className="table-responsive">
-            {stats.topTours && stats.topTours.length > 0 ? (
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Tour</th>
-                    <th>Bookings</th>
-                    <th>Rating</th>
-                    <th>Revenue</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.topTours.map(tour => (
-                    <tr key={tour._id}>
-                      <td>{tour.title}</td>
-                      <td>{tour.bookingsCount}</td>
-                      <td>
-                        <div className="rating">
-                          <FaStar className="star" />
-                          <span>{tour.rating.toFixed(1)}</span>
-                        </div>
-                      </td>
-                      <td>${tour.revenue.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No tour data available.</p>
-            )}
-          </div>
-        </div>
-
-        {/* New Booking Section */}
-        <div className="recent-section">
-          <h3>Create New Booking</h3>
-          <div className="new-booking-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="customerName">Customer Name</label>
-                <input
-                  type="text"
-                  id="customerName"
-                  value={newBookingForm.customerName}
-                  onChange={(e) => setNewBookingForm({...newBookingForm, customerName: e.target.value})}
-                  placeholder="Enter customer name"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={newBookingForm.email}
-                  onChange={(e) => setNewBookingForm({...newBookingForm, email: e.target.value})}
-                  placeholder="Enter email address"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="phone">Phone</label>
-                <input
-                  type="text"
-                  id="phone"
-                  value={newBookingForm.phone}
-                  onChange={(e) => setNewBookingForm({...newBookingForm, phone: e.target.value})}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="tourSelect">Select Tour</label>
-                <select
-                  id="tourSelect"
-                  value={newBookingForm.tourId}
-                  onChange={(e) => {
-                    const selectedTour = availableTours.find(tour => tour._id === e.target.value);
-                    setNewBookingForm({
-                      ...newBookingForm, 
-                      tourId: e.target.value,
-                      tourName: selectedTour ? selectedTour.title : ''
-                    });
-                  }}
-                >
-                  <option value="">-- Select a Tour --</option>
-                  {Array.isArray(availableTours) && availableTours.length > 0 ? (
-                    availableTours.map(tour => (
-                      <option key={tour._id} value={tour._id}>{tour.title}</option>
-                    ))
-                  ) : (
-                    <option value="">No tours available</option>
-                  )}
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="date">Travel Date</label>
-                <input
-                  type="date"
-                  id="date"
-                  value={newBookingForm.date}
-                  onChange={(e) => setNewBookingForm({...newBookingForm, date: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="numberOfPeople">Number of People</label>
-                <input
-                  type="number"
-                  id="numberOfPeople"
-                  min="1"
-                  value={newBookingForm.numberOfPeople}
-                  onChange={(e) => setNewBookingForm({...newBookingForm, numberOfPeople: parseInt(e.target.value)})}
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="specialRequests">Special Requests</label>
-              <textarea
-                id="specialRequests"
-                value={newBookingForm.specialRequests}
-                onChange={(e) => setNewBookingForm({...newBookingForm, specialRequests: e.target.value})}
-                placeholder="Any special requests or requirements"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div className="form-actions">
-              <button 
-                className="btn btn-primary" 
-                onClick={() => {
-                  // In a real application, we would submit the form to the API
-                  // For now, just show a success message
-                  if (!newBookingForm.customerName || !newBookingForm.email || !newBookingForm.tourId || !newBookingForm.date) {
-                    toast.error('Please fill in all required fields');
-                    return;
-                  }
-                  
-                  toast.success('New booking created successfully!');
-                  // Reset the form
-                  setNewBookingForm({
-                    customerName: '',
-                    email: '',
-                    phone: '',
-                    tourId: '',
-                    tourName: '',
-                    date: '',
-                    numberOfPeople: 1,
-                    specialRequests: ''
-                  });
-                  
-                  // In a real application, we would refresh the bookings list
-                  // fetchDashboardStats();
-                }}
-              >
-                Create Booking
-              </button>
-            </div>
           </div>
         </div>
       </div>

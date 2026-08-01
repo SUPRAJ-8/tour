@@ -284,16 +284,21 @@ const WorkingVisaManagement = () => {
   };
 
   return (
-    <div className="admin-management-container">
-      <div className="admin-content-header">
+    <div className="admin-management-container working-visa-management">
+      <div className="visa-mgmt-header">
         <h2>Working Visa Management</h2>
-        <div className="header-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
-            <button onClick={handleAddNewClick} className="btn-primary">
-                <FaPlus /> Add New Visa Info
-            </button>
-            <button onClick={handleRefresh} className="btn-refresh" disabled={loading}>
-                <FaSyncAlt className={loading ? 'rotating' : ''} /> Refresh
-            </button>
+        <div className="visa-mgmt-header-actions">
+          <button
+            className={`btn-icon-refresh ${loading ? 'refreshing' : ''}`}
+            onClick={handleRefresh}
+            disabled={loading}
+            title="Refresh visa data"
+          >
+            <FaSyncAlt className={loading ? 'spin' : ''} />
+          </button>
+          <button onClick={handleAddNewClick} className="btn-create-visa">
+            <FaPlus /> Add New Visa Info
+          </button>
         </div>
       </div>
 
@@ -305,6 +310,7 @@ const WorkingVisaManagement = () => {
           <table className="admin-table">
             <thead>
               <tr>
+                <th className="col-index">#</th>
                 <th>Tour Package</th>
                 <th>Destination</th>
                 <th>Status</th>
@@ -313,8 +319,9 @@ const WorkingVisaManagement = () => {
             </thead>
             <tbody>
               {visas.length > 0 ? (
-                visas.map((visa) => (
+                visas.map((visa, index) => (
                   <tr key={visa._id}>
+                    <td className="col-index">{index + 1}</td>
                     <td>{visa.tourPackageName}</td>
                     <td>{Array.isArray(visa.destination) ? visa.destination.join(', ') : visa.destination}</td>
                     <td>
@@ -329,21 +336,21 @@ const WorkingVisaManagement = () => {
                           title="View Visa"
                           onClick={() => handleViewDetails(visa)}
                         >
-                          <FaEye />
+                          <FaEye /> <span>View</span>
                         </button>
                         <button
                           className="btn-action btn-edit"
                           title="Edit Visa"
                           onClick={() => handleEditClick(visa)}
                         >
-                          <FaEdit />
+                          <FaEdit /> <span>Edit</span>
                         </button>
                         <button
                           className="btn-action btn-delete"
                           title="Delete Visa"
                           onClick={() => handleDeleteClick(visa)}
                         >
-                          <FaTrash />
+                          <FaTrash /> <span>Delete</span>
                         </button>
                       </div>
                     </td>
@@ -351,7 +358,7 @@ const WorkingVisaManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4">No visa information found.</td>
+                  <td colSpan="5">No visa information found.</td>
                 </tr>
               )}
             </tbody>
